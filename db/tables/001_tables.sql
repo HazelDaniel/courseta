@@ -1,6 +1,7 @@
 DO
 $block$
 BEGIN
+  RAISE NOTICE '[SETUP]  TABLE: creating tables ...';
   DROP SCHEMA IF EXISTS courseta CASCADE;
   CREATE SCHEMA courseta;
   CREATE EXTENSION IF NOT EXISTS pgcrypto SCHEMA courseta;
@@ -186,6 +187,7 @@ BEGIN
     FOREIGN KEY (student_id) REFERENCES courseta.students(student_id) ON DELETE CASCADE,
     FOREIGN KEY (course_id) REFERENCES courseta.courses(course_id) ON DELETE CASCADE
   );
+  RAISE NOTICE '[SETUP]  TABLE: DONE creating tables.';
 
 END;
 $block$ LANGUAGE PLPGSQL
