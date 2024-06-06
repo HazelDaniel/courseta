@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+source ./.environment.zshrc
 
 for i in $(ls ./setup); do
 	psql -Utoughware -p5432 -hlocalhost -d postgres -f "./setup/$i";
