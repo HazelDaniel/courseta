@@ -14,14 +14,14 @@ BEGIN
     email VARCHAR(256),
     first_name VARCHAR(100),
     last_name VARCHAR(100),
-    role courseta.USER_ROLE_TYPE
+    role courseta.USER_ROLE_TYPE DEFAULT 'student'
   );
 
   CREATE TYPE courseta.RANK_TYPE AS ENUM('novice', 'amateur', 'senior', 'professional', 'master', 'legendary');
 
   CREATE TABLE IF NOT EXISTS courseta.students (
     student_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    xp_rank courseta.RANK_TYPE NOT NULL,
+    rank courseta.RANK_TYPE NOT NULL DEFAULT 'novice',
     user_id BIGINT NOT NULL,
     points SMALLINT NOT NULL DEFAULT 0,
     FOREIGN KEY(user_id) REFERENCES courseta.users(user_id) ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
@@ -35,7 +35,7 @@ BEGIN
   CREATE TABLE IF NOT EXISTS courseta.creators (
     creator_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     user_id BIGINT NOT NULL,
-    FOREIGN KEY(user_id) REFERENCES courseta.users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY(user_id) REFERENCES courseta.users(user_id) ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
     UNIQUE(user_id),
     CHECK (first_name IS NOT NULL),
     CHECK (last_name IS NOT NULL),
@@ -47,7 +47,7 @@ BEGIN
     course_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     title TEXT NOT NULL,
     lesson_count SMALLINT NOT NULL default 0,
-    description TEXT NOT NULL,
+    description TEXT NOT NULL DEFAULT 'no description provided',
     thumbnail TEXT,
     review_count INT NOT NULL DEFAULT 0,
     creator_id BIGINT NOT NULL,
@@ -104,7 +104,6 @@ BEGIN
     CHECK (pass_mark IS NOT NULL),
     CHECK (description IS NOT NULL),
     CHECK (total_points IS NOT NULL)
-
   ) INHERITS (courseta.assessments);
 
 
@@ -119,8 +118,6 @@ BEGIN
     CHECK (description IS NOT NULL),
     CHECK (total_points IS NOT NULL)
   ) INHERITS (courseta.assessments);
-
-
 
   CREATE TABLE IF NOT EXISTS courseta.questions (
     question_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
