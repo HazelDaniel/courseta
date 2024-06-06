@@ -1,0 +1,5 @@
+> make sure that the created_at fields cannot be overridden (since it can't be a generated column, use triggers to override it to the existing one)
+> make sure the confirm the cardinality and modality of the tables
+> whenever the inheriting tables are being inserted to, create a corresonding entry in the super class (using triggers), never explicitly create a super class instance,
+> create stored procedures for almost all application layer functions
+> create triggers

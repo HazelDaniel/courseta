@@ -1,0 +1,2 @@
+DROP DATABASE IF EXISTS courseta;
+CREATE DATABASE courseta;

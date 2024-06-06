@@ -1,0 +1,26 @@
+{
+  "name": "console",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/figlet": "^1.5.8",
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "figlet": "^1.7.0",
+    "inquirer": "^9.2.23"
+  },
+  "devDependencies": {
+    "@types/commander": "^2.12.2",
+    "@types/inquirer": "^9.0.7",
+    "nodemon": "^3.1.2"
+  }
+}

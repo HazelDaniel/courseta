@@ -1,0 +1,12 @@
+definitions:
+	N = page number navigated to
+	K = constant number of page numbers on a pagination
+
+	P = pivot position where the ellipsis will be sitting at (floor(K/2))
+
+algorithm:
+	- check if the page navigated to is a valid page
+		- if it is not, return
+	- check if N is on the pagination
+		- if yes, just navigate to N
+		- if no, 
