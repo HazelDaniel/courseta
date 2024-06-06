@@ -1,6 +1,7 @@
 DO
 $block$
 BEGIN
+  RAISE NOTICE '[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for user insertion.';
   CREATE OR REPLACE FUNCTION insert_student_equiv_user () RETURNS TRIGGER AS
   $block1$
     BEGIN
@@ -33,6 +34,7 @@ BEGIN
     INSERT INTO users (user_id) VALUES (creator_id);
   END;
   $block2$;
+  RAISE NOTICE '[SETUP]  PROCEDURE/FUNCTION: DONE setting up procedures/functions for user insertion.';
 
 END
 $block$ LANGUAGE PLPGSQL;
