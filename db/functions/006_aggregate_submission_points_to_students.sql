@@ -8,7 +8,7 @@ BEGIN
   DECLARE
     retake_count           INT;
     retake_points          INT;
-    tot_question_points        INT;
+    tot_question_points    INT;
   BEGIN
     SELECT INTO retake_count COUNT(*) FROM students__assessments
     WHERE student_id = NEW.student_id AND assessment_id = NEW.assessment_id
