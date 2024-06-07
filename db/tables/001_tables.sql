@@ -86,7 +86,7 @@ BEGIN
 
   CREATE TABLE IF NOT EXISTS courseta.assessments (
     assessment_id UUID PRIMARY KEY,
-    pass_mark SMALLINT,
+    pass_score SMALLINT,
     description VARCHAR(250),
     thumbnail TEXT,
     total_points INT DEFAULT 0
@@ -101,7 +101,7 @@ BEGIN
     assessment_id UUID NOT NULL,
     FOREIGN KEY (assessment_id) REFERENCES courseta.assessments(assessment_id) ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
     UNIQUE (assessment_id),
-    CHECK (pass_mark IS NOT NULL),
+    CHECK (pass_score IS NOT NULL),
     CHECK (description IS NOT NULL),
     CHECK (total_points IS NOT NULL)
   ) INHERITS (courseta.assessments);
@@ -114,7 +114,7 @@ BEGIN
     assessment_id UUID NOT NULL,
     FOREIGN KEY (assessment_id) REFERENCES courseta.assessments(assessment_id) ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
     UNIQUE (assessment_id),
-    CHECK (pass_mark IS NOT NULL),
+    CHECK (pass_score IS NOT NULL),
     CHECK (description IS NOT NULL),
     CHECK (total_points IS NOT NULL)
   ) INHERITS (courseta.assessments);
@@ -136,21 +136,14 @@ BEGIN
   );
 
   CREATE TABLE IF NOT EXISTS courseta.assessment_results (
+    assessment_result_id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     score SMALLINT NOT NULL,
-    attempted_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    attempted_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    assessment_id UUID NOT NULL,
+    FOREIGN KEY(assessment_id) REFERENCES courseta.assessments(assessment_id) ON DELETE CASCADE,
+    student_id BIGINT NOT NULL,
+    FOREIGN KEY(student_id) REFERENCES courseta.students(student_id) ON DELETE CASCADE
   );
-
-  CREATE TABLE IF NOT EXISTS courseta.exam_results (
-    exam_result_id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    exam_id UUID NOT NULL,
-    FOREIGN KEY (exam_id) REFERENCES courseta.exams(exam_id) ON DELETE CASCADE
-  ) INHERITS (courseta.assessment_results);
-
-  CREATE TABLE IF NOT EXISTS courseta.quiz_results (
-    quiz_result_id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    quiz_id UUID NOT NULL,
-    FOREIGN KEY (quiz_id) REFERENCES courseta.quizzes(quiz_id) ON DELETE CASCADE
-  ) INHERITS (courseta.assessment_results);
 
   CREATE TYPE courseta.AUDIENCE_TYPE AS ENUM ('public', 'creators', 'students');
 
@@ -162,28 +155,44 @@ BEGIN
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
   );
 
-  CREATE TABLE IF NOT EXISTS courseta.students__quizzes (
-    student_id BIGINT NOT NULL,
-    quiz_id UUID NOT NULL,
+  CREATE TABLE IF NOT EXISTS courseta.students__assessments (
+    student_id BIGINT,
+    assessment_id UUID,
+    submitted_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    total_points SMALLINT NOT NULL DEFAULT 0,
+    PRIMARY KEY(student_id, assessment_id, submitted_at),
     FOREIGN KEY (student_id) REFERENCES courseta.students(student_id) ON DELETE CASCADE,
-    FOREIGN KEY (quiz_id) REFERENCES courseta.quizzes(quiz_id) ON DELETE CASCADE
-  );
-
-  CREATE TABLE IF NOT EXISTS courseta.students__exams (
-    student_id BIGINT NOT NULL,
-    exam_id UUID NOT NULL,
-    attempted BOOLEAN NOT NULL DEFAULT 'false',
-    FOREIGN KEY (student_id) REFERENCES courseta.students(student_id) ON DELETE CASCADE,
-    FOREIGN KEY (exam_id) REFERENCES courseta.exams(exam_id) ON DELETE CASCADE
+    FOREIGN KEY (assessment_id) REFERENCES courseta.assessments(assessment_id) ON DELETE CASCADE
   );
 
   CREATE TABLE IF NOT EXISTS courseta.students__courses (
     student_id BIGINT NOT NULL,
     course_id BIGINT NOT NULL,
+    enrolled_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (student_id, course_id),
     FOREIGN KEY (student_id) REFERENCES courseta.students(student_id) ON DELETE CASCADE,
     FOREIGN KEY (course_id) REFERENCES courseta.courses(course_id) ON DELETE CASCADE
   );
+
+  CREATE TABLE IF NOT EXISTS courseta.students__questions (
+    student_id BIGINT NOT NULL,
+    question_id BIGINT NOT NULL,
+    answered_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    points_accumulated SMALLINT NOT NULL DEFAULT 0,
+    PRIMARY KEY (student_id, question_id),
+    FOREIGN KEY (student_id) REFERENCES courseta.students(student_id) ON DELETE CASCADE,
+    FOREIGN KEY (question_id) REFERENCES courseta.questions(question_id) ON DELETE CASCADE
+  );
+
+  CREATE TABLE IF NOT EXISTS courseta.students__answers (
+    student_id BIGINT NOT NULL,
+    answer_id BIGINT NOT NULL,
+    question_id BIGINT NOT NULL,
+    selected_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (student_id, question_id) REFERENCES courseta.students__questions(student_id, question_id) ON DELETE CASCADE,
+    FOREIGN KEY (answer_id) REFERENCES courseta.answers(answer_id) ON DELETE CASCADE
+  );
+
   RAISE NOTICE '[SETUP]  TABLE: DONE creating tables.';
 
 END;
