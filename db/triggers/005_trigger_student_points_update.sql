@@ -1,0 +1,13 @@
+DO
+$block$
+BEGIN
+  RAISE NOTICE '[SETUP]   TRIGGER: updating students.points update triggers...';
+  CREATE OR REPLACE TRIGGER trigger_student_points_update
+  AFTER INSERT
+  ON students__assessments
+  FOR EACH ROW
+  EXECUTE FUNCTION agg_assessment_submission_points_to_student();
+
+  RAISE NOTICE '[SETUP]   TRIGGER: DONE updating students.points update triggers...';
+END
+$block$ LANGUAGE PLPGSQL;
