@@ -45,6 +45,7 @@ BEGIN
     creator_id UUID NOT NULL,
     student_count INT NOT NULL DEFAULT 0,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    CHECK (EXTRACT(EPOCH FROM updated_at) - EXTRACT(EPOCH FROM created_at) >= 0),
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(creator_id) REFERENCES courseta.creators(creator_id) ON DELETE CASCADE
   );
@@ -68,7 +69,8 @@ BEGIN
     description VARCHAR(250),
     thumbnail TEXT,
     total_points INT DEFAULT 0,
-    question_count SMALLINT DEFAULT 0
+    question_count SMALLINT DEFAULT 0,
+    CHECK (pass_score < 100 AND pass_score > 0)
   );
 
   CREATE TABLE IF NOT EXISTS courseta.quizzes (
@@ -107,7 +109,8 @@ BEGIN
     end_date TIMESTAMPTZ NOT NULL,
     CHECK (pass_score IS NOT NULL),
     CHECK (description IS NOT NULL),
-    CHECK (total_points IS NOT NULL)
+    CHECK (total_points IS NOT NULL),
+    CHECK (EXTRACT(EPOCH FROM end_date) - EXTRACT(EPOCH FROM start_date) > 0)
   ) INHERITS (courseta.assessments);
 
   CREATE TABLE IF NOT EXISTS courseta.questions (
