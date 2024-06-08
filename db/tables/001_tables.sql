@@ -32,6 +32,7 @@ BEGIN
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     course_review_count INT NOT NULL DEFAULT 0,
+    student_count INT NOT NULL DEFAULT 0,
     role courseta.USER_ROLE_TYPE NOT NULL DEFAULT 'creator' CHECK (role = 'creator')
   );
 
