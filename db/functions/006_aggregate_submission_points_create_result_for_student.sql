@@ -60,6 +60,7 @@ BEGIN
   RAISE NOTICE '<[SETUP]  PROCEDURE/FUNCTION: DONE setting up procedures/functions for update on the assessment_results.score.';
 
   RAISE NOTICE '<[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for creation of the assessment_results.';
+
   CREATE OR REPLACE FUNCTION insert_equiv_assessment_result
   (student_id UUID, assessment_id UUID, time_attempted TIMESTAMPTZ)
   RETURNS UUID

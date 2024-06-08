@@ -14,6 +14,7 @@ BEGIN
   );
 
   CREATE TYPE courseta.RANK_TYPE AS ENUM('novice', 'amateur', 'senior', 'professional', 'master', 'legendary');
+  -- rank_map {novice: 0, amateur: 200, senior: 1000, professional: 10000, master: 150000, legendary: 3000000}
 
   CREATE TABLE IF NOT EXISTS courseta.students (
     student_id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -108,7 +109,6 @@ BEGIN
     CHECK (description IS NOT NULL),
     CHECK (total_points IS NOT NULL)
   ) INHERITS (courseta.assessments);
-
 
   CREATE TABLE IF NOT EXISTS courseta.questions (
     question_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
