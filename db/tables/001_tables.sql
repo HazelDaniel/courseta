@@ -130,7 +130,7 @@ BEGIN
     student_id UUID NOT NULL,
     assessment_id UUID NOT NULL,
     submitted_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    total_points SMALLINT NOT NULL DEFAULT 0,
+    total_points_accumulated SMALLINT NOT NULL DEFAULT 0,
     PRIMARY KEY(student_id, assessment_id, submitted_at),
     FOREIGN KEY (student_id) REFERENCES courseta.students(student_id) ON DELETE CASCADE,
     FOREIGN KEY (assessment_id) REFERENCES courseta.assessments(assessment_id) ON DELETE CASCADE
