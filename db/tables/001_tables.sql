@@ -34,7 +34,9 @@ BEGIN
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     password TEXT NOT NULL,
+    creator_pass TEXT NOT NULL DEFAULT gen_random_uuid()::TEXT,
     UNIQUE(email),
+    UNIQUE(creator_pass),
     course_review_count INT NOT NULL DEFAULT 0,
     student_count INT NOT NULL DEFAULT 0,
     role courseta.USER_ROLE_TYPE NOT NULL DEFAULT 'creator' CHECK (role = 'creator')
