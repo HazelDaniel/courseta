@@ -1,0 +1,11 @@
+-- DO
+-- $block$
+-- BEGIN
+--   RAISE NOTICE '[SETUP]   VIEW: setting up the current_student view ...';
+
+--   CREATE VIEW courseta.current_student AS (
+--     SELECT * FROM courseta.students 
+--   );
+--   RAISE NOTICE '[SETUP]   VIEW: setting up the current_student view.';
+-- END
+-- $block$ LANGUAGE PLPGSQL;
