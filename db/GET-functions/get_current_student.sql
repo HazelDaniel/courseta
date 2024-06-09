@@ -1,20 +1,19 @@
 DO
 $block$
 BEGIN
-  RAISE NOTICE '[SETUP]   QUERY FUNCTION: setting up the get_current_student function ...';
+  RAISE NOTICE '[SETUP]   (GET) FUNCTION: setting up the get_current_student function ...';
 
-  CREATE OR REPLACE FUNCTION get_current_student (email TEXT) RETURNS RECORD AS
+  CREATE OR REPLACE FUNCTION get_current_student (email_ TEXT) RETURNS
+  TABLE (student_id UUID, rank courseta.RANK_TYPE, points INT, email VARCHAR, role courseta.USER_ROLE_TYPE)
+  AS
   $block1$
-  DECLARE
-    student_field RECORD;
   BEGIN
-    SELECT INTO student_field uuid id, rank, points, email, role FROM students
-    WHERE email = email;
-
-    RETURN student_field;
+    RETURN QUERY SELECT students.student_id, students.rank, students.points, students.email, students.role
+    FROM courseta.students
+    WHERE students.email = email_;
   END;
   $block1$ LANGUAGE PLPGSQL;
 
-  RAISE NOTICE '[SETUP]   QUERY FUNCTION: DONE setting up the get_current_student function.';
+  RAISE NOTICE '[SETUP]   (GET) FUNCTION: DONE setting up the get_current_student function.';
 END
 $block$ LANGUAGE PLPGSQL;
