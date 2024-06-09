@@ -11,7 +11,7 @@ BEGIN
   $block1$ LANGUAGE PLPGSQL;
 
 
-  CREATE OR REPLACE PROCEDURE insert_user_with_student_id (student_id BIGINT)
+  CREATE OR REPLACE PROCEDURE insert_user_with_student_id (student_id UUID)
   LANGUAGE PLPGSQL AS
   $block2$
   BEGIN
@@ -27,7 +27,7 @@ BEGIN
     END;
   $block3$ LANGUAGE PLPGSQL;
 
-  CREATE OR REPLACE PROCEDURE insert_user_with_creator_id (creator_id BIGINT)
+  CREATE OR REPLACE PROCEDURE insert_user_with_creator_id (creator_id UUID)
   LANGUAGE PLPGSQL AS
   $block2$
   BEGIN
