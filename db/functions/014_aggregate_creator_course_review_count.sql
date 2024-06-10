@@ -9,6 +9,7 @@ BEGIN
     IF NEW.review_count <> OLD.review_count THEN
       CALL update_course_review_equiv_creator_count(NEW.creator_id);
     END IF;
+    RETURN NEW;
   END;
   $block1$ LANGUAGE PLPGSQL;
 
