@@ -10,14 +10,14 @@ BEGIN
     END;
   $block1$ LANGUAGE PLPGSQL;
 
-
-  CREATE OR REPLACE PROCEDURE insert_assessment_with_exam_id (exam_id UUID)
+  CREATE OR REPLACE PROCEDURE insert_assessment_with_exam_id (exam_id UUID, assessment_type courseta.ASSESSMENT_TYPE)
   LANGUAGE PLPGSQL AS
   $block2$
   BEGIN
-    INSERT INTO assessments (assessment_id) VALUES (exam_id);
+    INSERT INTO assessments (assessment_id, assessment_type) VALUES (exam_id, assessment_type);
   END;
   $block2$;
+
 
   CREATE OR REPLACE FUNCTION insert_quiz_equiv_assessment () RETURNS TRIGGER AS
   $block3$
