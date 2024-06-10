@@ -51,6 +51,7 @@ BEGIN
     review_count INT NOT NULL DEFAULT 0,
     creator_id UUID NOT NULL,
     student_count INT NOT NULL DEFAULT 0,
+    quiz_count SMALLINT NOT NULL DEFAULT 0,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     CHECK (EXTRACT(EPOCH FROM updated_at) - EXTRACT(EPOCH FROM created_at) >= 0),
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -70,33 +71,37 @@ BEGIN
     FOREIGN KEY(student_id) REFERENCES courseta.students(student_id) ON DELETE CASCADE
   );
 
+  CREATE TYPE courseta.ASSESSMENT_TYPE AS ENUM('exam', 'quiz');
+
   CREATE TABLE IF NOT EXISTS courseta.assessments (
     assessment_id UUID PRIMARY KEY,
     pass_score SMALLINT NOT NULL,
     description VARCHAR(250),
+    assessment_type courseta.ASSESSMENT_TYPE NOT NULL DEFAULT 'quiz',
     thumbnail TEXT,
     total_points INT DEFAULT 0,
     question_count SMALLINT DEFAULT 0,
     CHECK (pass_score < 100 AND pass_score > 0)
   );
 
-  CREATE TABLE IF NOT EXISTS courseta.quizzes (
-    quiz_id UUID DEFAULT gen_random_uuid() PRIMARY KEY, 
-    CHECK (pass_score IS NOT NULL),
-    CHECK (description IS NOT NULL),
-    CHECK (total_points IS NOT NULL)
-  ) INHERITS (courseta.assessments);
-
   CREATE TABLE IF NOT EXISTS courseta.lessons (
     lesson_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     title VARCHAR(100) NOT NULL,
     course_id BIGINT NOT NULL,
     content_count SMALLINT NOT NULL DEFAULT 0,
-    total_duration SMALLINT NOT NULL DEFAULT 0, -- TODO: make a trigger for this one
-    quiz_id UUID, -- a lesson doesn't need to have a quiz
-    FOREIGN KEY(quiz_id) REFERENCES courseta.quizzes(quiz_id) ON DELETE SET NULL,
+    total_duration SMALLINT NOT NULL DEFAULT 0,
     FOREIGN KEY(course_id) REFERENCES courseta.courses(course_id) ON DELETE CASCADE
   );
+
+  CREATE TABLE IF NOT EXISTS courseta.quizzes (
+    quiz_id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    lesson_id BIGINT NOT NULL,
+    CHECK (pass_score IS NOT NULL),
+    CHECK (description IS NOT NULL),
+    CHECK (total_points IS NOT NULL),
+    UNIQUE(lesson_id),
+    FOREIGN KEY(lesson_id) REFERENCES courseta.lessons(lesson_id) ON DELETE CASCADE
+  ) INHERITS (courseta.assessments);
 
   CREATE TYPE courseta.LESSON_CONTENT_TYPE AS ENUM('video', 'text');
 
@@ -178,6 +183,7 @@ BEGIN
     student_id UUID NOT NULL,
     course_id BIGINT NOT NULL,
     enrolled_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    progress SMALLINT NOT NULL DEFAULT 0 CHECK (progress <= 100 AND progress >= 0),
     PRIMARY KEY (student_id, course_id),
     FOREIGN KEY (student_id) REFERENCES courseta.students(student_id) ON DELETE CASCADE,
     FOREIGN KEY (course_id) REFERENCES courseta.courses(course_id) ON DELETE CASCADE
