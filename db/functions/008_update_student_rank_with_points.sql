@@ -9,12 +9,13 @@ BEGIN
     IF NEW.points != OLD.points THEN
       CALL select_student_rank_update_with_points(NEW.points, NEW.student_id);
     END IF;
+		RETURN NEW;
   END;
   $block1$ LANGUAGE PLPGSQL;
 
 
   CREATE OR REPLACE PROCEDURE select_student_rank_update_with_points
-  (student_points INT, student_id UUID) LANGUAGE PLPGSQL AS
+  (student_points INT, student_id_ UUID) LANGUAGE PLPGSQL AS
   $block2$
   BEGIN
     UPDATE students SET rank =
@@ -25,7 +26,7 @@ BEGIN
     WHEN student_points >= 10000 AND student_points < 150000 THEN 'professional'
     WHEN student_points >= 150000 AND student_points < 3000000 THEN 'master'
     WHEN student_points >= 3000000 THEN 'legendary'
-    END) WHERE student_id = student_id;
+    END) WHERE student_id = student_id_;
   END;
   $block2$;
 
