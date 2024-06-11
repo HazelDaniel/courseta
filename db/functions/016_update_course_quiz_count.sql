@@ -19,11 +19,12 @@ BEGIN
   DECLARE
     course_id_var       BIGINT;
   BEGIN
-    SELECT INTO course_id_var course_id FROM (SELECT lessons.lesson_id FROM courseta.lessons
-    JOIN courseta.courses ON (course_id)
-    WHERE lesson_id = lesson_id_) AS RES;
+    SELECT INTO course_id_var courses.course_id FROM courseta.lessons
+    JOIN courseta.courses USING (course_id)
+    WHERE lessons.lesson_id = lesson_id_;
 
-    UPDATE courseta.courses SET quiz_count = quiz_count + 1 WHERE course_id = course_id_var;
+    UPDATE courseta.courses SET quiz_count = quiz_count + 1
+		WHERE courses.course_id = course_id_var;
   END;
   $block2$;
 
@@ -36,7 +37,7 @@ BEGIN
   $block1$
     BEGIN
       CALL decrease_quiz_count_for_course(OLD.lesson_id);
-      RETURN NEW;
+      RETURN OLD;
     END;
   $block1$ LANGUAGE PLPGSQL;
 
@@ -48,9 +49,10 @@ BEGIN
   BEGIN
     SELECT INTO course_id_var course_id FROM (SELECT lessons.lesson_id FROM courseta.lessons
     JOIN courseta.courses ON (course_id)
-    WHERE lesson_id = lesson_id_) AS RES;
+    WHERE lessons.lesson_id = lesson_id_) AS RES;
 
-    UPDATE courseta.courses SET quiz_count = quiz_count - 1 WHERE course_id = course_id_var;
+    UPDATE courseta.courses SET quiz_count = quiz_count - 1
+		WHERE courses.course_id = course_id_var;
   END;
   $block2$;
 
