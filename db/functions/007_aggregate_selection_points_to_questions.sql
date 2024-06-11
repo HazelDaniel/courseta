@@ -13,16 +13,19 @@ BEGIN
   BEGIN
     SELECT INTO correct_answers_picked COUNT(*) FROM students__answers
     JOIN answers USING(answer_id) 
-    WHERE selected_at = NEW.answered_at AND student_id = NEW.student_id AND
-    question_id = NEW.question_id AND is_correct = 'true';
+    WHERE students__answers.selected_at = NEW.answered_at
+		AND students__answers.student_id = NEW.student_id
+		AND answers.question_id = NEW.question_id AND answers.is_correct = 'true';
 
     SELECT INTO wrong_answers_picked COUNT(*) FROM students__answers
     JOIN answers USING(answer_id)
-    WHERE selected_at = NEW.answered_at AND student_id = NEW.student_id AND
-    question_id = NEW.question_id AND is_correct = 'false';
+    WHERE students__answers.selected_at = NEW.answered_at
+		AND students__answers.student_id = NEW.student_id
+		AND answers.question_id = NEW.question_id AND answers.is_correct = 'false';
 
-    SELECT INTO answers_correct COUNT(*) FROM answers WHERE question_id = NEW.question_id
-    AND is_correct = 'true';
+    SELECT INTO answers_correct COUNT(*) FROM answers
+		WHERE answers.question_id = NEW.question_id
+    AND answers.is_correct = 'true';
 
     tot_points := GREATEST((correct_answers_picked - wrong_answers_picked), 0) / answers_correct;
     NEW.points_accumulated = tot_points;
