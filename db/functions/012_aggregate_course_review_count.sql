@@ -9,15 +9,16 @@ BEGIN
   $block1$
   BEGIN
     CALL add_review_equiv_course_count(NEW.course_id);
+		RETURN NEW;
   END;
   $block1$ LANGUAGE PLPGSQL;
 
   CREATE OR REPLACE PROCEDURE add_review_equiv_course_count
-  (course_id BIGINT) LANGUAGE PLPGSQL AS
+  (course_id_ BIGINT) LANGUAGE PLPGSQL AS
   $block2$
   BEGIN
-    UPDATE courses SET review_count = (review_count + 1)
-    WHERE course_id = course_id;
+    UPDATE courseta.courses SET review_count = review_count + 1
+    WHERE courses.course_id = course_id_;
   END;
   $block2$;
 
@@ -30,15 +31,16 @@ BEGIN
   $block1$
   BEGIN
     CALL subtract_review_equiv_course_count(OLD.course_id);
+		RETURN OLD;
   END;
   $block1$ LANGUAGE PLPGSQL;
 
   CREATE OR REPLACE PROCEDURE subtract_review_equiv_course_count
-  (course_id BIGINT) LANGUAGE PLPGSQL AS
+  (course_id_ BIGINT) LANGUAGE PLPGSQL AS
   $block2$
   BEGIN
-    UPDATE courses SET review_count = (review_count - 1)
-    WHERE course_id = course_id;
+    UPDATE courseta.courses SET review_count = review_count - 1
+    WHERE courses.course_id = course_id_;
   END;
   $block2$;
 
