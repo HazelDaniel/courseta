@@ -6,16 +6,16 @@ BEGIN
   $block1$
     BEGIN
       CALL delete_assessment_with_exam_id(OLD.exam_id);
-      RETURN NEW;
+      RETURN OLD;
     END;
   $block1$ LANGUAGE PLPGSQL;
 
 
-  CREATE OR REPLACE PROCEDURE delete_assessment_with_exam_id (exam_id UUID)
+  CREATE OR REPLACE PROCEDURE delete_assessment_with_exam_id (exam_id_ UUID)
   LANGUAGE PLPGSQL AS
   $block2$
   BEGIN
-    DELETE FROM assessments WHERE assessment_id = exam_id;
+    DELETE FROM assessments WHERE assessments.assessment_id = exam_id_;
   END;
   $block2$;
 
@@ -23,15 +23,15 @@ BEGIN
   $block3$
     BEGIN
       CALL delete_assessment_with_quiz_id(OLD.quiz_id);
-      RETURN NEW;
+      RETURN OLD;
     END;
   $block3$ LANGUAGE PLPGSQL;
 
-  CREATE OR REPLACE PROCEDURE delete_assessment_with_quiz_id (quiz_id UUID)
+  CREATE OR REPLACE PROCEDURE delete_assessment_with_quiz_id (quiz_id_ UUID)
   LANGUAGE PLPGSQL AS
   $block2$
   BEGIN
-    DELETE FROM assessments WHERE assessment_id = quiz_id;
+    DELETE FROM assessments WHERE assessments.assessment_id = quiz_id_;
   END;
   $block2$;
 
