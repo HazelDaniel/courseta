@@ -9,15 +9,16 @@ BEGIN
   $block1$
   BEGIN
     CALL add_lesson_equiv_course_count(NEW.course_id);
+		RETURN NEW;
   END;
   $block1$ LANGUAGE PLPGSQL;
 
   CREATE OR REPLACE PROCEDURE add_lesson_equiv_course_count
-  (course_id BIGINT) LANGUAGE PLPGSQL AS
+  (course_id_ BIGINT) LANGUAGE PLPGSQL AS
   $block2$
   BEGIN
     UPDATE courses SET lesson_count = (lesson_count + 1)
-    WHERE course_id = course_id;
+    WHERE courses.course_id = course_id_;
   END;
   $block2$;
 
@@ -30,15 +31,16 @@ BEGIN
   $block1$
   BEGIN
     CALL subtract_lesson_equiv_course_count(OLD.course_id);
+		RETURN OLD;
   END;
   $block1$ LANGUAGE PLPGSQL;
 
   CREATE OR REPLACE PROCEDURE subtract_lesson_equiv_course_count
-  (course_id BIGINT) LANGUAGE PLPGSQL AS
+  (course_id_ BIGINT) LANGUAGE PLPGSQL AS
   $block2$
   BEGIN
     UPDATE courses SET lesson_count = (lesson_count - 1)
-    WHERE course_id = course_id;
+    WHERE courses.course_id = course_id_;
   END;
   $block2$;
 
