@@ -9,8 +9,11 @@ BEGIN
   DECLARE
     tot_student_count         INT;
   BEGIN
-    SELECT INTO tot_student_count COALESCE(SUM(student_count), 0) FROM courses WHERE courses.creator_id = creator_id;
-    UPDATE creators SET student_count = tot_student_count WHERE creators.creator_id = creator_id_;
+    SELECT INTO tot_student_count COALESCE(SUM(student_count), 0) FROM courses
+		WHERE courses.creator_id = creator_id_;
+
+    UPDATE creators SET student_count = tot_student_count
+		WHERE creators.creator_id = creator_id_;
   END;
   $block2$;
 
@@ -20,6 +23,9 @@ BEGIN
     IF NEW.student_count <> OLD.student_count THEN
       CALL update_student_equiv_creator_count(NEW.creator_id);
     END IF;
+		IF TG_OP = 'DELETE' THEN
+			RETURN OLD;
+		END IF;
     RETURN NEW;
   END;
   $block1$ LANGUAGE PLPGSQL;
