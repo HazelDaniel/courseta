@@ -18,7 +18,7 @@ BEGIN
   $block2$
   BEGIN
     UPDATE courses SET student_count = (student_count + 1)
-    WHERE course_id = course_id_;
+    WHERE courses.course_id = course_id_;
   END;
   $block2$;
 
@@ -31,15 +31,16 @@ BEGIN
   $block1$
   BEGIN
     CALL subtract_student_equiv_course_count(OLD.course_id);
+		RETURN OLD;
   END;
   $block1$ LANGUAGE PLPGSQL;
 
   CREATE OR REPLACE PROCEDURE subtract_student_equiv_course_count
-  (course_id BIGINT) LANGUAGE PLPGSQL AS
+  (course_id_ BIGINT) LANGUAGE PLPGSQL AS
   $block2$
   BEGIN
     UPDATE courses SET student_count = (student_count - 1)
-    WHERE course_id = course_id;
+    WHERE courses.course_id = course_id_;
   END;
   $block2$;
 
