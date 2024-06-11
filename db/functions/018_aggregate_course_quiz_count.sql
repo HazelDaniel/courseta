@@ -9,6 +9,7 @@ BEGIN
   $block1$
   BEGIN
     CALL add_quiz_equiv_course_count(NEW.quiz_id);
+		RETURN NEW;
   END;
   $block1$ LANGUAGE PLPGSQL;
 
@@ -23,7 +24,8 @@ BEGIN
     JOIN courses USING (course_id)
     WHERE quizzes.quiz_id = quiz_id_;
 
-    UPDATE courses SET quiz_count = (quiz_count + 1) WHERE course_id = equiv_course_id;
+    UPDATE courses SET quiz_count = (quiz_count + 1)
+		WHERE courses.course_id = equiv_course_id;
   END;
   $block2$;
 
@@ -36,6 +38,7 @@ BEGIN
   $block1$
   BEGIN
     CALL subtract_quiz_equiv_lesson_count(OLD.quiz_id);
+		RETURN OLD;
   END;
   $block1$ LANGUAGE PLPGSQL;
 
@@ -50,7 +53,8 @@ BEGIN
     JOIN courses USING (course_id)
     WHERE quizzes.quiz_id = quiz_id_;
 
-    UPDATE courses SET quiz_count = (quiz_count - 1) WHERE course_id = equiv_course_id;
+    UPDATE courses SET quiz_count = (quiz_count - 1)
+		WHERE courses.course_id = equiv_course_id;
   END;
   $block2$;
 
