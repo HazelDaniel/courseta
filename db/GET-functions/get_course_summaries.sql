@@ -8,14 +8,12 @@ BEGIN
     title TEXT,
     lesson_count SMALLINT,
     thumbnail TEXT,
-    progress SMALLINT
+    course_id BIGINT
   ) AS
   $block1$
   BEGIN
-    RETURN QUERY SELECT courses.title, courses.lesson_count, courses.thumbnail,
-    students__courses.progress
-    FROM courseta.courses
-    LEFT JOIN courseta.students__courses USING (course_id);
+    RETURN QUERY SELECT courses.title, courses.lesson_count, courses.thumbnail, courses.course_id
+    FROM courseta.courses;
   END;
   $block1$ LANGUAGE PLPGSQL;
 
