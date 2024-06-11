@@ -6,16 +6,16 @@ BEGIN
   $block1$
     BEGIN
       CALL delete_user_with_student_id(OLD.student_id);
-      RETURN NEW;
+      RETURN OLD;
     END;
   $block1$ LANGUAGE PLPGSQL;
 
 
-  CREATE OR REPLACE PROCEDURE delete_user_with_student_id (student_id BIGINT)
+  CREATE OR REPLACE PROCEDURE delete_user_with_student_id (student_id UUID)
   LANGUAGE PLPGSQL AS
   $block2$
   BEGIN
-    DELETE FROM users WHERE user_id = student_id;
+    DELETE FROM users WHERE users.user_id = student_id;
   END;
   $block2$;
 
@@ -23,15 +23,15 @@ BEGIN
   $block3$
     BEGIN
       CALL delete_user_with_creator_id(OLD.creator_id);
-      RETURN NEW;
+      RETURN OLD;
     END;
   $block3$ LANGUAGE PLPGSQL;
 
-  CREATE OR REPLACE PROCEDURE delete_user_with_creator_id (creator_id BIGINT)
+  CREATE OR REPLACE PROCEDURE delete_user_with_creator_id (creator_id UUID)
   LANGUAGE PLPGSQL AS
   $block2$
   BEGIN
-    DELETE FROM users WHERE user_id = creator_id;
+    DELETE FROM users WHERE users.user_id = creator_id;
   END;
   $block2$;
 
