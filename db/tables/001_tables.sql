@@ -62,12 +62,13 @@ BEGIN
   CREATE TYPE courseta.REVIEW_RATING AS ENUM('1', '2', '3', '4', '5');
 
   CREATE TABLE IF NOT EXISTS courseta.reviews (
-    review_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    review_id BIGINT GENERATED ALWAYS AS IDENTITY,
     review_text VARCHAR(250),
     rating courseta.REVIEW_RATING NOT NULL,
     course_id BIGINT NOT NULL,
     student_id UUID NOT NULL,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (student_id, course_id),
     FOREIGN KEY(course_id) REFERENCES courseta.courses(course_id) ON DELETE CASCADE,
     FOREIGN KEY(student_id) REFERENCES courseta.students(student_id) ON DELETE CASCADE
   );
