@@ -7,16 +7,24 @@ BEGIN
   VOID AS
   $block1$
   DECLARE
-    enrolled          SMALLINT;
+    student_review_occurrence        SMALLINT;
+    student_enroll_occurrence        SMALLINT;
   BEGIN
-    SELECT INTO enrolled COUNT(*) FROM courseta.students__courses
-    WHERE students__courses.student_id = student_id_;
+    SELECT INTO student_review_occurrence COUNT(*) FROM courseta.reviews
+    WHERE reviews.student_id = student_id_
+    AND reviews.course_id = course_id_;
 
-    IF enrolled >= 1 THEN
+    SELECT INTO student_enroll_occurrence COUNT (*) FROM courseta.students__courses
+    WHERE student_id = student_id_
+    AND course_id = course_id_;
+
+    IF student_enroll_occurrence >= 1 AND student_review_occurrence <= 1 THEN
       INSERT INTO courseta.reviews(student_id, course_id, rating)
-      VALUES (student_id_, course_id_, rating_);
+      VALUES (student_id_, course_id_, rating_)
+      ON CONFLICT (student_id, course_id) DO UPDATE
+      SET rating = EXCLUDED.rating, review_text = EXCLUDED.review_text;
     ELSE
-      RAISE NOTICE 'this student cannot make review. please enroll first!';
+      RAISE EXCEPTION 'this student cannot make review!';
     END IF;
   END;
   $block1$ LANGUAGE PLPGSQL;
