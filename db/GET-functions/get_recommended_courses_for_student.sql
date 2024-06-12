@@ -16,18 +16,32 @@ BEGIN
   BEGIN
     SELECT INTO enrolled_courses_tags COALESCE(aggregate_enrolled_course_tags_for_student(student_id_), ARRAY[]::VARCHAR[]);
 
-    RAISE NOTICE 'enrolled courses tags are : %', enrolled_courses_tags;
+    RAISE NOTICE '[debug]: enrolled courses tags are : %', enrolled_courses_tags;
 
-    -- TODO: make this a distinct seletion based on the id field
-    RETURN QUERY SELECT
-    DISTINCT ON (courses.course_id) courses.title, courses.lesson_count, courses.thumbnail, courses.course_id
+    RETURN QUERY
+    (WITH recommended_courses AS
+    (SELECT
+    DISTINCT ON (courses.course_id) courses.title, courses.lesson_count, courses.thumbnail, courses.course_id, students__courses.enrolled_at created_at
     FROM courseta.students__courses
     JOIN courseta.courses USING (course_id)
     JOIN courseta.reviews USING (course_id)
     WHERE students__courses.student_id <> student_id_
     AND reviews.rating >= '4'
-    AND courses.tags && enrolled_courses_tags
-    ORDER BY courses.course_id,  courses.created_at AT TIME ZONE('UTC') DESC;
+    AND courses.tags && enrolled_courses_tags),
+    student_enrolled_courses AS
+    (SELECT
+    DISTINCT ON (courses.course_id) courses.course_id
+    FROM courseta.students__courses
+    JOIN courseta.courses USING (course_id)
+    JOIN courseta.reviews USING (course_id)
+    WHERE students__courses.student_id = student_id_
+    )
+    SELECT
+      rc.title, rc.lesson_count, rc.thumbnail, rc.course_id
+    FROM recommended_courses rc
+    LEFT JOIN student_enrolled_courses sec USING (course_id)
+    WHERE sec.course_id IS NULL
+    ORDER BY rc.course_id, rc.created_at AT TIME ZONE('UTC') DESC);
   END;
   $block1$ LANGUAGE PLPGSQL;
 
