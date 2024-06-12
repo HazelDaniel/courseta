@@ -2,7 +2,6 @@
 \x
 \set courseta_var_creator_id_1 2aac9187-e2e9-4326-9c0b-920bfa0143b4
 \set courseta_var_creator_id_2 47621eb8-08e0-42d4-87cb-8efac5676290
-
 \set courseta_var_student_id_1 9ae767db-0a13-4cea-8d1f-99c25fa831f6
 \set courseta_var_student_id_2 a69c1374-d4ef-4644-a791-fd8b6601aa8c
 \set courseta_var_student_id_3 a69c1304-d4af-4644-c082-fd8b6601aa8d
@@ -35,7 +34,6 @@ VALUES ('fintech course', 'this is a fintech course', 0, :'courseta_var_creator_
 
 SELECT enroll_student_to_course(:'courseta_var_student_id_1', 1);
 SELECT enroll_student_to_course(:'courseta_var_student_id_1', 2);
-SELECT enroll_student_to_course(:'courseta_var_student_id_1', 3);
 
 SELECT enroll_student_to_course(:'courseta_var_student_id_2', 3);
 
@@ -47,23 +45,20 @@ UPDATE courses SET tags = '{course}'::TEXT[] WHERE course_id = 3;
 UPDATE courses SET tags = '{course, blockchain}'::TEXT[] WHERE course_id = 2;
 
 
+SELECT * FROM courses;
 
 SELECT review_course_for_student(:'courseta_var_student_id_1', 1, '5');
-SELECT review_course_for_student(:'courseta_var_student_id_1', 1, '2');
-SELECT review_course_for_student(:'courseta_var_student_id_1', 1, '3');
-SELECT review_course_for_student(:'courseta_var_student_id_1', 3, '3');
+SELECT review_course_for_student(:'courseta_var_student_id_1', 1, '5');
+SELECT review_course_for_student(:'courseta_var_student_id_1', 1, '5');
+SELECT review_course_for_student(:'courseta_var_student_id_1', 2, '1');
 
-SELECT review_course_for_student(:'courseta_var_student_id_1', 2, '5');
-SELECT review_course_for_student(:'courseta_var_student_id_2', 2, '5');
-SELECT review_course_for_student(:'courseta_var_student_id_3', 2, '5');
+SELECT review_course_for_student(:'courseta_var_student_id_2', 2, '1');
+SELECT review_course_for_student(:'courseta_var_student_id_2', 1, '3');
 
-SELECT review_course_for_student(:'courseta_var_student_id_3', 3, '2');
+SELECT review_course_for_student(:'courseta_var_student_id_3', 2, '1');
+SELECT review_course_for_student(:'courseta_var_student_id_3', 2, '1');
+SELECT review_course_for_student(:'courseta_var_student_id_3', 3, '1');
 
--- SELECT * FROM courses;
--- DELETE FROM students WHERE student_id = :'courseta_var_student_id_1';
+DELETE FROM students WHERE student_id = :'courseta_var_student_id_1';
 
-
-\echo 'recommended courses:'
-SELECT * FROM get_recommended_courses_for_student(:'courseta_var_student_id_1');
-SELECT * FROM get_recommended_courses_for_student(:'courseta_var_student_id_2');
-SELECT * FROM get_recommended_courses_for_student(:'courseta_var_student_id_3');
+SELECT * FROM courses;

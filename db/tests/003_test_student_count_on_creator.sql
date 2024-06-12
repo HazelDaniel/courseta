@@ -11,7 +11,7 @@ INSERT INTO creators (email, first_name, last_name, password, creator_id)
 VALUES ('hazel856@gmail.com', 'hazel', 'daniel', '8080', :'courseta_var_creator_id_1') ON CONFLICT DO NOTHING;
 
 INSERT INTO creators (email, first_name, last_name, password, creator_id)
-VALUES ('creator2hazel856@gmail.com', '2hazel', '2daniel', '28080', :'courseta_var_creator_id_2') ON CONFLICT DO NOTHING;
+VALUES ('creator2hazel856@gmail.com', 'hazel2', 'daniel2', '8088800', :'courseta_var_creator_id_2') ON CONFLICT DO NOTHING;
 
 INSERT INTO students (email, first_name, last_name, password, student_id)
 VALUES ('studenthazel@gmail.com', 'studenthazel1', 'daniel', '28080', :'courseta_var_student_id_1') ON CONFLICT DO NOTHING;
@@ -20,50 +20,31 @@ INSERT INTO students (email, first_name, last_name, password, student_id)
 VALUES ('studenthazel2@gmail.com', 'studenthazel2', 'daniel2', '280fs80', :'courseta_var_student_id_2') ON CONFLICT DO NOTHING;
 
 INSERT INTO students (email, first_name, last_name, password, student_id)
-VALUES ('studenthazel3@gmail.com', 'studenthazel3', 'daniel3', '2803s80', :'courseta_var_student_id_3') ON CONFLICT DO NOTHING;
-
-TRUNCATE TABLE courseta.courses CASCADE;
+VALUES ('studenthazel3@gmail.com', 'studenthazel3', 'daniel3', '380f380', :'courseta_var_student_id_3') ON CONFLICT DO NOTHING;
 
 INSERT INTO courses (title, description, review_count, creator_id)
 VALUES ('new course', 'this is a new course', 0, :'courseta_var_creator_id_1') ON CONFLICT DO NOTHING;
 
 INSERT INTO courses (title, description, review_count, creator_id)
-VALUES ('blockchain course', 'this is a blockchain course', 0, :'courseta_var_creator_id_1') ON CONFLICT DO NOTHING;
+VALUES ('blockchain course', 'this is a blockchain course', 0, :'courseta_var_creator_id_2') ON CONFLICT DO NOTHING;
 
 INSERT INTO courses (title, description, review_count, creator_id)
 VALUES ('fintech course', 'this is a fintech course', 0, :'courseta_var_creator_id_1') ON CONFLICT DO NOTHING;
 
 SELECT enroll_student_to_course(:'courseta_var_student_id_1', 1);
 SELECT enroll_student_to_course(:'courseta_var_student_id_1', 2);
-SELECT enroll_student_to_course(:'courseta_var_student_id_1', 3);
 
 SELECT enroll_student_to_course(:'courseta_var_student_id_2', 3);
 
 SELECT enroll_student_to_course(:'courseta_var_student_id_3', 2);
-SELECT enroll_student_to_course(:'courseta_var_student_id_3', 3);
+SELECT enroll_student_to_course(:'courseta_var_student_id_1', 3);
 
-UPDATE courses SET tags = '{course, programming}'::TEXT[] WHERE course_id = 1;
-UPDATE courses SET tags = '{course}'::TEXT[] WHERE course_id = 3;
-UPDATE courses SET tags = '{course, blockchain}'::TEXT[] WHERE course_id = 2;
+SELECT * FROM creators;
 
-
-
-SELECT review_course_for_student(:'courseta_var_student_id_1', 1, '5');
-SELECT review_course_for_student(:'courseta_var_student_id_1', 1, '2');
-SELECT review_course_for_student(:'courseta_var_student_id_1', 1, '3');
-SELECT review_course_for_student(:'courseta_var_student_id_1', 3, '3');
-
-SELECT review_course_for_student(:'courseta_var_student_id_1', 2, '5');
-SELECT review_course_for_student(:'courseta_var_student_id_2', 2, '5');
-SELECT review_course_for_student(:'courseta_var_student_id_3', 2, '5');
-
-SELECT review_course_for_student(:'courseta_var_student_id_3', 3, '2');
-
--- SELECT * FROM courses;
+-- DELETE FROM students WHERE student_id = :'courseta_var_student_id_3';
 -- DELETE FROM students WHERE student_id = :'courseta_var_student_id_1';
 
-
-\echo 'recommended courses:'
-SELECT * FROM get_recommended_courses_for_student(:'courseta_var_student_id_1');
-SELECT * FROM get_recommended_courses_for_student(:'courseta_var_student_id_2');
-SELECT * FROM get_recommended_courses_for_student(:'courseta_var_student_id_3');
+DELETE FROM students WHERE student_id = '2a8c9187-e2e9-43b6-9c0b-920bfa0143ce';
+DELETE FROM students WHERE student_id = '2a8c9187-e2e9-43b6-9c0b-920bfa0143ce';
+SELECT * FROM creators;
+SELECT COUNT(*) all_student_count FROM students;
