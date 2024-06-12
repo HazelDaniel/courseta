@@ -9,8 +9,15 @@ BEGIN
   DECLARE
     tot_student_count         INT;
   BEGIN
-    SELECT INTO tot_student_count COALESCE(SUM(student_count), 0) FROM courses
-		WHERE courses.creator_id = creator_id_;
+    RAISE NOTICE '[debug]: getting student counts for creator';
+
+    SELECT INTO tot_student_count COUNT (*) FROM (
+      SELECT DISTINCT ON (students__courses.student_id) COUNT(*)
+      FROM courseta.students__courses
+      JOIN courseta.courses USING (course_id)
+      WHERE courses.creator_id = creator_id_
+      GROUP BY students__courses.student_id
+    ) AS RES;
 
     UPDATE creators SET student_count = tot_student_count
 		WHERE creators.creator_id = creator_id_;
