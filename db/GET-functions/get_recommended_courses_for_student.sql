@@ -41,7 +41,8 @@ BEGIN
     FROM recommended_courses rc
     LEFT JOIN student_enrolled_courses sec USING (course_id)
     WHERE sec.course_id IS NULL
-    ORDER BY rc.course_id, rc.created_at AT TIME ZONE('UTC') DESC);
+    ORDER BY rc.course_id, rc.created_at AT TIME ZONE('UTC') DESC
+    LIMIT 10);
   END;
   $block1$ LANGUAGE PLPGSQL;
 
