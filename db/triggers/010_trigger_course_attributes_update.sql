@@ -58,7 +58,14 @@ BEGIN
   RAISE NOTICE '<[SETUP]   TRIGGER: DONE updating course.review_count addition triggers ...';
 
 
-  RAISE NOTICE '<[SETUP]   TRIGGER: updating course.lesson_count deduction triggers ...';
+  RAISE NOTICE '<[SETUP]   TRIGGER: updating course.quiz_count and course.lesson_count deduction triggers ...';
+
+
+  CREATE OR REPLACE TRIGGER trigger_course_quiz_count_removal
+  BEFORE DELETE
+  ON lessons
+  FOR EACH ROW
+  EXECUTE FUNCTION remove_equiv_quiz_count_from_course();
 
   CREATE OR REPLACE TRIGGER trigger_course_lesson_count_removal
   AFTER DELETE
@@ -66,7 +73,7 @@ BEGIN
   FOR EACH ROW
   EXECUTE FUNCTION remove_lesson_count_from_course();
 
-  RAISE NOTICE '<[SETUP]   TRIGGER: DONE updating course.lesson_count deduction triggers ...';
+  RAISE NOTICE '<[SETUP]   TRIGGER: DONE updating course.quiz_count and course.lesson_count deduction triggers ...';
 
 
   RAISE NOTICE '<[SETUP]   TRIGGER: updating course.progress update triggers ...';
@@ -93,7 +100,7 @@ BEGIN
   RAISE NOTICE '<[SETUP]   TRIGGER: updating course.quiz_count decrement triggers ...';
 
   CREATE OR REPLACE TRIGGER trigger_course_quiz_count_decrement
-  AFTER DELETE
+  BEFORE DELETE
   ON quizzes
   FOR EACH ROW
   EXECUTE FUNCTION remove_quiz_count_from_course();
