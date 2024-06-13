@@ -9,7 +9,6 @@ BEGIN
   DECLARE
     tot_student_count         INT;
   BEGIN
-    RAISE NOTICE '[debug]: getting student counts for creator';
 
     SELECT INTO tot_student_count COUNT (*) FROM (
       SELECT DISTINCT ON (students__courses.student_id) COUNT(*)
