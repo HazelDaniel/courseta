@@ -14,7 +14,7 @@ BEGIN
   $block1$ LANGUAGE PLPGSQL;
 
   CREATE OR REPLACE PROCEDURE add_quiz_equiv_course_count
-  (quiz_id_ BIGINT) LANGUAGE PLPGSQL AS
+  (quiz_id_ UUID) LANGUAGE PLPGSQL AS
   $block2$
   DECLARE
     equiv_course_id       BIGINT;
@@ -43,18 +43,27 @@ BEGIN
   $block1$ LANGUAGE PLPGSQL;
 
   CREATE OR REPLACE PROCEDURE subtract_quiz_equiv_lesson_count
-  (quiz_id_ BIGINT) LANGUAGE PLPGSQL AS
+  (quiz_id_ UUID) LANGUAGE PLPGSQL AS
   $block2$
   DECLARE
     equiv_course_id       BIGINT;
+    equiv_lesson_id       BIGINT;
   BEGIN
-    SELECT INTO equiv_course_id course_id FROM quizzes
-    JOIN lessons USING (lesson_id)
-    JOIN courses USING (course_id)
+    SELECT INTO equiv_course_id courses.course_id
+    FROM courseta.quizzes
+    JOIN courseta.lessons USING (lesson_id)
+    JOIN courseta.courses USING (course_id)
     WHERE quizzes.quiz_id = quiz_id_;
 
-    UPDATE courses SET quiz_count = (quiz_count - 1)
-		WHERE courses.course_id = equiv_course_id;
+    SELECT INTO equiv_lesson_id lessons.lesson_id
+    FROM courseta.quizzes
+    JOIN courseta.lessons USING (lesson_id)
+    WHERE quizzes.quiz_id = quiz_id_;
+
+    IF equiv_lesson_id IS NOT NULL AND equiv_course_id IS NOT NULL THEN
+      UPDATE courses SET quiz_count = (quiz_count - 1)
+      WHERE courses.course_id = equiv_course_id;
+    END IF;
   END;
   $block2$;
 
