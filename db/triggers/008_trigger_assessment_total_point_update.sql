@@ -3,6 +3,12 @@ $block$
 BEGIN
   RAISE NOTICE '[SETUP]   TRIGGER: updating assessments.total_points update triggers ...';
 
+  CREATE OR REPLACE TRIGGER trigger_assesment_total_score_update
+  AFTER UPDATE
+  ON questions
+  FOR EACH ROW
+  EXECUTE FUNCTION update_points_and_question_count_on_assessment();
+
   RAISE NOTICE '<[SETUP]   TRIGGER: updating assessments.total_points addition triggers ...';
 
   CREATE OR REPLACE TRIGGER trigger_assesment_total_score_addition
@@ -17,7 +23,7 @@ BEGIN
   RAISE NOTICE '<[SETUP]   TRIGGER: updating assessments.total_points deletion triggers ...';
 
   CREATE OR REPLACE TRIGGER trigger_assesment_total_score_deletion
-  AFTER DELETE
+  BEFORE DELETE
   ON questions
   FOR EACH ROW
   EXECUTE FUNCTION remove_points_and_question_count_from_assessment();
