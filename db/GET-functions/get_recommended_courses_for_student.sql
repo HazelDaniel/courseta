@@ -16,8 +16,6 @@ BEGIN
   BEGIN
     SELECT INTO enrolled_courses_tags COALESCE(aggregate_enrolled_course_tags_for_student(student_id_), ARRAY[]::VARCHAR[]);
 
-    RAISE NOTICE '[debug]: enrolled courses tags are : %', enrolled_courses_tags;
-
     RETURN QUERY
     (WITH recommended_courses AS
     (SELECT
