@@ -25,8 +25,12 @@ BEGIN
     WITH last_answers_agg_list AS (
     SELECT ROW_NUMBER() OVER (PARTITION BY question_id ORDER BY updated_at DESC), *
     FROM students__answers
+    JOIN students__questions USING (question_id)
+    JOIN questions USING (question_id)
     WHERE students__answers.student_id = NEW.student_id
-    AND students__answers.selected_at = NEW.answered_at)
+    AND students__answers.selected_at = NEW.answered_at
+    AND questions.assessment_id = equiv_assessment_id
+    )
 
     SELECT INTO last_answers_agg_points COALESCE(SUM(points_gained), 0)
     FROM last_answers_agg_list
