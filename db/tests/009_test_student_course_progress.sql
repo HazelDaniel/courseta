@@ -62,7 +62,7 @@ SELECT enroll_student_to_course(:'courseta_var_student_id_1', 1);
 SELECT enroll_student_to_course(:'courseta_var_student_id_1', 2);
 
 SELECT enroll_student_to_course(:'courseta_var_student_id_2', 3);
--- SELECT enroll_student_to_course(:'courseta_var_student_id_2', 1);
+SELECT enroll_student_to_course(:'courseta_var_student_id_2', 1);
 
 SELECT enroll_student_to_course(:'courseta_var_student_id_3', 2);
 SELECT enroll_student_to_course(:'courseta_var_student_id_3', 3);
@@ -176,7 +176,7 @@ INSERT INTO students__assessments (student_id, assessment_id, submitted_at)
 VALUES (:'courseta_var_student_id_2', :'courseta_var_quiz_id_1', :'courseta_var_submission_time'::timestamp);
 
 \echo 'checking students__assessments.total_points_accumulated before attempting an assessment';
-2ELECT * FROM students__assessments WHERE student_id = :'courseta_var_student_id_2';
+SELECT * FROM students__assessments WHERE student_id = :'courseta_var_student_id_2';
 
 \echo 'answering questions';
 INSERT INTO students__questions (student_id, question_id, answered_at)
