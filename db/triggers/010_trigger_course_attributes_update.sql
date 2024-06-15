@@ -78,8 +78,8 @@ BEGIN
 
   RAISE NOTICE '<[SETUP]   TRIGGER: updating course.progress update triggers ...';
 
-  CREATE OR REPLACE TRIGGER trigger_course_progress_update
-  AFTER INSERT
+  CREATE OR REPLACE TRIGGER trigger_02_course_progress_update
+  AFTER UPDATE
   ON students__assessments
   FOR EACH ROW
   EXECUTE FUNCTION update_equiv_course_progress();
