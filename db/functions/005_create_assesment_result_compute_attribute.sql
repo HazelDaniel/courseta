@@ -21,7 +21,9 @@ BEGIN
 		AND students__assessments.assessment_id = assessment_id_;
 
     SELECT INTO tot_points total_points
-    FROM assessments WHERE assessments.assessment_id = assessment_id_;
+    FROM ONLY assessments WHERE assessments.assessment_id = assessment_id_;
+
+    RAISE NOTICE '[debug]: accumulated points / total points = % / %', acc_points::NUMERIC , tot_points::NUMERIC;
 
     res := ((acc_points::NUMERIC / tot_points::NUMERIC) * 100);
 
