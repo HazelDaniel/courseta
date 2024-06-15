@@ -146,6 +146,7 @@ BEGIN
     assessment_id UUID NOT NULL,
     submitted_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     total_points_accumulated SMALLINT NOT NULL DEFAULT 0,
+    waiting BOOLEAN NOT NULL DEFAULT 'true',
     PRIMARY KEY(student_id, assessment_id, submitted_at),
     FOREIGN KEY (student_id) REFERENCES courseta.students(student_id) ON DELETE CASCADE,
     FOREIGN KEY (assessment_id) REFERENCES courseta.assessments(assessment_id) ON DELETE CASCADE
@@ -157,7 +158,7 @@ BEGIN
     attempted_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     student_id UUID NOT NULL,
     assessment_id UUID NOT NULL,
-    UNIQUE (attempted_at),
+    UNIQUE (student_id, assessment_id, attempted_at),
     FOREIGN KEY(student_id, assessment_id, attempted_at) REFERENCES courseta.students__assessments(student_id, assessment_id, submitted_at) ON DELETE CASCADE
   );
 
@@ -194,7 +195,7 @@ BEGIN
     question_id BIGINT NOT NULL,
     answered_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     points_accumulated SMALLINT NOT NULL DEFAULT 0,
-    PRIMARY KEY (student_id, question_id),
+    PRIMARY KEY (student_id, question_id, answered_at),
     FOREIGN KEY (student_id) REFERENCES courseta.students(student_id) ON DELETE CASCADE,
     FOREIGN KEY (question_id) REFERENCES courseta.questions(question_id) ON DELETE CASCADE
   );
@@ -204,7 +205,10 @@ BEGIN
     answer_id BIGINT NOT NULL,
     question_id BIGINT NOT NULL,
     selected_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (student_id, question_id) REFERENCES courseta.students__questions(student_id, question_id) ON DELETE CASCADE,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    points_gained SMALLINT NOT NULL DEFAULT 0,
+    PRIMARY KEY (student_id, answer_id, selected_at),
+    FOREIGN KEY (student_id, question_id, selected_at) REFERENCES courseta.students__questions(student_id, question_id, answered_at) ON DELETE CASCADE,
     FOREIGN KEY (answer_id) REFERENCES courseta.answers(answer_id) ON DELETE CASCADE
   );
 
