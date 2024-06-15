@@ -20,12 +20,12 @@ BEGIN
   BEGIN
     UPDATE students SET rank =
     (CASE
-    WHEN student_points >= 0 AND student_points < 200 THEN 'novice'
-    WHEN student_points >= 200 AND student_points < 1000 THEN 'amateur'
-    WHEN student_points >= 1000 AND student_points < 10000 THEN 'senior'
-    WHEN student_points >= 10000 AND student_points < 150000 THEN 'professional'
-    WHEN student_points >= 150000 AND student_points < 3000000 THEN 'master'
-    WHEN student_points >= 3000000 THEN 'legendary'
+    WHEN student_points >= 0 AND student_points < 200 THEN 'novice'::courseta.RANK_TYPE
+    WHEN student_points >= 200 AND student_points < 1000 THEN 'amateur'::courseta.RANK_TYPE
+    WHEN student_points >= 1000 AND student_points < 10000 THEN 'senior'::courseta.RANK_TYPE
+    WHEN student_points >= 10000 AND student_points < 150000 THEN 'professional'::courseta.RANK_TYPE
+    WHEN student_points >= 150000 AND student_points < 3000000 THEN 'master'::courseta.RANK_TYPE
+    WHEN student_points >= 3000000 THEN 'legendary'::courseta.RANK_TYPE
     END) WHERE student_id = student_id_;
   END;
   $block2$;
