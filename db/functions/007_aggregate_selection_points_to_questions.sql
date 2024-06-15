@@ -10,25 +10,54 @@ BEGIN
     wrong_answers_picked             SMALLINT;
     answers_correct                  SMALLINT;
     tot_points                       SMALLINT;
+    precise_tot_points                NUMERIC;
+    question_points                  SMALLINT;
   BEGIN
     SELECT INTO correct_answers_picked COUNT(*) FROM students__answers
     JOIN answers USING(answer_id) 
-    WHERE students__answers.selected_at = NEW.answered_at
+    WHERE students__answers.selected_at = NEW.selected_at
 		AND students__answers.student_id = NEW.student_id
-		AND answers.question_id = NEW.question_id AND answers.is_correct = 'true';
+		AND answers.question_id = NEW.question_id
+    AND answers.is_correct = 'true';
 
     SELECT INTO wrong_answers_picked COUNT(*) FROM students__answers
     JOIN answers USING(answer_id)
-    WHERE students__answers.selected_at = NEW.answered_at
+    WHERE students__answers.selected_at = NEW.selected_at
 		AND students__answers.student_id = NEW.student_id
-		AND answers.question_id = NEW.question_id AND answers.is_correct = 'false';
+		AND answers.question_id = NEW.question_id
+    AND answers.is_correct = 'false';
 
     SELECT INTO answers_correct COUNT(*) FROM answers
 		WHERE answers.question_id = NEW.question_id
     AND answers.is_correct = 'true';
 
-    tot_points := GREATEST((correct_answers_picked - wrong_answers_picked), 0) / answers_correct;
-    NEW.points_accumulated = tot_points;
+    SELECT INTO question_points questions.points
+    FROM courseta.questions WHERE question_id = NEW.question_id;
+
+
+    -- IF YOU FIND A WAY TO DEAL WITH questions with no correct options
+    -- precise_tot_points :=
+    -- CASE
+    -- WHEN answers_correct = 0 AND correct_answers_picked + wrong_answers_picked = 0
+    -- THEN question_points
+    -- WHEN answers_correct = 0
+    -- THEN 0
+    -- ELSE (ROUND((GREATEST((correct_answers_picked - wrong_answers_picked)::NUMERIC, 0) / answers_correct)::NUMERIC * question_points, 2)) END;
+
+    precise_tot_points := ROUND((GREATEST((correct_answers_picked - wrong_answers_picked)::NUMERIC, 0) / answers_correct)::NUMERIC * question_points, 2);
+
+    tot_points := precise_tot_points::INTEGER;
+
+    UPDATE students__answers
+    SET points_gained = tot_points, updated_at = CURRENT_TIMESTAMP
+    WHERE students__answers.answer_id = NEW.answer_id
+    AND students__answers.student_id = NEW.student_id
+    AND students__answers.selected_at = NEW.selected_at;
+
+    UPDATE students__questions SET
+    points_accumulated = tot_points
+    WHERE students__questions.question_id = NEW.question_id
+    AND students__questions.answered_at = NEW.selected_at;
 
     RETURN NEW;
   END;
