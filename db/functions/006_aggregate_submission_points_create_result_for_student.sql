@@ -3,31 +3,42 @@ $block$
 BEGIN
   RAISE NOTICE '[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for update on the students.points column.';
 
+  CREATE OR REPLACE FUNCTION deduct_student_existing_points (student_id_ UUID, assessment_id_ UUID, submitted_at_ TIMESTAMPTZ) RETURNS VOID AS
+  $block1$
+  DECLARE
+    retake_points          INT DEFAULT 0;
+  BEGIN
+    SELECT INTO retake_points COALESCE(SUM(total_points_accumulated), 0)
+    FROM students__assessments
+		WHERE students__assessments.student_id = student_id_
+		AND students__assessments.assessment_id = assessment_id_
+    AND students__assessments.submitted_at <> submitted_at_;
+
+
+    UPDATE students SET points = (points - retake_points)
+    WHERE students.student_id = student_id_; -- deducting existing retake points from the students points
+  END;
+  $block1$ LANGUAGE PLPGSQL;
+
+    -- TODO: this should be triggered once or always re-computed otherwise
   CREATE OR REPLACE FUNCTION agg_assessment_submission_points_to_student () RETURNS TRIGGER AS
   $block1$
   DECLARE
-    retake_points          INT;
-    tot_question_points    INT;
-    gen_result_id          UUID;
+    gen_result_id                   UUID;
   BEGIN
-    SELECT INTO retake_points COALESCE(SUM(total_points_accumulated), 0) FROM students__assessments
-		WHERE students__assessments.student_id = NEW.student_id
-		AND students__assessments.assessment_id = NEW.assessment_id
-    AND students__assessments.submitted_at <> NEW.submitted_at;
+    IF NEW.waiting = OLD.waiting THEN
+      RETURN NEW; -- don't do anything further if the assessment submission is not past the waiting state
+    END IF;
 
-    UPDATE students SET points = (points - retake_points)
-    WHERE students.student_id = NEW.student_id; -- deducting existing retake points from the students points
+    PERFORM deduct_student_existing_points(NEW.student_id, NEW.assessment_id, NEW.submitted_at);
 
-    SELECT INTO tot_question_points COALESCE(SUM(points_accumulated), 0) FROM students__questions
-    JOIN questions USING (question_id)
-    WHERE questions.assessment_id = NEW.assessment_id AND questions.answered_at = NEW.submitted_at
-    AND students__questions.student_id = NEW.student_id;
+    RAISE NOTICE '[debug]: WE ARE AGGREGATING STUDENT POINTS FROM ASSESSMENT SUBMISSION';
 
-    NEW.total_points_accumulated = tot_question_points;
-    UPDATE students SET points = points + tot_question_points
+    UPDATE students SET points = points + NEW.total_points_accumulated
 		WHERE students.student_id = NEW.student_id;
     -- we should create a corresponding assessment result here
-    gen_result_id := insert_equiv_assessment_result(NEW.student_id, NEW.assessment_id, NEW.submitted_at);
+
+    gen_result_id := upsert_equiv_assessment_result(NEW.student_id, NEW.assessment_id, NEW.submitted_at);
     CALL update_score_on_assessment_result(NEW.student_id, NEW.assessment_id, NEW.submitted_at, gen_result_id);
 
     RETURN NEW;
