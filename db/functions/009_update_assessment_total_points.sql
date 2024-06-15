@@ -7,6 +7,7 @@ BEGIN
   (assessment_id_ UUID, new_point INT) LANGUAGE PLPGSQL AS
   $block2$
   BEGIN
+    RAISE NOTICE '[debug]: updating with the new point: %', new_point;
     UPDATE assessments SET total_points = (total_points + new_point)
 		WHERE assessments.assessment_id = assessment_id_;
   END;
@@ -26,6 +27,7 @@ BEGIN
   (assessment_id_ UUID, new_point INT) LANGUAGE PLPGSQL AS
   $block2$
   BEGIN
+    RAISE NOTICE '[debug]: adding with the new point: %', new_point;
     UPDATE assessments SET total_points = (total_points + new_point),
     question_count = (question_count + 1)
 		WHERE assessments.assessment_id = assessment_id_;
@@ -40,16 +42,6 @@ BEGIN
 		RETURN NEW;
   END;
   $block1$ LANGUAGE PLPGSQL;
-
-  CREATE OR REPLACE PROCEDURE add_question_equiv_assessment_points_and_count
-  (assessment_id_ UUID, new_point INT) LANGUAGE PLPGSQL AS
-  $block2$
-  BEGIN
-    UPDATE assessments SET total_points = (total_points + new_point),
-    question_count = (question_count + 1)
-		WHERE assessments.assessment_id = assessment_id_;
-  END;
-  $block2$;
 
   RAISE NOTICE '<[SETUP]  PROCEDURE/FUNCTION: DONE setting up procedures/functions for addition to the assessment.total_points.';
 
