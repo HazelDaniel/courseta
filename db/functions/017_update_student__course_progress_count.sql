@@ -50,7 +50,13 @@ BEGIN
     FROM courseta.courses WHERE
     course_id = course_entry.course_id;
 
-    precise_progress := (attempt_count::NUMERIC / COALESCE(NULLIF(quiz_count_, 0), attempt_count)) * 100;
+    RAISE NOTICE '[debug]: attempt count is : %', attempt_count;
+
+    CASE WHEN attempt_count = 0
+    THEN precise_progress := 0;
+    ELSE
+      precise_progress := (attempt_count::NUMERIC / COALESCE(NULLIF(quiz_count_, 0), attempt_count)) * 100;
+    END CASE;
 
 
     UPDATE courseta.students__courses SET progress = progress + precise_progress
