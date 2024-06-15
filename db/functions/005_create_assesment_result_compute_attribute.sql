@@ -23,9 +23,9 @@ BEGIN
     SELECT INTO tot_points total_points
     FROM assessments WHERE assessments.assessment_id = assessment_id_;
 
-    res := ((acc_points / tot_points) * 100)::INT;
+    res := ((acc_points::NUMERIC / tot_points::NUMERIC) * 100);
 
-    UPDATE assessment_results SET score = res
+    UPDATE assessments_results SET score = res
 		WHERE attempted_at = time_attempted
     AND assessments_results.student_id = student_id_ AND assessments_results.assessment_id = assessment_id_;
   END;
@@ -35,7 +35,7 @@ BEGIN
 
   RAISE NOTICE '<[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for creation of assessment_result.';
 
-  CREATE OR REPLACE FUNCTION insert_equiv_assessment_result
+  CREATE OR REPLACE FUNCTION upsert_equiv_assessment_result
   (student_id_ UUID, assessment_id_ UUID, time_attempted TIMESTAMPTZ)
   RETURNS UUID
   AS
@@ -43,8 +43,10 @@ BEGIN
   DECLARE
     res           UUID;
   BEGIN
-    INSERT INTO assessment_results (student_id, assessment_id, submitted_at)
-    VALUES (student_id_, assessment_id_, time_attempted) RETURNING asessment_result_id INTO res;
+    INSERT INTO assessments_results (student_id, assessment_id, attempted_at, score)
+    VALUES (student_id_, assessment_id_, time_attempted, 0)
+    ON CONFLICT DO NOTHING
+    RETURNING assessment_result_id INTO res;
 
     RETURN res;
   END;
