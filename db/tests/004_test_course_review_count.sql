@@ -45,7 +45,7 @@ UPDATE courses SET tags = '{course}'::TEXT[] WHERE course_id = 3;
 UPDATE courses SET tags = '{course, blockchain}'::TEXT[] WHERE course_id = 2;
 
 
-SELECT * FROM courses;
+-- SELECT * FROM courses;
 
 SELECT review_course_for_student(:'courseta_var_student_id_1', 1, '5');
 SELECT review_course_for_student(:'courseta_var_student_id_1', 1, '5');
@@ -61,4 +61,5 @@ SELECT review_course_for_student(:'courseta_var_student_id_3', 3, '1');
 
 DELETE FROM students WHERE student_id = :'courseta_var_student_id_1';
 
-SELECT * FROM courses;
+-- SELECT * FROM courses;
+SELECT * FROM creators;

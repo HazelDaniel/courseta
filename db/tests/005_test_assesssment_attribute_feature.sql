@@ -117,10 +117,10 @@ SELECT question_count, description, total_points FROM quizzes;
 
 INSERT INTO exams (assessment_id, exam_id, pass_score, description, duration, start_date, end_date, assessment_type)
 VALUES (:'courseta_var_exam_id_1', :'courseta_var_exam_id_1', 80, 'an exam quiz', 200,
-'2020-08-04 04:03:37.808+02'::TIMESTAMPTZ, '2020-08-04 05:03:37.808+02'::TIMESTAMPTZ, 'exam');
+'2020-08-04 08:03:37.808+02'::TIMESTAMPTZ, '2020-08-04 15:03:37.808+02'::TIMESTAMPTZ, 'exam');
 
 \echo 'checking the exams.assessment_type after the insertion of an exam';
-SELECT exam_id, description, assessment_type FROM exams;
+SELECT exam_id, description, assessment_type, pass_score FROM exams;
 
 \echo 'checking all assessments';
 SELECT assessment_id, description FROM ONLY assessments;
