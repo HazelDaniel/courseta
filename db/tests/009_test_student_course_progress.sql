@@ -82,6 +82,9 @@ VALUES (:'courseta_var_quiz_id_1', :'courseta_var_quiz_id_1', :'courseta_var_les
 INSERT INTO quizzes (assessment_id, quiz_id, lesson_id, pass_score, description)
 VALUES (:'courseta_var_quiz_id_2', :'courseta_var_quiz_id_2', :'courseta_var_lesson_id_2', 70, 'a second test quiz');
 
+-- INSERT INTO exams (assessment_id, exam_id, pass_score, description)
+-- VALUES (:'courseta_var_quiz_id_2', :'courseta_var_quiz_id_2', 70, 'a second test quiz');
+
 
 INSERT INTO questions (assessment_id, question_id, question_text, points)
 VALUES (:'courseta_var_quiz_id_1', :'courseta_var_question_id_1', 'what is Abc in OOP?', 800);
@@ -215,4 +218,7 @@ SELECT * FROM students__questions WHERE student_id = :'courseta_var_student_id_2
 \echo 'checking students__assessments.total_points_accumulated after submission of an assessment';
 SELECT * FROM students__assessments WHERE student_id = :'courseta_var_student_id_2';
 
--- \echo 'TODO: e.g student2 is supposed to have the same progress as student 1 since they attempted the same quizzes on the same courses but no';
+
+\echo 'getting assessment results for a student';
+SELECT * FROM get_student_exam_results(:'courseta_var_student_id_1');
+SELECT * FROM get_student_quiz_results(:'courseta_var_student_id_1');
