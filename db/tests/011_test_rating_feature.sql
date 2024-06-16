@@ -1,4 +1,3 @@
--- __test-ignore__
 \x
 \set courseta_var_creator_id_1 2aac9187-e2e9-4326-9c0b-920bfa0143b4
 \set courseta_var_creator_id_2 47621eb8-08e0-42d4-87cb-8efac5676290
@@ -33,6 +32,9 @@ VALUES ('blockchain course', 'this is a blockchain course', 0, :'courseta_var_cr
 INSERT INTO courses (title, description, review_count, creator_id)
 VALUES ('fintech course', 'this is a fintech course', 0, :'courseta_var_creator_id_1') ON CONFLICT DO NOTHING;
 
+INSERT INTO courses (title, description, review_count, creator_id)
+VALUES ('edtech', 'this is an edtech course', 0, :'courseta_var_creator_id_1') ON CONFLICT DO NOTHING;
+
 SELECT enroll_student_to_course(:'courseta_var_student_id_1', 1);
 SELECT enroll_student_to_course(:'courseta_var_student_id_1', 2);
 SELECT enroll_student_to_course(:'courseta_var_student_id_1', 3);
@@ -41,23 +43,28 @@ SELECT enroll_student_to_course(:'courseta_var_student_id_2', 3);
 
 SELECT enroll_student_to_course(:'courseta_var_student_id_3', 2);
 SELECT enroll_student_to_course(:'courseta_var_student_id_3', 3);
+SELECT enroll_student_to_course(:'courseta_var_student_id_3', 1);
+SELECT enroll_student_to_course(:'courseta_var_student_id_3', 4);
 
 UPDATE courses SET tags = '{course, programming}'::TEXT[] WHERE course_id = 1;
 UPDATE courses SET tags = '{course}'::TEXT[] WHERE course_id = 3;
 UPDATE courses SET tags = '{course, blockchain}'::TEXT[] WHERE course_id = 2;
 
+UPDATE courses SET tags = '{course, blockchain, rust}'::TEXT[] WHERE course_id = 4;
 
 
-SELECT review_course_for_student(:'courseta_var_student_id_1', 1, '5');
-SELECT review_course_for_student(:'courseta_var_student_id_1', 1, '2');
+
+SELECT review_course_for_student(:'courseta_var_student_id_1', 1, '3');
+SELECT review_course_for_student(:'courseta_var_student_id_1', 1, '3');
 SELECT review_course_for_student(:'courseta_var_student_id_1', 1, '3');
 SELECT review_course_for_student(:'courseta_var_student_id_1', 3, '3');
 
-SELECT review_course_for_student(:'courseta_var_student_id_1', 2, '3');
-SELECT review_course_for_student(:'courseta_var_student_id_2', 2, '3');
-SELECT review_course_for_student(:'courseta_var_student_id_3', 2, '5');
+SELECT review_course_for_student(:'courseta_var_student_id_1', 2, '5');
+-- SELECT review_course_for_student(:'courseta_var_student_id_2', 2, '3');
 
-SELECT review_course_for_student(:'courseta_var_student_id_3', 3, '2');
+SELECT review_course_for_student(:'courseta_var_student_id_3', 2, '5');
+SELECT review_course_for_student(:'courseta_var_student_id_3', 3, '3');
+SELECT review_course_for_student(:'courseta_var_student_id_3', 1, '1');
 
 -- SELECT * FROM courses;
 -- DELETE FROM students WHERE student_id = :'courseta_var_student_id_1';
