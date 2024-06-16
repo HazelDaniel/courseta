@@ -4,10 +4,11 @@ BEGIN
   RAISE NOTICE '[SETUP]   (GET) FUNCTION: setting up the get_current_creator function ...';
 
   CREATE OR REPLACE FUNCTION get_current_creator (email_ TEXT) RETURNS
-  TABLE (creator_id UUID, email VARCHAR, role USER_ROLE_TYPE, creator_pass TEXT) AS
+  TABLE (creator_id UUID, email VARCHAR, role USER_ROLE_TYPE, creator_pass TEXT, avatar_url TEXT) AS
   $block1$
   BEGIN
-    RETURN QUERY SELECT creators.creator_id, creators.email, creators.role, creators.creator_pass FROM creators
+    RETURN QUERY SELECT creators.creator_id, creators.email, creators.role, creators.creator_pass, creators.avatar_url
+    FROM creators
     WHERE creators.email = email_;
   END;
   $block1$ LANGUAGE PLPGSQL;
