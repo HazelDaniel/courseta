@@ -3,7 +3,7 @@ $block$
 BEGIN
   RAISE NOTICE '[SETUP]   (SET) FUNCTION: setting up the review_course_for_student function ...';
 
-  CREATE OR REPLACE FUNCTION review_course_for_student (student_id_ UUID, course_id_ BIGINT, rating_ NUMERIC) RETURNS
+  CREATE OR REPLACE FUNCTION review_course_for_student (student_id_ UUID, course_id_ BIGINT, rating_ NUMERIC, review_text_ VARCHAR) RETURNS
   VOID AS
   $block1$
   DECLARE
@@ -18,9 +18,10 @@ BEGIN
     WHERE student_id = student_id_
     AND course_id = course_id_;
 
+    RAISE NOTICE '[debug]: this user has reviewed course id: %, % times', course_id_, student_review_occurrence;
     IF student_enroll_occurrence >= 1 AND student_review_occurrence <= 1 THEN
-      INSERT INTO courseta.reviews(student_id, course_id, rating)
-      VALUES (student_id_, course_id_, rating_)
+      INSERT INTO courseta.reviews(student_id, course_id, rating, review_text)
+      VALUES (student_id_, course_id_, rating_, review_text_)
       ON CONFLICT (student_id, course_id) DO UPDATE
       SET rating = EXCLUDED.rating, review_text = EXCLUDED.review_text, created_at = CURRENT_TIMESTAMP;
     ELSE
