@@ -50,7 +50,7 @@ BEGIN
     FROM courseta.courses WHERE
     course_id = course_entry.course_id;
 
-    RAISE NOTICE '[debug]: attempt count is : %', attempt_count;
+    -- RAISE NOTICE '[debug]: attempt count is : %', attempt_count;
 
     CASE WHEN attempt_count = 0
     THEN precise_progress := 0;

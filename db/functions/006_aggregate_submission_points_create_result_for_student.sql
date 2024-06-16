@@ -32,7 +32,7 @@ BEGIN
 
     PERFORM deduct_student_existing_points(NEW.student_id, NEW.assessment_id, NEW.submitted_at);
 
-    RAISE NOTICE '[debug]: WE ARE AGGREGATING STUDENT POINTS FROM ASSESSMENT SUBMISSION';
+    -- RAISE NOTICE '[debug]: WE ARE AGGREGATING STUDENT POINTS FROM ASSESSMENT SUBMISSION';
 
     UPDATE students SET points = points + NEW.total_points_accumulated
 		WHERE students.student_id = NEW.student_id;
