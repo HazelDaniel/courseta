@@ -3,7 +3,7 @@ $block$
 BEGIN
   RAISE NOTICE '[SETUP]   (SET) FUNCTION: setting up the review_course_for_student function ...';
 
-  CREATE OR REPLACE FUNCTION review_course_for_student (student_id_ UUID, course_id_ BIGINT, rating_ courseta.REVIEW_RATING) RETURNS
+  CREATE OR REPLACE FUNCTION review_course_for_student (student_id_ UUID, course_id_ BIGINT, rating_ NUMERIC) RETURNS
   VOID AS
   $block1$
   DECLARE
@@ -22,9 +22,9 @@ BEGIN
       INSERT INTO courseta.reviews(student_id, course_id, rating)
       VALUES (student_id_, course_id_, rating_)
       ON CONFLICT (student_id, course_id) DO UPDATE
-      SET rating = EXCLUDED.rating, review_text = EXCLUDED.review_text;
+      SET rating = EXCLUDED.rating, review_text = EXCLUDED.review_text, created_at = CURRENT_TIMESTAMP;
     ELSE
-      RAISE EXCEPTION 'this student cannot make review!';
+      RAISE EXCEPTION 'this student [%] cannot make review! on course id : %', student_id_, course_id_;
     END IF;
   END;
   $block1$ LANGUAGE PLPGSQL;
