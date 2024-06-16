@@ -11,12 +11,13 @@ BEGIN
           CALL update_average_rating_on_course(NEW.course_id);
           RETURN NEW;
       WHEN 'INSERT' THEN
-        CALL add_review_equiv_course_count(NEW.course_id);
+        RAISE NOTICE '[debug]: adding review instead with %', NEW.rating;
         CALL update_average_rating_on_course(NEW.course_id);
+        CALL add_review_equiv_course_count(NEW.course_id);
         RETURN NEW;
       WHEN 'DELETE' THEN
-        CALL subtract_review_equiv_course_count(NEW.course_id);
         CALL update_average_rating_on_course(NEW.course_id);
+        CALL subtract_review_equiv_course_count(NEW.course_id);
         RETURN OLD;
     END CASE;
   END;
