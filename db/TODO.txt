@@ -1,9 +1,14 @@
 > make sure that the created_at fields cannot be overridden (since it can't be a generated column, use triggers to override it to the existing one)
 > create stored procedures for almost all application layer functions
-
-> both courses and creators will get a computed attribute called average rating
-
-> the current version of the project doesn't have the ability to aggregate points from a question with no answer
-	> (different from 'none of the above' just no correct answer included). add this in later versions of the project (if possible, not necessary)
-
 > make sure that a student can't attempt/submit a quiz if not already enrolled in the corresponding course
+
+
+MVC FEATURES:
+> we need a rating feature
+	> students can rate courses
+	> students can't rate creators but ratings will be computed from the courses of the creators
+	> both courses and creators will get a computed attribute called average rating
+
+EXTENDED FEATURES:
+> we need an analytics feature for the dashboard of students
+> we need a leaderboard feature in the extended version
