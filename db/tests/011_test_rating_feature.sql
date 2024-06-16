@@ -1,3 +1,4 @@
+-- __test-ignore__
 \x
 \set courseta_var_creator_id_1 2aac9187-e2e9-4326-9c0b-920bfa0143b4
 \set courseta_var_creator_id_2 47621eb8-08e0-42d4-87cb-8efac5676290
@@ -54,17 +55,17 @@ UPDATE courses SET tags = '{course, blockchain, rust}'::TEXT[] WHERE course_id =
 
 
 
-SELECT review_course_for_student(:'courseta_var_student_id_1', 1, '3');
-SELECT review_course_for_student(:'courseta_var_student_id_1', 1, '3');
-SELECT review_course_for_student(:'courseta_var_student_id_1', 1, '3');
-SELECT review_course_for_student(:'courseta_var_student_id_1', 3, '3');
+SELECT review_course_for_student(:'courseta_var_student_id_1', 1, '3', 'eh, mid');
+-- SELECT review_course_for_student(:'courseta_var_student_id_1', 1, '3', 'okay, not that great but mid');
+-- SELECT review_course_for_student(:'courseta_var_student_id_1', 1, '3', 'alright, still mid');
+SELECT review_course_for_student(:'courseta_var_student_id_1', 3, '3', 'as mid as 12:00pm');
 
-SELECT review_course_for_student(:'courseta_var_student_id_1', 2, '5');
--- SELECT review_course_for_student(:'courseta_var_student_id_2', 2, '3');
+SELECT review_course_for_student(:'courseta_var_student_id_1', 2, '5', 'wow, awesome stuff');
+SELECT review_course_for_student(:'courseta_var_student_id_2', 2, '3', 'meh');
 
-SELECT review_course_for_student(:'courseta_var_student_id_3', 2, '5');
-SELECT review_course_for_student(:'courseta_var_student_id_3', 3, '3');
-SELECT review_course_for_student(:'courseta_var_student_id_3', 1, '1');
+SELECT review_course_for_student(:'courseta_var_student_id_3', 2, '5', 'mind blowing');
+SELECT review_course_for_student(:'courseta_var_student_id_3', 3, '3', 'look who mid');
+SELECT review_course_for_student(:'courseta_var_student_id_3', 1, '1', 'ahh, poor!');
 
 -- SELECT * FROM courses;
 -- DELETE FROM students WHERE student_id = :'courseta_var_student_id_1';
@@ -74,3 +75,10 @@ SELECT review_course_for_student(:'courseta_var_student_id_3', 1, '1');
 SELECT * FROM get_recommended_courses_for_student(:'courseta_var_student_id_1');
 SELECT * FROM get_recommended_courses_for_student(:'courseta_var_student_id_2');
 SELECT * FROM get_recommended_courses_for_student(:'courseta_var_student_id_3');
+
+\echo 'testing the average course ratings on a creator';
+SELECT * FROM creators WHERE creator_id = :'courseta_var_creator_id_1';
+
+\echo 'getting all reviews for a course';
+SELECT * FROM get_reviews_for_course(1);
+-- TODO: check the correctness of the course_review_count on an author/creator compared to its courses
