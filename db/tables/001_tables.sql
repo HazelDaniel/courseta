@@ -23,6 +23,7 @@ BEGIN
     email VARCHAR(256) NOT NULL,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
+    avatar_url TEXT,
     password TEXT NOT NULL,
     UNIQUE(email),
     role courseta.USER_ROLE_TYPE NOT NULL DEFAULT 'student' CHECK (role = 'student')
@@ -33,6 +34,7 @@ BEGIN
     email VARCHAR(256) NOT NULL,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
+    avatar_url TEXT,
     password TEXT NOT NULL,
     creator_pass TEXT NOT NULL DEFAULT gen_random_uuid()::TEXT,
     average_course_rating NUMERIC(2, 1) NOT NULL DEFAULT 5.0,
