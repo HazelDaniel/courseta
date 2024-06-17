@@ -12,11 +12,14 @@ BEGIN
     thumbnail TEXT,
     creator_id UUID,
     student_count INT,
-    updated_at TIMESTAMPTZ
+    updated_at TIMESTAMPTZ,
+    course_length INT
   ) AS
   $block1$
   BEGIN
-    RETURN QUERY SELECT courses.title, courses.lesson_count, courses.description, courses.review_count, courses.thumbnail, courses.creator_id, courses.student_count, courses.updated_at FROM courseta.courses
+    RETURN QUERY SELECT courses.title, courses.lesson_count, courses.description, courses.review_count,
+    courses.thumbnail, courses.creator_id, courses.student_count, courses.updated_at, courses.course_length
+    FROM courseta.courses
     WHERE courses.course_id = course_id_;
   END;
   $block1$ LANGUAGE PLPGSQL;
