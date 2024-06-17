@@ -25,6 +25,17 @@ BEGIN
   RAISE NOTICE '<[SETUP]   TRIGGER: DONE updating course._student_count deduction triggers ...';
 
 
+  RAISE NOTICE '<[SETUP]   TRIGGER: updating course.course_length update triggers ...';
+
+  CREATE OR REPLACE TRIGGER trigger_course_length_update
+  AFTER INSERT OR UPDATE OR DELETE
+  ON lessons
+  FOR EACH ROW
+  EXECUTE FUNCTION update_course_length();
+
+  RAISE NOTICE '<[SETUP]   TRIGGER: DONE updating course.course_length update triggers ...';
+
+
   RAISE NOTICE '<[SETUP]   TRIGGER: updating course.[review attribute] update triggers ...';
 
   CREATE OR REPLACE TRIGGER trigger_course_review_update
