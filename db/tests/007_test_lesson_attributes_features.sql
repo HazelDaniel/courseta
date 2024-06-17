@@ -85,7 +85,7 @@ VALUES (:'courseta_var_quiz_id_2', :'courseta_var_quiz_id_2', :'courseta_var_les
 SELECT * FROM lessons;
 
 
-DELETE FROM lessons WHERE lesson_id = :'courseta_var_lesson_id_1';
+-- DELETE FROM lessons WHERE lesson_id = :'courseta_var_lesson_id_1';
 
 \echo '=====LESSONS-c======';
 SELECT * FROM lessons;
@@ -97,6 +97,12 @@ DELETE FROM quizzes WHERE quiz_id = :'courseta_var_quiz_id_2';
 \echo '=====LESSONS-d======';
 SELECT * FROM lessons;
 
-\echo 'testing the course.course_length attribute';
+UPDATE lesson_contents SET duration = 100
+WHERE lesson_content_id = 1;
+
+\echo 'testing the course.course_length attribute after updating a lesson_content';
 SELECT * FROM courses;
 
+
+\echo 'testing the course.course_length attribute after removing a lesson content';
+SELECT * FROM courses;
