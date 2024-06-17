@@ -14,7 +14,7 @@ BEGIN
   $block1$ LANGUAGE PLPGSQL;
 
   CREATE OR REPLACE PROCEDURE add_lesson_content_equiv_lesson_dur_and_count
-  (lesson_id_ UUID, duration INT) LANGUAGE PLPGSQL AS
+  (lesson_id_ BIGINT, duration INT) LANGUAGE PLPGSQL AS
   $block2$
   BEGIN
     UPDATE lessons SET total_duration = (total_duration + duration),
@@ -37,7 +37,7 @@ BEGIN
   $block1$ LANGUAGE PLPGSQL;
 
   CREATE OR REPLACE PROCEDURE subtract_lesson_content_equiv_lesson_dur_and_count
-  (lesson_id_ UUID, duration INT) LANGUAGE PLPGSQL AS
+  (lesson_id_ BIGINT, duration INT) LANGUAGE PLPGSQL AS
   $block2$
   BEGIN
     UPDATE lessons SET total_duration = (total_duration - duration),
