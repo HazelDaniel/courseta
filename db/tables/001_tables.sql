@@ -113,6 +113,7 @@ BEGIN
     title TEXT NOT NULL,
     href TEXT NOT NULL,
     lesson_id BIGINT NOT NULL,
+    content_type courseta.LESSON_CONTENT_TYPE NOT NULL DEFAULT 'text',
     duration INT NOT NULL DEFAULT 600,
     FOREIGN KEY(lesson_id) REFERENCES courseta.lessons(lesson_id) ON DELETE CASCADE
   );
