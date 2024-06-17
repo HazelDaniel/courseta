@@ -1,4 +1,3 @@
--- __test-ignore__
 \x
 \set courseta_var_creator_id_1 2aac9187-e2e9-4326-9c0b-920bfa0143b4
 \set courseta_var_creator_id_2 47621eb8-08e0-42d4-87cb-8efac5676290
@@ -13,6 +12,10 @@
 
 \set courseta_var_lesson_id_1 1
 \set courseta_var_lesson_id_2 2
+
+\set courseta_var_lesson_content_id_1 1
+\set courseta_var_lesson_content_id_2 2
+\set courseta_var_lesson_content_id_3 3
 
 \set courseta_var_quiz_id_1 a69c1374-d4af-4644-a791-fd8b6601aa8c
 \set courseta_var_quiz_id_2 b69c1374-d4af-4644-a791-fd8b6601aa8c
@@ -65,6 +68,11 @@ VALUES ('first lesson', :'courseta_var_lesson_id_1', :'courseta_var_course_id_1'
 INSERT INTO lessons (title, lesson_id, course_id)
 VALUES ('second lesson', :'courseta_var_lesson_id_2', :'courseta_var_course_id_1');
 
+INSERT INTO lesson_contents (lesson_content_id, title, href, lesson_id)
+VALUES (1, 'exploring the metaverse', 'www.google.com?search=exploring%20the%20metaverse', :'courseta_var_lesson_id_1'),
+(2, 'finding your github repository', 'www.google.com?search=finding%your%20github%20repo', :'courseta_var_lesson_id_1'),
+(3, 'some resources to read about BTC', 'www.google.com?search=what%is%20BTC', :'courseta_var_lesson_id_1');
+
 
 INSERT INTO quizzes (assessment_id, quiz_id, lesson_id, pass_score, description)
 VALUES (:'courseta_var_quiz_id_1', :'courseta_var_quiz_id_1', :'courseta_var_lesson_id_1', 50, 'a test quiz');
@@ -88,4 +96,7 @@ DELETE FROM quizzes WHERE quiz_id = :'courseta_var_quiz_id_2';
 
 \echo '=====LESSONS-d======';
 SELECT * FROM lessons;
+
+\echo 'testing the course.course_length attribute';
+SELECT * FROM courses;
 
