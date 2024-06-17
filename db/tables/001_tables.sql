@@ -38,10 +38,11 @@ BEGIN
     password TEXT NOT NULL,
     creator_pass TEXT NOT NULL DEFAULT gen_random_uuid()::TEXT,
     average_course_rating NUMERIC(2, 1) NOT NULL DEFAULT 5.0,
+    course_review_count INT NOT NULL DEFAULT 0,
+    course_count INT NOT NULL DEFAULT 0,
+    student_count INT NOT NULL DEFAULT 0,
     UNIQUE(email),
     UNIQUE(creator_pass),
-    course_review_count INT NOT NULL DEFAULT 0,
-    student_count INT NOT NULL DEFAULT 0,
     role courseta.USER_ROLE_TYPE NOT NULL DEFAULT 'creator' CHECK (role = 'creator')
   );
 
@@ -99,6 +100,7 @@ BEGIN
   CREATE TABLE IF NOT EXISTS courseta.quizzes (
     quiz_id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     lesson_id BIGINT NOT NULL,
+    quiz_title TEXT,
     CHECK (pass_score IS NOT NULL AND pass_score BETWEEN 0 AND 100),
     CHECK (description IS NOT NULL),
     CHECK (total_points IS NOT NULL),

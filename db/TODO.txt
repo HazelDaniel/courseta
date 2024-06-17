@@ -2,6 +2,8 @@
 > create stored procedures for almost all application layer functions
 > make sure that a student can't attempt/submit a quiz if not already enrolled in the corresponding course
 
+> add a function to get the current course outline/details
+> test the assessment retake flow
 
 MVC FEATURES:
 > we need a rating feature
@@ -12,3 +14,4 @@ MVC FEATURES:
 EXTENDED FEATURES:
 > we need an analytics feature for the dashboard of students
 > we need a leaderboard feature in the extended version
+
