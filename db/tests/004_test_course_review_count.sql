@@ -59,7 +59,11 @@ SELECT review_course_for_student(:'courseta_var_student_id_3', 2, '1');
 SELECT review_course_for_student(:'courseta_var_student_id_3', 2, '1');
 SELECT review_course_for_student(:'courseta_var_student_id_3', 3, '1');
 
-DELETE FROM students WHERE student_id = :'courseta_var_student_id_1';
+-- DELETE FROM students WHERE student_id = :'courseta_var_student_id_1';
 
 -- SELECT * FROM courses;
 SELECT * FROM creators;
+
+\echo 'check if a student enrolled in a course';
+
+-- SELECT did_student_enroll(:'courseta_var_student_id_2', 1);
