@@ -10,7 +10,9 @@ BEGIN
   CREATE TYPE courseta.USER_ROLE_TYPE AS ENUM('student', 'creator');
 
   CREATE TABLE IF NOT EXISTS courseta.users (
-    user_id UUID NOT NULL PRIMARY KEY
+    user_id UUID NOT NULL PRIMARY KEY,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
   );
 
   CREATE TYPE courseta.RANK_TYPE AS ENUM('novice', 'amateur', 'senior', 'professional', 'master', 'legendary');
