@@ -35,15 +35,6 @@ BEGIN
     FROM courseta.questions WHERE question_id = NEW.question_id;
 
 
-    -- IF YOU FIND A WAY TO DEAL WITH questions with no correct options
-    -- precise_tot_points :=
-    -- CASE
-    -- WHEN answers_correct = 0 AND correct_answers_picked + wrong_answers_picked = 0
-    -- THEN question_points
-    -- WHEN answers_correct = 0
-    -- THEN 0
-    -- ELSE (ROUND((GREATEST((correct_answers_picked - wrong_answers_picked)::NUMERIC, 0) / answers_correct)::NUMERIC * question_points, 2)) END;
-
     precise_tot_points := ROUND((GREATEST((correct_answers_picked - wrong_answers_picked)::NUMERIC, 0) / answers_correct)::NUMERIC * question_points, 2);
 
     tot_points := precise_tot_points::INTEGER;
