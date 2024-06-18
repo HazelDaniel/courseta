@@ -40,6 +40,7 @@
 
 \set courseta_var_submission_time '2024-06-04 15:03:37.808+02'
 \set courseta_var_retake_time '2024-07-04 15:03:37.200+02'
+\set courseta_var_retake_time2 '2024-09-04 16:03:37.902+02'
 
 
 INSERT INTO creators (email, first_name, last_name, password, creator_id)
@@ -316,6 +317,101 @@ SET waiting = 'true'
 WHERE student_id = :'courseta_var_student_id_1'
 AND assessment_id = :'courseta_var_exam_id_1'
 AND submitted_at = :'courseta_var_retake_time'::timestamp;
+
+
+
+\echo 'getting assessment results for a student after a retake';
+SELECT * FROM get_student_exam_results(:'courseta_var_student_id_1');
+SELECT * FROM get_student_quiz_results(:'courseta_var_student_id_1');
+
+
+\echo 'checking student points and rank after retake of an assessment';
+SELECT * FROM students WHERE student_id = :'courseta_var_student_id_1';
+
+\echo 'checking students__questions.points_accumulated after retake of an assessment';
+SELECT * FROM students__questions WHERE student_id = :'courseta_var_student_id_1';
+
+\echo 'checking students__assessments.total_points_accumulated after retake of an assessment';
+SELECT * FROM students__assessments WHERE student_id = :'courseta_var_student_id_1';
+
+
+-- ASSESSMENT RETAKE 2
+
+-- ASSESSMENT RETAKE FLOW FOR STUDENT 1 ON QUIZ 1
+-- \echo 'attempting assessments';
+-- INSERT INTO students__assessments (student_id, assessment_id, submitted_at)
+-- VALUES (:'courseta_var_student_id_1', :'courseta_var_quiz_id_1', :'courseta_var_retake_time2'::timestamp);
+
+INSERT INTO students__assessments (student_id, assessment_id, submitted_at)
+VALUES (:'courseta_var_student_id_1', :'courseta_var_exam_id_1', :'courseta_var_retake_time2'::timestamp);
+
+
+-- \echo 'answering questions';
+-- INSERT INTO students__questions (student_id, question_id, answered_at)
+-- VALUES (:'courseta_var_student_id_1', :'courseta_var_question_id_1', :'courseta_var_retake_time2'::timestamp);
+
+-- INSERT INTO students__questions (student_id, question_id, answered_at)
+-- VALUES (:'courseta_var_student_id_1', :'courseta_var_question_id_2', :'courseta_var_retake_time2'::timestamp);
+
+
+
+INSERT INTO students__questions (student_id, question_id, answered_at)
+VALUES (:'courseta_var_student_id_1', :'courseta_var_question_id_3', :'courseta_var_retake_time2'::timestamp);
+
+INSERT INTO students__questions (student_id, question_id, answered_at)
+VALUES (:'courseta_var_student_id_1', :'courseta_var_question_id_4', :'courseta_var_retake_time2'::timestamp);
+
+
+\echo 'checking all attempts on questions:';
+SELECT * FROM students__questions;
+
+-- \echo 'selecting quiz answers';
+-- INSERT INTO students__answers (student_id, answer_id, question_id, selected_at)
+-- VALUES
+-- (:'courseta_var_student_id_1', :'courseta_var_answer_id_1', :'courseta_var_question_id_1', :'courseta_var_retake_time2'::timestamp),
+-- (:'courseta_var_student_id_1', :'courseta_var_answer_id_2', :'courseta_var_question_id_1', :'courseta_var_retake_time2'::timestamp),
+-- (:'courseta_var_student_id_1', :'courseta_var_answer_id_3', :'courseta_var_question_id_1', :'courseta_var_retake_time2'::timestamp),
+-- (:'courseta_var_student_id_1', :'courseta_var_answer_id_6', :'courseta_var_question_id_1', :'courseta_var_retake_time2'::timestamp),
+
+-- (:'courseta_var_student_id_1', :'courseta_var_answer_id_5', :'courseta_var_question_id_2', :'courseta_var_retake_time2'::timestamp);
+
+
+-- \echo 'selecting exam answers';
+INSERT INTO students__answers (student_id, answer_id, question_id, selected_at)
+VALUES
+(:'courseta_var_student_id_1', :'courseta_var_answer_id_7', :'courseta_var_question_id_3', :'courseta_var_retake_time2'::timestamp),
+-- (:'courseta_var_student_id_1', :'courseta_var_answer_id_8', :'courseta_var_question_id_3', :'courseta_var_retake_time2'::timestamp),
+-- (:'courseta_var_student_id_1', :'courseta_var_answer_id_9', :'courseta_var_question_id_3', :'courseta_var_retake_time2'::timestamp),
+
+(:'courseta_var_student_id_1', :'courseta_var_answer_id_10', :'courseta_var_question_id_4', :'courseta_var_retake_time2'::timestamp);
+-- (:'courseta_var_student_id_1', :'courseta_var_answer_id_11', :'courseta_var_question_id_4', :'courseta_var_retake_time2'::timestamp);
+
+
+-- \echo 'true submission of an assessment';
+-- UPDATE students__assessments
+-- SET waiting = 'false'
+-- WHERE student_id = :'courseta_var_student_id_1'
+-- AND assessment_id = :'courseta_var_quiz_id_1'
+-- AND submitted_at = :'courseta_var_retake_time2'::timestamp;
+
+-- UPDATE students__assessments
+-- SET waiting = 'true'
+-- WHERE student_id = :'courseta_var_student_id_1'
+-- AND assessment_id = :'courseta_var_quiz_id_1'
+-- AND submitted_at = :'courseta_var_retake_time2'::timestamp;
+
+
+UPDATE students__assessments
+SET waiting = 'false'
+WHERE student_id = :'courseta_var_student_id_1'
+AND assessment_id = :'courseta_var_exam_id_1'
+AND submitted_at = :'courseta_var_retake_time2'::timestamp;
+
+UPDATE students__assessments
+SET waiting = 'true'
+WHERE student_id = :'courseta_var_student_id_1'
+AND assessment_id = :'courseta_var_exam_id_1'
+AND submitted_at = :'courseta_var_retake_time2'::timestamp;
 
 
 
