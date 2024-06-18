@@ -12,13 +12,21 @@ BEGIN
   ) AS
   $block1$
   BEGIN
-    RETURN QUERY SELECT
-    quizzes.quiz_id, assessments_results.attempted_at date_completed, courses.course_id, assessments_results.score
-    FROM assessments_results
-    JOIN quizzes USING (assessment_id)
-    JOIN lessons USING (lesson_id)
-    JOIN courses USING (course_id)
-    WHERE assessments_results.student_id = student_id_;
+    RETURN QUERY(
+      WITH results_with_no_retake (
+        r_number, quiz_id, date_completed, course_id, score
+      ) AS (
+        SELECT ROW_NUMBER() OVER (PARTITION BY assessment_id ORDER BY attempted_at DESC), quizzes.quiz_id,
+        assessments_results.attempted_at date_completed, courses.course_id, assessments_results.score
+        FROM assessments_results
+        JOIN quizzes USING (assessment_id)
+        JOIN lessons USING (lesson_id)
+        JOIN courses USING (course_id)
+        WHERE assessments_results.student_id = student_id_
+      )
+      SELECT rwnt.quiz_id, rwnt.date_completed, rwnt.course_id, rwnt.score
+      FROM results_with_no_retake rwnt WHERE r_number = 1
+    );
   END;
   $block1$ LANGUAGE PLPGSQL;
 
