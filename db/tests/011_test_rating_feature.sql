@@ -80,5 +80,5 @@ SELECT * FROM get_recommended_courses_for_student(:'courseta_var_student_id_3');
 SELECT * FROM creators WHERE creator_id = :'courseta_var_creator_id_1';
 
 \echo 'getting all reviews for a course';
-SELECT * FROM get_reviews_for_course(1);
+SELECT * FROM get_course_reviews(1::BIGINT);
 -- TODO: check the correctness of the course_review_count on an author/creator compared to its courses

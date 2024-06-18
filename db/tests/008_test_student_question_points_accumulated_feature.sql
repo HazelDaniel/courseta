@@ -214,3 +214,6 @@ SELECT * FROM students__questions WHERE student_id = :'courseta_var_student_id_2
 SELECT * FROM students__assessments WHERE student_id = :'courseta_var_student_id_2';
 
 
+\echo 'testing the get_assessment_questions GET function';
+SELECT * FROM get_assessment_questions(:'courseta_var_quiz_id_1');
+SELECT * FROM get_assessment_questions(:'courseta_var_exam_id_1');
