@@ -6,8 +6,8 @@ BEGIN
   CREATE OR REPLACE FUNCTION update_equiv_course_progress () RETURNS TRIGGER AS
   $block1$
     BEGIN
-      IF NEW.waiting = OLD.waiting THEN
-        RETURN NEW; -- dont do anything further if this is not a true assessment submission
+      IF NEW.waiting = OLD.waiting OR NEW.waiting = 'true' THEN
+        RETURN NEW; -- don't do anything further if the assessment submission is not past the waiting state
       END IF;
 
       CALL update_progress_for_course(NEW.assessment_id, NEW.student_id, NEW.submitted_at);
@@ -23,7 +23,8 @@ BEGIN
     course_entry       RECORD;
     attempt_count         INT;
     quiz_count_           INT;
-    precise_progress            NUMERIC;
+    retake_count         INT;
+    precise_progress  NUMERIC;
   BEGIN
 
     SELECT courses.course_id
@@ -46,13 +47,26 @@ BEGIN
       GROUP BY students__assessments.assessment_id
     ) AS RES2;
 
+    SELECT INTO retake_count COUNT(*)
+    FROM courseta.quizzes
+    JOIN courseta.students__assessments ON (students__assessments.assessment_id = quizzes.quiz_id)
+    JOIN courseta.lessons USING (lesson_id)
+    JOIN courseta.courses USING (course_id)
+    WHERE courses.course_id = course_entry.course_id
+    AND students__assessments.student_id = student_id_
+    AND students__assessments.submitted_at <> submitted_at_;
+
     SELECT INTO quiz_count_ courses.quiz_count
     FROM courseta.courses WHERE
     course_id = course_entry.course_id;
 
-    -- RAISE NOTICE '[debug]: attempt count is : %', attempt_count;
+    RAISE NOTICE '[debug]: attempt count / quiz count: (%/%), retake count: (%)', attempt_count, quiz_count_, retake_count;
 
     CASE WHEN attempt_count = 0
+    THEN precise_progress := 0;
+    WHEN retake_count >= 1
+    THEN precise_progress := 0;
+    WHEN quiz_count_ IS NULL
     THEN precise_progress := 0;
     ELSE
       precise_progress := (attempt_count::NUMERIC / COALESCE(NULLIF(quiz_count_, 0), attempt_count)) * 100;
