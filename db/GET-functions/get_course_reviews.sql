@@ -1,9 +1,9 @@
 DO
 $block$
 BEGIN
-  RAISE NOTICE '[SETUP]   (GET) FUNCTION: setting up the get_reviews_for_course function ...';
+  RAISE NOTICE '[SETUP]   (GET) FUNCTION: setting up the get_course_reviews function ...';
 
-  CREATE OR REPLACE FUNCTION get_reviews_for_course (course_id_ BIGINT) RETURNS
+  CREATE OR REPLACE FUNCTION get_course_reviews (course_id_ BIGINT) RETURNS
   TABLE (
     review_text VARCHAR,
     rating NUMERIC,
@@ -22,6 +22,6 @@ BEGIN
   END;
   $block1$ LANGUAGE PLPGSQL;
 
-  RAISE NOTICE '[SETUP]   (GET) FUNCTION: DONE setting up the get_reviews_for_course function.';
+  RAISE NOTICE '[SETUP]   (GET) FUNCTION: DONE setting up the get_course_reviews function.';
 END
 $block$ LANGUAGE PLPGSQL;
