@@ -380,7 +380,7 @@ SELECT * FROM students__questions;
 INSERT INTO students__answers (student_id, answer_id, question_id, selected_at)
 VALUES
 (:'courseta_var_student_id_1', :'courseta_var_answer_id_7', :'courseta_var_question_id_3', :'courseta_var_retake_time2'::timestamp),
--- (:'courseta_var_student_id_1', :'courseta_var_answer_id_8', :'courseta_var_question_id_3', :'courseta_var_retake_time2'::timestamp),
+(:'courseta_var_student_id_1', :'courseta_var_answer_id_8', :'courseta_var_question_id_3', :'courseta_var_retake_time2'::timestamp),
 -- (:'courseta_var_student_id_1', :'courseta_var_answer_id_9', :'courseta_var_question_id_3', :'courseta_var_retake_time2'::timestamp),
 
 (:'courseta_var_student_id_1', :'courseta_var_answer_id_10', :'courseta_var_question_id_4', :'courseta_var_retake_time2'::timestamp);
