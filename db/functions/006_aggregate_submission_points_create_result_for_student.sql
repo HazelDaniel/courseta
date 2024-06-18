@@ -8,11 +8,16 @@ BEGIN
   DECLARE
     retake_points          INT DEFAULT 0;
   BEGIN
-    SELECT INTO retake_points COALESCE(SUM(total_points_accumulated), 0)
+    SELECT INTO retake_points total_points_accumulated
     FROM students__assessments
 		WHERE students__assessments.student_id = student_id_
 		AND students__assessments.assessment_id = assessment_id_
-    AND students__assessments.submitted_at <> submitted_at_;
+    AND students__assessments.submitted_at <> submitted_at_
+    ORDER BY submitted_at DESC
+    LIMIT 1;
+
+    RAISE NOTICE '[debug]: retake points is %', retake_points;
+    retake_points = COALESCE(retake_points, 0);
 
 
     UPDATE students SET points = (points - retake_points)
@@ -26,7 +31,7 @@ BEGIN
   DECLARE
     gen_result_id                   UUID;
   BEGIN
-    IF NEW.waiting = OLD.waiting THEN
+    IF NEW.waiting = OLD.waiting OR NEW.waiting = 'true' THEN
       RETURN NEW; -- don't do anything further if the assessment submission is not past the waiting state
     END IF;
 
