@@ -1,9 +1,6 @@
 > make sure that the created_at fields cannot be overridden (since it can't be a generated column, use triggers to override it to the existing one)
-> create stored procedures for almost all application layer functions
 > make sure that a student can't attempt/submit a quiz if not already enrolled in the corresponding course
 
-> add a function to get the current course outline/details
-> test the assessment retake flow
 > don't know if this is a bug or a feature but when courses have been taken down, the points for students who have attempted them do not change
 
 MVC FEATURES:
