@@ -10,9 +10,7 @@ BEGIN
   CREATE TYPE courseta.USER_ROLE_TYPE AS ENUM('student', 'creator');
 
   CREATE TABLE IF NOT EXISTS courseta.users (
-    user_id UUID NOT NULL PRIMARY KEY,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    user_id UUID NOT NULL PRIMARY KEY
   );
 
   CREATE TYPE courseta.RANK_TYPE AS ENUM('novice', 'amateur', 'senior', 'professional', 'master', 'legendary');
@@ -25,7 +23,9 @@ BEGIN
     email VARCHAR(256) NOT NULL,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
-    avatar_url TEXT,
+    -- avatar JSONB NOT NULL DEFAULT json_build_object("url", NULL, "created_at", CURRENT_TIMESTAMP, "updated_at", CURRENT_TIMESTAMP)::JSONB,
+    avatar JSONB NOT NULL DEFAULT '{}'::JSONB,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     password TEXT NOT NULL,
     UNIQUE(email),
     role courseta.USER_ROLE_TYPE NOT NULL DEFAULT 'student' CHECK (role = 'student')
@@ -36,13 +36,15 @@ BEGIN
     email VARCHAR(256) NOT NULL,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
-    avatar_url TEXT,
     password TEXT NOT NULL,
     creator_pass TEXT NOT NULL DEFAULT gen_random_uuid()::TEXT,
     average_course_rating NUMERIC(2, 1) NOT NULL DEFAULT 5.0,
     course_review_count INT NOT NULL DEFAULT 0,
     course_count INT NOT NULL DEFAULT 0,
     student_count INT NOT NULL DEFAULT 0,
+    -- avatar JSONB NOT NULL DEFAULT json_build_object("url", NULL, "created_at", CURRENT_TIMESTAMP, "updated_at", CURRENT_TIMESTAMP)::JSONB,
+    avatar JSONB NOT NULL DEFAULT '{}'::JSONB,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(email),
     UNIQUE(creator_pass),
     role courseta.USER_ROLE_TYPE NOT NULL DEFAULT 'creator' CHECK (role = 'creator')
