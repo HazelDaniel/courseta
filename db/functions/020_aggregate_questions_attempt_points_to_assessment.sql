@@ -22,8 +22,9 @@ BEGIN
     WHERE students__questions.question_id = NEW.question_id;
 
 
+    -- the last question answered will have accumulated all the points from all the questions and set it on the corresponding assessment submission
     WITH last_answers_agg_list AS (
-    SELECT ROW_NUMBER() OVER (PARTITION BY question_id ORDER BY updated_at DESC), *
+    SELECT ROW_NUMBER() OVER (PARTITION BY question_id ORDER BY updated_milliseconds DESC), points_gained
     FROM students__answers
     JOIN students__questions USING (question_id)
     JOIN questions USING (question_id)
