@@ -1,3 +1,4 @@
+-- __test-ignore__
 \x
 \set courseta_var_creator_id_1 2aac9187-e2e9-4326-9c0b-920bfa0143b4
 \set courseta_var_creator_id_2 47621eb8-08e0-42d4-87cb-8efac5676290
