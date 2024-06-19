@@ -16,8 +16,8 @@ BEGIN
     ORDER BY submitted_at DESC
     LIMIT 1;
 
-    RAISE NOTICE '[debug]: retake points is %', retake_points;
     retake_points = COALESCE(retake_points, 0);
+    -- RAISE NOTICE '[debug]: retake points is %', retake_points;
 
 
     UPDATE students SET points = (points - retake_points)

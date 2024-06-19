@@ -215,7 +215,7 @@ BEGIN
     answer_id BIGINT NOT NULL,
     question_id BIGINT NOT NULL,
     selected_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_milliseconds INT NOT NULL,
     points_gained SMALLINT NOT NULL DEFAULT 0,
     PRIMARY KEY (student_id, answer_id, selected_at),
     FOREIGN KEY (student_id, question_id, selected_at) REFERENCES courseta.students__questions(student_id, question_id, answered_at) ON DELETE CASCADE,

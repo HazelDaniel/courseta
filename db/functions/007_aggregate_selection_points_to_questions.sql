@@ -40,7 +40,7 @@ BEGIN
     tot_points := precise_tot_points::INTEGER;
 
     UPDATE students__answers
-    SET points_gained = tot_points, updated_at = CURRENT_TIMESTAMP
+    SET points_gained = tot_points
     WHERE students__answers.answer_id = NEW.answer_id
     AND students__answers.student_id = NEW.student_id
     AND students__answers.selected_at = NEW.selected_at;
