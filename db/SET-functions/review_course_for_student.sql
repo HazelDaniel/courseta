@@ -4,6 +4,7 @@ BEGIN
   RAISE NOTICE '[SETUP]   (SET) FUNCTION: setting up the review_course_for_student function ...';
 
   CREATE OR REPLACE FUNCTION review_course_for_student (student_id_ UUID, course_id_ BIGINT, rating_ NUMERIC, review_text_ VARCHAR) RETURNS
+  -- +1 OVERLOADS
   VOID AS
   $block1$
   DECLARE
@@ -27,6 +28,15 @@ BEGIN
     ELSE
       RAISE EXCEPTION 'this student [%] cannot make review! on course id : %', student_id_, course_id_;
     END IF;
+  END;
+  $block1$ LANGUAGE PLPGSQL;
+
+  CREATE OR REPLACE FUNCTION review_course_for_student (student_id_ UUID, course_id_ BIGINT, rating_ NUMERIC) RETURNS
+  -- [OVERLOAD]: for testing
+  VOID AS
+  $block1$
+  BEGIN
+    PERFORM review_course_for_student(student_id_, course_id_, rating_, 'empty review');
   END;
   $block1$ LANGUAGE PLPGSQL;
 
