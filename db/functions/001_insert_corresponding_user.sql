@@ -22,16 +22,16 @@ BEGIN
   CREATE OR REPLACE FUNCTION insert_creator_equiv_user () RETURNS TRIGGER AS
   $block3$
     BEGIN
-      CALL insert_user_with_creator_id(NEW.creator_id);
+      CALL insert_user_with_creator_id(NEW.creator_id, 'creator'::courseta.USER_ROLE_TYPE);
       RETURN NEW;
     END;
   $block3$ LANGUAGE PLPGSQL;
 
-  CREATE OR REPLACE PROCEDURE insert_user_with_creator_id (creator_id UUID)
+  CREATE OR REPLACE PROCEDURE insert_user_with_creator_id (creator_id UUID, role_ courseta.USER_ROLE_TYPE)
   LANGUAGE PLPGSQL AS
   $block2$
   BEGIN
-    INSERT INTO users (user_id) VALUES (creator_id);
+    INSERT INTO users (user_id, role) VALUES (creator_id, role_);
   END;
   $block2$;
   RAISE NOTICE '[SETUP]  PROCEDURE/FUNCTION: DONE setting up procedures/functions for user insertion.';
