@@ -16,7 +16,22 @@ BEGIN
   AS
   $block1$
   BEGIN
-    RETURN QUERY SELECT students.student_id, students.rank, students.points, students.email, students.role, students.avatar_url
+    RETURN QUERY SELECT students.student_id, students.rank, students.points, students.email, students.role, students.avatar->>'url' avatar_url
+    FROM courseta.students
+    WHERE students.email = email_;
+  END;
+  $block1$ LANGUAGE PLPGSQL;
+
+  CREATE OR REPLACE FUNCTION get_current_student_validate (email_ TEXT) RETURNS
+  TABLE
+  (
+   student_id UUID,
+   password TEXT
+  )
+  AS
+  $block1$
+  BEGIN
+    RETURN QUERY SELECT students.student_id, students.password
     FROM courseta.students
     WHERE students.email = email_;
   END;
