@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { AuthStateType } from './../server/types.d';
 
 import { config } from "dotenv";
 config({ path: [".env", ".env.dev"] });
@@ -9,14 +10,35 @@ import { AdminModel } from "./models/admin.model.js";
 
 import chalk from "chalk";
 import figlet from "figlet";
-import type { AuthStateType } from "./types";
-
-export enum AuthPosition {
-  ADMIN_AUTH,
-  USER_AUTH,
-}
+import { handleAuthenticateUser, handleCreateCourse, handleCreateUser } from "./option-handlers.js";
+import { AuthPosition } from "./option-handlers.js";
+import { ConsoleLogger } from "./utils.js";
 
 const program = new Command();
+
+function renderAuthEntity(AUTH_STATE: AuthStateType) {
+  let isAuth =
+    !!AUTH_STATE.subject || AUTH_STATE.status[AuthPosition.ADMIN_AUTH];
+  if (!isAuth) {
+    console.log("\n", "\t\t\t\t", chalk.dim("(NOT-AUTHENTICATED)"), "\n");
+    return;
+  }
+  console.log("\n");
+  if (AUTH_STATE.subject && AUTH_STATE.status[AuthPosition.CREATOR_AUTH]) {
+    if (AUTH_STATE.status[AuthPosition.ADMIN_AUTH])
+      console.log("\t\t\t\t", chalk.magentaBright("(ADMIN [+] CREATOR)"), "\n");
+    else console.log("\t\t\t\t", chalk.yellowBright("(CREATOR)"), "\n");
+  } else if (
+    AUTH_STATE.subject &&
+    AUTH_STATE.status[AuthPosition.STUDENT_AUTH]
+  ) {
+    if (AUTH_STATE.status[AuthPosition.ADMIN_AUTH])
+      console.log("\t\t\t\t", chalk.ansi256(151)("(ADMIN [+] STUDENT)"), "\n");
+    else console.log("\t\t\t\t", chalk.blueBright("(STUDENT)"), "\n");
+  } else {
+    console.log("\t\t\t\t", chalk.cyanBright("(ADMIN)"), "\n");
+  }
+}
 
 program
   .name("courseta (console)")
@@ -24,31 +46,39 @@ program
   .description("A console application for the courseta project")
   .option("-e, --email <email>", "E.g octoman@mail.com")
   .option("-p, --password <password>", "Password (optional, not displayed)")
+  .option("-i, --identifier <identifier>", "Admin ID (optional, not displayed)")
   .option("-q, --quit", "Exit the console");
 
 async function promptAndProcess(options: any) {
   let runCount = 0;
   const ADMIN_AUTH_STATUS = false;
-  const USER_AUTH_STATUS = false;
+  const CREATOR_AUTH_STATUS = false;
+  const STUDENT_AUTH_STATUS = false;
   const AUTH_STATE: AuthStateType = {
     subject: null,
-    status: [ADMIN_AUTH_STATUS, USER_AUTH_STATUS],
+    adminSubject: null,
+    status: [ADMIN_AUTH_STATUS, CREATOR_AUTH_STATUS, STUDENT_AUTH_STATUS],
   };
 
   while (!options.quit) {
-    console.log(figlet.textSync("COURSETA", "3D-ASCII"));
+    console.log(figlet.textSync("COURSETA", "Banner3-D"));
 
-    if (options.email && options.password) {
+    if (options.email && options.password && options.identifier) {
       const res = await AdminModel.search(options.email);
       if (res) {
         if (res.password === options.password) {
           AUTH_STATE.status[AuthPosition.ADMIN_AUTH] = true;
+          AUTH_STATE.adminSubject = options.identifier;
+          if (!runCount)
+            console.log(
+              chalk.green("SUCCESS: "),
+              "admin authenticated successfully!"
+            );
         }
       }
     }
-    // validation of the non-interactively provided credentials should go here, and then the auth status (of the admin) should be set based on that
-    // options.username = options.user || answers.username; // this is for when the details are passed in  non-interactively
-    // options.password = options.password || answers.password; // make sure to do proper validation and quit if not valid credentials
+
+    renderAuthEntity(AUTH_STATE);
 
     const answers = await inquirer.prompt([
       {
@@ -70,7 +100,8 @@ async function promptAndProcess(options: any) {
           13. 'lmc' => list my courses\n\
           14. 'vrc' => view recommended courses\n\
           15. 'vruc' => view recent unfinished courses\n\
-          n. 'a' => authenticate user\n\
+          16. 'a' => authenticate user\n\
+          17. 'vc' => view course\n\
           \ninput your choice:",
         when: true,
       },
@@ -79,45 +110,32 @@ async function promptAndProcess(options: any) {
     let { response } = answers;
     response = response?.trim();
 
-    const isAuth =
-      AUTH_STATE.subject || AUTH_STATE.status[AuthPosition.ADMIN_AUTH];
-
     switch (response) {
       case "q":
+      case "1":
         console.log(chalk.yellowBright("INFO: "), "exiting the application...");
         process.exit();
       case "a":
-        if (isAuth) {
-          console.log("already authenticated");
+      case "16":
+        if (!!AUTH_STATE.subject) {
+          new ConsoleLogger("info", "already authenticated"); // if an explicit user auth has already been performed
           break;
         }
-
-        if (!options.user || !options.password || !isAuth) {
-          const answers = await inquirer.prompt([
-            {
-              type: "input",
-              name: "username",
-              message: "Enter username :",
-              when: !isAuth,
-            },
-            {
-              type: "password",
-              name: "password",
-              message: "Enter password :",
-              when: !isAuth,
-            },
-          ]);
-
-          options.username = answers.username;
-          options.password = answers.password;
-        }
-
-        console.log(`Hello, ${options.username}`);
-        console.log(`your password is: ${chalk.red(options.password)}`);
-
-        runCount++;
+        await handleAuthenticateUser(AUTH_STATE, "none");
         break;
+      case "cc":
+      case "2":
+        await handleCreateCourse(AUTH_STATE, "require-creator");
+        break;
+      case "cu":
+      case "3":
+        await handleCreateUser(AUTH_STATE, "require-admin");
+        break;
+      default:
+        new ConsoleLogger("info", "no valid option picked");
     }
+
+    runCount++;
   }
 }
 
