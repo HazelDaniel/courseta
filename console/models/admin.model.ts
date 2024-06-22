@@ -49,6 +49,38 @@ export class AdminModel extends BaseModel<void> {
     return fetchAllAdmins();
   }
 
+  static isSuperUser(adminID: string | null) {
+    const fetchAdminStatus: () => Promise<{
+      isSuperUser: boolean;
+    }> = async () => {
+      const client = await pool.connect();
+      try {
+        const query: QueryConfig<string[]> = {
+          name: "is_admin_superuser",
+          text: "SELECT * FROM is_admin_superuser($1)",
+          values: [adminID as string],
+        };
+
+        const res: QueryResult<{is_superuser: boolean}> = await client.query(query);
+        const {rows} = res;
+        const {is_superuser: isSuperUser} = rows[0];
+
+        return {isSuperUser};
+
+      } catch (err) {
+        console.error(
+          `${chalk.red(
+            "QUERY_ERR:"
+          )} could not fetch admin status!. reason: ${err}`
+        );
+        throw err;
+      } finally {
+        client.release();
+      }
+    };
+    return fetchAdminStatus();
+  }
+
   static search(adminEmail: string | null) {
     const fetchAdmin: () => Promise<AdminViewType> = async () => {
       const client = await pool.connect();
