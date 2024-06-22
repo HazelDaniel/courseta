@@ -9,6 +9,7 @@ import { StudentModel } from "./models/student.model.js";
 import { CreatorModel } from "./models/creator.model.js";
 import { CourseModel } from "./models/course.model.js";
 import { AdminModel } from "./models/admin.model.js";
+import { ReviewModel } from "./models/review.model.js";
 
 export enum AuthPosition {
   ADMIN_AUTH,
@@ -413,4 +414,82 @@ export const handleViewCourse: HandlerFunctionType = async (authState, ac) => {
     new ConsoleLogger("error", `error getting course view. reason: ${err}`);
     return;
   }
+};
+
+export const handleListCourses: HandlerFunctionType = async (authState, ac) => {
+  if (!verifyAccess(authState, ac)) {
+    new ConsoleLogger(
+      "fail",
+      "this action is only accessible to console users"
+    );
+    return;
+  }
+
+  await CourseModel.displayAll();
+  return;
+};
+
+export const handleListStudents: HandlerFunctionType = async (
+  authState,
+  ac
+) => {
+  if (!verifyAccess(authState, ac)) {
+    new ConsoleLogger(
+      "fail",
+      "this action is only accessible to console users"
+    );
+    return;
+  }
+
+  await StudentModel.displayAll();
+  return;
+};
+
+export const handleCourseReview: HandlerFunctionType = async (
+  authState,
+  ac
+) => {
+  if (!verifyAccess(authState, ac)) {
+    new ConsoleLogger("fail", "this action is only accessible to students");
+    return;
+  }
+
+  const reviewCreationPrompt: {
+    courseID: string;
+    rating: number;
+    reviewText: string;
+  } = await inquirer.prompt([
+    {
+      type: "input",
+      name: "courseID",
+      message: "Enter course (id) to review :",
+    },
+    {
+      type: "number",
+      name: "rating",
+      message: "Enter rating (decimals are allowed) :",
+    },
+    {
+      type: "input",
+      name: "reviewText",
+      message: "Enter review comment :",
+    },
+  ]);
+
+  const { courseID, rating, reviewText } = reviewCreationPrompt;
+
+  const pendingReview = new ReviewModel(
+    authState.subject as string,
+    courseID,
+    rating,
+    reviewText
+  );
+
+  try {
+    await pendingReview.save();
+    new ConsoleLogger("success", "course reviewed successfully!");
+  } catch (err) {
+    new ConsoleLogger("fail", "course review failed.");
+  }
+  return;
 };
