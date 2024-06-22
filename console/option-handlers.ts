@@ -120,6 +120,10 @@ export const handleAuthenticateUser: HandlerFunctionType = async (
   authState,
   ac
 ) => {
+  if (!!authState.subject) {
+    new ConsoleLogger("info", "already authenticated"); // if an explicit user auth has already been performed
+    return;
+  }
   const userTypePrompt = await inquirer.prompt([
     {
       type: "input",
@@ -490,6 +494,36 @@ export const handleCourseReview: HandlerFunctionType = async (
     new ConsoleLogger("success", "course reviewed successfully!");
   } catch (err) {
     new ConsoleLogger("fail", "course review failed.");
+  }
+  return;
+};
+
+export const handleCourseEnroll: HandlerFunctionType = async (
+  authState,
+  ac
+) => {
+  if (!verifyAccess(authState, ac)) {
+    new ConsoleLogger("fail", "this action is only accessible to students");
+    return;
+  }
+
+  const reviewCreationPrompt: {
+    courseID: string;
+  } = await inquirer.prompt([
+    {
+      type: "number",
+      name: "courseID",
+      message: "Enter course (id) to review :",
+    },
+  ]);
+
+  const { courseID } = reviewCreationPrompt;
+
+  try {
+    await CourseModel.enrollStudent(authState.subject as string, courseID);
+    new ConsoleLogger("success", "course enrolled successfully!");
+  } catch (err) {
+    new ConsoleLogger("fail", "course enrollment failed.");
   }
   return;
 };
