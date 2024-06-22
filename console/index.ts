@@ -12,12 +12,16 @@ import chalk from "chalk";
 import figlet from "figlet";
 import {
   handleAuthenticateUser,
+  handleCourseReview,
   handleCreateCourse,
   handleCreateUser,
+  handleListCourses,
+  handleListStudents,
   handleViewCourse,
 } from "./option-handlers.js";
 import { AuthPosition } from "./option-handlers.js";
 import { ConsoleLogger } from "./utils.js";
+import { ConsoleRootOptionType } from "./types";
 
 const program = new Command();
 
@@ -54,6 +58,46 @@ program
   .option("-i, --identifier <identifier>", "Admin ID (optional, not displayed)")
   .option("-q, --quit", "Exit the console");
 
+const RootOptions: ConsoleRootOptionType[] = [
+  { id: 1, shortcut: "q", description: "quit" },
+  { id: 2, shortcut: "cc", description: "create course" },
+  { id: 3, shortcut: "cu", description: "create user" },
+  { id: 4, shortcut: "rc", description: "review course" },
+  { id: 5, shortcut: "lc", description: "list courses" },
+  { id: 6, shortcut: "ls", description: "list students" },
+  { id: 7, shortcut: "lc", description: "list creators" },
+  { id: 8, shortcut: "es", description: "enroll student" },
+  { id: 9, shortcut: "us", description: "unenroll student" },
+  { id: 10, shortcut: "uui", description: "update user info" },
+  { id: 11, shortcut: "aa", description: "attempt assessment" },
+  { id: 12, shortcut: "lmc", description: "list my courses" },
+  { id: 13, shortcut: "vrc", description: "view recommended courses" },
+  { id: 14, shortcut: "vruc", description: "view last unfinished course" },
+  { id: 15, shortcut: "a", description: "authenticate user" },
+  { id: 16, shortcut: "vc", description: "view course" },
+];
+
+const parseOptionListToString = (options: ConsoleRootOptionType[]) => {
+  const tileRatio = process.stdout.columns / 150;
+  const columnNumber = Math.round(tileRatio * 2.5);
+
+  const columnSize = Math.round(process.stdout.columns / 3.5);
+
+  return (
+    "\n" +
+    options.reduce((acc, curr, i) => {
+      acc +=
+        `${i % columnNumber === 0 && !!i ? "\n" : !!i ? "\t" : ""}` +
+        `${curr.id}. '${curr.shortcut}' ->  ${curr.description}`.padEnd(
+          tileRatio * columnSize,
+          " "
+        );
+      return acc;
+    }, "") +
+    "\n"
+  );
+};
+
 async function promptAndProcess(options: any) {
   let runCount = 0;
   const ADMIN_AUTH_STATUS = false;
@@ -89,25 +133,9 @@ async function promptAndProcess(options: any) {
       {
         type: "input",
         name: "response",
-        message:
-          "OPTIONS: \n\
-          1. 'q' => quit\n\
-          2. 'cc' => create course\n\
-          3. 'cu' => create user\n\
-          4. 'cr' => create review\n\
-          5. 'lc' => list courses\n\
-          6. 'ls' => list students\n\
-          7. 'lcr' => list creators\n\
-          8. 'es' => enroll student\n\
-          9. 'us' => unenroll student\n\
-          10. 'uui' => update user info\n\
-          12. 'aa' => attempt assessment\n\
-          13. 'lmc' => list my courses\n\
-          14. 'vrc' => view recommended courses\n\
-          15. 'vruc' => view recent unfinished courses\n\
-          16. 'a' => authenticate user\n\
-          17. 'vc' => view course\n\
-          \ninput your choice:",
+        message: `OPTIONS:\n${parseOptionListToString(
+          RootOptions
+        )}\ninput your choice:`,
         when: true,
       },
     ]);
@@ -132,13 +160,25 @@ async function promptAndProcess(options: any) {
       case "2":
         await handleCreateCourse(AUTH_STATE, "require-creator");
         break;
-      case "vc":
-      case "17":
-        await handleViewCourse(AUTH_STATE, "none");
-        break;
       case "cu":
       case "3":
         await handleCreateUser(AUTH_STATE, "require-admin");
+        break;
+      case "rc":
+      case "4":
+        await handleCourseReview(AUTH_STATE, "require-student");
+        break;
+      case "lc":
+      case "5":
+        await handleListCourses(AUTH_STATE, "none");
+        break;
+      case "ls":
+      case "6":
+        await handleListStudents(AUTH_STATE, "none");
+        break;
+      case "vc":
+      case "16":
+        await handleViewCourse(AUTH_STATE, "none");
         break;
       default:
         new ConsoleLogger("info", "no valid option picked");
