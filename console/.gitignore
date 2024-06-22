@@ -1,1 +1,9 @@
 node_modules
+.env
+.env.local
+.env.dev
+.env.prod
+src/db*js
+.console.zshrc
+src/*.js
+src/models/*.js
