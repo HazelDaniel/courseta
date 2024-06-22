@@ -8,6 +8,7 @@ import { ConsoleLogger } from "./utils.js";
 import { StudentModel } from "./models/student.model.js";
 import { CreatorModel } from "./models/creator.model.js";
 import { CourseModel } from "./models/course.model.js";
+import { AdminModel } from "./models/admin.model.js";
 
 export enum AuthPosition {
   ADMIN_AUTH,
@@ -362,6 +363,13 @@ export const handleCreateCourse: HandlerFunctionType = async (
       return;
     }
 
+    // TODO: the logic for checking superusers will go here once the console can be used by multiple admins
+    // const isAdminSuperUser = await AdminModel.isSuperUser(authState.adminSubject);
+    // if (!isAdminSuperUser) {
+    //   new ConsoleLogger("fail", `this admin can't create course!`);
+    //   return;
+    // }
+
     pendingCourse.creatorID = authState.adminSubject as string;
     await pendingCourse.save();
     new ConsoleLogger(
@@ -371,6 +379,38 @@ export const handleCreateCourse: HandlerFunctionType = async (
     return;
   } catch (err) {
     new ConsoleLogger("error", `error creating course. reason: ${err}`);
+    return;
+  }
+};
+
+export const handleViewCourse: HandlerFunctionType = async (authState, ac) => {
+  if (!verifyAccess(authState, ac)) {
+    new ConsoleLogger(
+      "fail",
+      "this action is only accessible to console users"
+    );
+    return;
+  }
+
+  const courseCreationPrompt: {
+    courseID: string;
+  } = await inquirer.prompt([
+    {
+      type: "input",
+      name: "courseID",
+      message: "Enter course id :",
+    },
+  ]);
+
+  const { courseID } = courseCreationPrompt;
+
+  try {
+    const resCourse = await CourseModel.search(courseID);
+    CourseModel.display(resCourse);
+
+    return;
+  } catch (err) {
+    new ConsoleLogger("error", `error getting course view. reason: ${err}`);
     return;
   }
 };

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { AuthStateType } from './../server/types.d';
+import { AuthStateType } from "./../server/types.d";
 
 import { config } from "dotenv";
 config({ path: [".env", ".env.dev"] });
@@ -10,7 +10,12 @@ import { AdminModel } from "./models/admin.model.js";
 
 import chalk from "chalk";
 import figlet from "figlet";
-import { handleAuthenticateUser, handleCreateCourse, handleCreateUser } from "./option-handlers.js";
+import {
+  handleAuthenticateUser,
+  handleCreateCourse,
+  handleCreateUser,
+  handleViewCourse,
+} from "./option-handlers.js";
 import { AuthPosition } from "./option-handlers.js";
 import { ConsoleLogger } from "./utils.js";
 
@@ -126,6 +131,10 @@ async function promptAndProcess(options: any) {
       case "cc":
       case "2":
         await handleCreateCourse(AUTH_STATE, "require-creator");
+        break;
+      case "vc":
+      case "17":
+        await handleViewCourse(AUTH_STATE, "none");
         break;
       case "cu":
       case "3":
