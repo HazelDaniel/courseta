@@ -1,10 +1,6 @@
 import chalk from "chalk";
 
 export abstract class BaseModel<T> {
-  constructor(
-    public readonly email: string,
-    public readonly password: string
-  ) {}
 
   abstract save(): T;
 
