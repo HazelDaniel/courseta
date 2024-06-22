@@ -3,6 +3,12 @@ export interface DBSessionFunctionType {
   (client: PoolClient): void;
 }
 
+export interface ConsoleRootOptionType {
+  id: number;
+  shortcut: string;
+  description: string;
+}
+
 export type UserRoleType = "student" | "creator";
 export type StudentRankType =
   | "novice"
@@ -50,6 +56,7 @@ export interface CourseDetailViewType extends CourseViewType {
   studentCount: number;
   courseLength: number;
   updatedAt: string;
+  averageRating: number;
 }
 
 export interface CourseOutlineViewType {
