@@ -52,6 +52,7 @@ BEGIN
   CREATE TABLE IF NOT EXISTS courseta.admins (
     admin_id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
     email VARCHAR(256) NOT NULL CHECK (email iLIKE '%@%.%'),
+    is_superuser BOOLEAN NOT NULL DEFAULT 'false',
     password TEXT NOT NULL,
     UNIQUE(email)
   );
