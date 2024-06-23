@@ -7,3 +7,5 @@ src/db*js
 .console.zshrc
 src/*.js
 src/models/*.js
+backup
+TODO.txt
