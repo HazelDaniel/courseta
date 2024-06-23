@@ -1,14 +1,13 @@
 import type {
   CreatorViewType,
-  UserContractType,
   UserRoleType,
 } from "./../types.d";
 import { pool } from "../db.js";
 import chalk from "chalk";
-import { BaseModel } from "./base-model.js";
 import type { QueryConfig, QueryResult } from "pg";
+import { UserModel } from "./user.model.js";
 
-export class CreatorModel extends BaseModel<void> implements UserContractType {
+export class CreatorModel extends UserModel {
   creatorID: string | null = null;
   points: number | null = null;
   role: UserRoleType | null = null;
@@ -58,6 +57,14 @@ export class CreatorModel extends BaseModel<void> implements UserContractType {
     };
 
     return fetchAllCreators();
+  }
+
+  get all() {
+    try {
+      return CreatorModel.all;
+    } catch (err) {
+      return [];
+    }
   }
 
   static verify(creatorEmail: string | null): Promise<{
@@ -186,14 +193,6 @@ export class CreatorModel extends BaseModel<void> implements UserContractType {
       throw err;
     } finally {
       client.release();
-    }
-  }
-
-  get all() {
-    try {
-      return CreatorModel.all;
-    } catch (err) {
-      return [];
     }
   }
 }

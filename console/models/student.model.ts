@@ -1,16 +1,15 @@
 import type {
   StudentRankType,
   StudentViewType,
-  UserContractType,
   UserRoleType,
 } from "./../types.d";
 import { pool } from "../db.js";
 import chalk from "chalk";
-import { BaseModel } from "./base-model.js";
 import type { QueryConfig, QueryResult } from "pg";
 import { BoardDisplay, ConsoleLogger } from "../utils.js";
+import { UserModel } from "./user.model.js";
 
-export class StudentModel extends BaseModel<void> implements UserContractType {
+export class StudentModel extends UserModel {
   studentID: string | null = null;
   rank: StudentRankType | null = null;
   points: number | null = null;
@@ -26,7 +25,7 @@ export class StudentModel extends BaseModel<void> implements UserContractType {
     super();
   }
 
-  static get all() {
+   static get all() {
     const fetchAllStudents: () => Promise<StudentViewType[]> = async () => {
       const client = await pool.connect();
       try {
@@ -74,6 +73,14 @@ export class StudentModel extends BaseModel<void> implements UserContractType {
     };
 
     return fetchAllStudents();
+  }
+
+  get all() {
+    try {
+      return StudentModel.all;
+    } catch (err) {
+      return [];
+    }
   }
 
   static async displayAll() {
@@ -236,14 +243,6 @@ export class StudentModel extends BaseModel<void> implements UserContractType {
       throw new Error(err as string);
     } finally {
       client.release();
-    }
-  }
-
-  get all() {
-    try {
-      return StudentModel.all;
-    } catch (err) {
-      return [];
     }
   }
 }
