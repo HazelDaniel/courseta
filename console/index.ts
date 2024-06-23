@@ -12,16 +12,20 @@ import chalk from "chalk";
 import figlet from "figlet";
 import {
   handleAuthenticateUser,
+  handleCourseEnroll,
   handleCourseReview,
+  handleCourseUnenroll,
   handleCreateCourse,
   handleCreateUser,
   handleListCourses,
+  handleListStudentCourses,
   handleListStudents,
   handleViewCourse,
 } from "./option-handlers.js";
 import { AuthPosition } from "./option-handlers.js";
 import { ConsoleLogger } from "./utils.js";
 import { ConsoleRootOptionType } from "./types";
+import { pool } from "./db.js";
 
 const program = new Command();
 
@@ -65,16 +69,17 @@ const RootOptions: ConsoleRootOptionType[] = [
   { id: 4, shortcut: "rc", description: "review course" },
   { id: 5, shortcut: "lc", description: "list courses" },
   { id: 6, shortcut: "ls", description: "list students" },
-  { id: 7, shortcut: "lc", description: "list creators" },
-  { id: 8, shortcut: "es", description: "enroll student" },
-  { id: 9, shortcut: "us", description: "unenroll student" },
-  { id: 10, shortcut: "uui", description: "update user info" },
-  { id: 11, shortcut: "aa", description: "attempt assessment" },
   { id: 12, shortcut: "lmc", description: "list my courses" },
-  { id: 13, shortcut: "vrc", description: "view recommended courses" },
-  { id: 14, shortcut: "vruc", description: "view last unfinished course" },
   { id: 15, shortcut: "a", description: "authenticate user" },
   { id: 16, shortcut: "vc", description: "view course" },
+  { id: 8, shortcut: "ec", description: "enroll course" },
+  { id: 9, shortcut: "uc", description: "unenroll course" },
+  { id: 10, shortcut: "uui", description: "update user info" },
+  { id: 11, shortcut: "aa", description: "attempt assessment" },
+  { id: 13, shortcut: "vrc", description: "view recommended courses" },
+  { id: 14, shortcut: "vruc", description: "view last unfinished course" },
+  { id: 7, shortcut: "lcr", description: "list creators" },
+  { id: 17, shortcut: "dc", description: "delete course" },
 ];
 
 const parseOptionListToString = (options: ConsoleRootOptionType[]) => {
@@ -147,15 +152,8 @@ async function promptAndProcess(options: any) {
       case "q":
       case "1":
         console.log(chalk.yellowBright("INFO: "), "exiting the application...");
+        await pool.end();
         process.exit();
-      case "a":
-      case "16":
-        if (!!AUTH_STATE.subject) {
-          new ConsoleLogger("info", "already authenticated"); // if an explicit user auth has already been performed
-          break;
-        }
-        await handleAuthenticateUser(AUTH_STATE, "none");
-        break;
       case "cc":
       case "2":
         await handleCreateCourse(AUTH_STATE, "require-creator");
@@ -175,6 +173,22 @@ async function promptAndProcess(options: any) {
       case "ls":
       case "6":
         await handleListStudents(AUTH_STATE, "none");
+        break;
+      case "ec":
+      case "8":
+        await handleCourseEnroll(AUTH_STATE, "require-student");
+        break;
+      case "uc":
+      case "9":
+        await handleCourseUnenroll(AUTH_STATE, "require-student");
+        break;
+      case "lmc":
+      case "12":
+        await handleListStudentCourses(AUTH_STATE, "require-student");
+        break;
+      case "a":
+      case "15":
+        await handleAuthenticateUser(AUTH_STATE, "none");
         break;
       case "vc":
       case "16":
