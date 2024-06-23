@@ -13,6 +13,15 @@ BEGIN
   END;
   $block1$ LANGUAGE PLPGSQL;
 
+  CREATE OR REPLACE FUNCTION is_admin_superuser (admin_id_ UUID) RETURNS
+  TABLE (is_superuser BOOLEAN) AS
+  $block1$
+  BEGIN
+    RETURN QUERY SELECT admins.is_superuser FROM courseta.admins
+    WHERE admins.admin_id = admin_id_;
+  END;
+  $block1$ LANGUAGE PLPGSQL;
+
   RAISE NOTICE '[SETUP]   (GET) FUNCTION: DONE setting up the get_current_admin function.';
 END
 $block$ LANGUAGE PLPGSQL;
