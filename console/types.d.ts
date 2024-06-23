@@ -49,6 +49,10 @@ export interface CourseViewType {
   courseID: string;
 }
 
+export interface CourseSummaryViewType extends CourseViewType {
+  progress: number;
+}
+
 export interface CourseDetailViewType extends CourseViewType {
   description: string;
   reviewCount: number;
