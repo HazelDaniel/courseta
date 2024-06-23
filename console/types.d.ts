@@ -88,6 +88,7 @@ export type HandlerAccessControlType =
   | "require-admin"
   | "require-creator"
   | "require-student"
+  | "require-user"
   | "none";
 
 export interface HandlerFunctionType {
@@ -96,4 +97,30 @@ export interface HandlerFunctionType {
 
 export interface UserContractType {
   verify(email: string | null): Promise<object | null>;
+
+  updatePassword(
+    userID: string,
+    oldPassword: string,
+    newPassword: string,
+    type: UserRoleType
+  ): Promise<void>;
+
+  updateNames(
+    userID: string,
+    firstName: string | null,
+    lastName?: string | null,
+    type: UserRoleType
+  ): Promise<void>;
+
+  updateEmail(
+    userID: string,
+    newEmail: string,
+    type: UserRoleType
+  ): Promise<void>;
+
+  updateAvatar(
+    userID: string,
+    newAvatar: string,
+    type: UserRoleType
+  ): Promise<void>;
 }
