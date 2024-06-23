@@ -8,6 +8,7 @@ import { pool } from "../db.js";
 import chalk from "chalk";
 import { BaseModel } from "./base-model.js";
 import type { QueryConfig, QueryResult } from "pg";
+import { BoardDisplay, ConsoleLogger } from "../utils.js";
 
 export class StudentModel extends BaseModel<void> implements UserContractType {
   studentID: string | null = null;
@@ -31,20 +32,33 @@ export class StudentModel extends BaseModel<void> implements UserContractType {
       try {
         const query: QueryConfig<string[]> = {
           name: "get_all_students",
-          text: "SELECT student_id, rank, points, email, role, avatar->>'url' FROM students",
+          text: "SELECT student_id, rank, points, email, role, avatar->>'url' avatar_url FROM students",
         };
-        const res: QueryResult<
-          [string, StudentRankType, string, string, string, string]
-        > = await client.query(query);
+        const res: QueryResult<{
+          student_id: string;
+          rank: StudentRankType;
+          points: string;
+          email: string;
+          role: UserRoleType;
+          avatar_url: string;
+        }> = await client.query(query);
         const { rows } = res;
         const resStudents = rows.map((el) => {
-          const [id, rank, points, _1, role, avatarUrl] = el;
+          const {
+            avatar_url,
+            email,
+            points,
+            rank,
+            role,
+            student_id: studentID,
+          } = el;
           return {
-            studentID: id,
+            studentID,
+            email,
             rank,
             points: +points,
-            role: role as UserRoleType,
-            avatarUrl,
+            role,
+            avatarUrl: avatar_url,
           };
         });
 
@@ -60,6 +74,32 @@ export class StudentModel extends BaseModel<void> implements UserContractType {
     };
 
     return fetchAllStudents();
+  }
+
+  static async displayAll() {
+    const { level2Nest, border, marginDecoratorCount, frameChar } =
+      BoardDisplay;
+    try {
+      const resStudents = this.all;
+      const allStudents = await resStudents;
+      console.log(chalk.yellow("[ALL STUDENTS]\n"));
+      console.log(chalk.green(frameChar.repeat(marginDecoratorCount / 2)));
+
+      allStudents.forEach((entry) => {
+        Object.keys(entry).forEach((key) => {
+          console.log(border, level2Nest, key, " ->", " ", entry[key]);
+        });
+
+        console.log(chalk.green(frameChar.repeat(marginDecoratorCount / 2)));
+      });
+
+      console.log("\n");
+    } catch (err) {
+      new ConsoleLogger(
+        "error",
+        `an error occurred getting all students, ${err}`
+      );
+    }
   }
 
   static verify(
