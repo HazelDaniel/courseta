@@ -1,12 +1,9 @@
-import type {
-  CourseDetailViewType,
-  CourseOutlineViewType,
-  CourseViewType,
-} from "./../types.d";
+import type { CourseOutlineViewType, CourseViewType } from "./../types.d";
 import { pool } from "../db.js";
 import chalk from "chalk";
 import { BaseModel } from "./base-model.js";
 import type { QueryConfig, QueryResult } from "pg";
+import { BoardDisplay, ConsoleLogger } from "../utils.js";
 
 export class CourseModel extends BaseModel<void> {
   courseID: string | null = null;
@@ -66,6 +63,71 @@ export class CourseModel extends BaseModel<void> {
     return fetchAllCourses();
   }
 
+  static display(CourseOutline: CourseOutlineViewType) {
+    const { level1Nest, level3Nest, border, marginDecoratorCount } =
+      BoardDisplay;
+
+    const { detail, outline } = CourseOutline;
+
+    console.log("");
+    console.log(`${chalk.green("<>".repeat(marginDecoratorCount))}`);
+    console.log(level1Nest, chalk.cyan("[COURSE]\n"));
+    console.log(`${border}${level1Nest} title: ${detail.title}`);
+    console.log(`${border}${level1Nest} length: ${detail.courseLength}s long`);
+    console.log(`${border}${level1Nest} description: ${detail.description}`);
+    console.log(
+      `${border}${level1Nest} ratings: ${detail.averageRating} (${detail.reviewCount})`
+    );
+    console.log(
+      chalk.overline(`${border}${level3Nest} last updated: ${detail.updatedAt}`)
+    );
+    console.log(
+      chalk.overline(
+        `${border}${level3Nest} members enrolled: ${detail.studentCount}`
+      )
+    );
+    console.log(level1Nest, chalk.cyan("[OUTLINE]\n"));
+    outline.forEach((entry) => {
+      console.log(
+        chalk.overline(
+          `${border}${level1Nest} ${entry.title} || (${entry.contentCount} contents) ${entry.totalDuration}s long`
+        ),
+        chalk.overline(
+          `${border}${level1Nest} [QUIZ]: ${entry.quizTitle} || (${entry.totalPoints} points)`
+        )
+      );
+    });
+
+    console.log(`${chalk.green("<>".repeat(marginDecoratorCount))}`);
+    console.log("");
+  }
+
+  static async displayAll() {
+    const { level2Nest, border, marginDecoratorCount, frameChar } =
+      BoardDisplay;
+    try {
+      const resCourses = this.all;
+      const allCourses = await resCourses;
+      console.log(chalk.yellow("[ALL COURSES]\n"));
+      console.log(chalk.green(frameChar.repeat(marginDecoratorCount / 2)));
+
+      allCourses.forEach((entry) => {
+        Object.keys(entry).forEach((key) => {
+          console.log(border, level2Nest, key, " ->", " ", entry[key]);
+        });
+
+        console.log(chalk.green(frameChar.repeat(marginDecoratorCount / 2)));
+      });
+
+      console.log("\n");
+    } catch (err) {
+      new ConsoleLogger(
+        "error",
+        `an error occurred getting all courses, ${err}`
+      );
+    }
+  }
+
   static search(courseID: string | null) {
     const fetchCourse: () => Promise<CourseOutlineViewType> = async () => {
       const client = await pool.connect();
@@ -93,6 +155,7 @@ export class CourseModel extends BaseModel<void> {
             student_count: string;
             updated_at: string;
             course_length: number;
+            average_rating: number;
           }>
         > = client.query(courseQuery);
 
@@ -125,6 +188,7 @@ export class CourseModel extends BaseModel<void> {
             title,
             course_length,
             updated_at,
+            average_rating,
           } = el;
 
           return {
@@ -138,6 +202,7 @@ export class CourseModel extends BaseModel<void> {
             courseLength: +course_length,
             updatedAt: updated_at,
             courseID: courseID as string,
+            averageRating: +average_rating,
           };
         })[0];
 
