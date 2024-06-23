@@ -21,6 +21,7 @@ import {
   handleListStudentCourses,
   handleListStudents,
   handleViewCourse,
+  handleUserInfoUpdate
 } from "./option-handlers.js";
 import { AuthPosition } from "./option-handlers.js";
 import { ConsoleLogger } from "./utils.js";
@@ -181,6 +182,10 @@ async function promptAndProcess(options: any) {
       case "uc":
       case "9":
         await handleCourseUnenroll(AUTH_STATE, "require-student");
+        break;
+      case "uui":
+      case "10":
+        await handleUserInfoUpdate(AUTH_STATE, "require-user");
         break;
       case "lmc":
       case "12":
