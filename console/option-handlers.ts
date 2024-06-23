@@ -10,6 +10,7 @@ import { CreatorModel } from "./models/creator.model.js";
 import { CourseModel } from "./models/course.model.js";
 import { AdminModel } from "./models/admin.model.js";
 import { ReviewModel } from "./models/review.model.js";
+import { EnrollmentModel } from "./models/enrollment.model.js";
 
 export enum AuthPosition {
   ADMIN_AUTH,
@@ -513,17 +514,63 @@ export const handleCourseEnroll: HandlerFunctionType = async (
     {
       type: "number",
       name: "courseID",
-      message: "Enter course (id) to review :",
+      message: "Enter course (id) to enroll :",
     },
   ]);
 
   const { courseID } = reviewCreationPrompt;
+  const pendingEnrollment = new EnrollmentModel(
+    authState.subject as string,
+    courseID
+  );
 
   try {
-    await CourseModel.enrollStudent(authState.subject as string, courseID);
+    await pendingEnrollment.save();
     new ConsoleLogger("success", "course enrolled successfully!");
   } catch (err) {
     new ConsoleLogger("fail", "course enrollment failed.");
   }
   return;
+};
+
+export const handleCourseUnenroll: HandlerFunctionType = async (
+  authState,
+  ac
+) => {
+  if (!verifyAccess(authState, ac)) {
+    new ConsoleLogger("fail", "this action is only accessible to students");
+    return;
+  }
+
+  const unenrollCreationPrompt: {
+    courseID: string;
+  } = await inquirer.prompt([
+    {
+      type: "number",
+      name: "courseID",
+      message: "Enter course (id) to unenroll from :",
+    },
+  ]);
+
+  const { courseID } = unenrollCreationPrompt;
+
+  try {
+    await EnrollmentModel.delete(authState.subject as string, courseID);
+    new ConsoleLogger("success", "course unenrolled successfully!");
+  } catch (err) {
+    new ConsoleLogger("fail", "course un-enrollment failed.");
+  }
+  return;
+};
+
+export const handleListStudentCourses: HandlerFunctionType = async (
+  authState,
+  ac
+) => {
+  if (!verifyAccess(authState, ac)) {
+    new ConsoleLogger("fail", "this action is only accessible to students");
+    return;
+  }
+
+  await EnrollmentModel.displayAll(authState.subject as string);
 };
