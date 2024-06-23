@@ -3,6 +3,7 @@ import type {
   HandlerAccessControlType,
   HandlerFunctionType,
   AuthStateType,
+  UserRoleType,
 } from "./types";
 import { ConsoleLogger } from "./utils.js";
 import { StudentModel } from "./models/student.model.js";
@@ -11,6 +12,7 @@ import { CourseModel } from "./models/course.model.js";
 import { AdminModel } from "./models/admin.model.js";
 import { ReviewModel } from "./models/review.model.js";
 import { EnrollmentModel } from "./models/enrollment.model.js";
+import { UserModel } from "./models/user.model.js";
 
 export enum AuthPosition {
   ADMIN_AUTH,
@@ -31,6 +33,12 @@ const verifyAccess: (
       return authState.status[AuthPosition.CREATOR_AUTH] && !!authState.subject;
     case "require-student":
       return authState.status[AuthPosition.STUDENT_AUTH] && !!authState.subject;
+    case "require-user":
+      return (
+        (authState.status[AuthPosition.STUDENT_AUTH] ||
+          authState.status[AuthPosition.CREATOR_AUTH]) &&
+        !!authState.subject
+      );
   }
 };
 
@@ -369,12 +377,14 @@ export const handleCreateCourse: HandlerFunctionType = async (
       return;
     }
 
-    // TODO: the logic for checking superusers will go here once the console can be used by multiple admins
-    // const isAdminSuperUser = await AdminModel.isSuperUser(authState.adminSubject);
-    // if (!isAdminSuperUser) {
-    //   new ConsoleLogger("fail", `this admin can't create course!`);
-    //   return;
-    // }
+    const { isSuperUser: isAdminSuperUser } = await AdminModel.isSuperUser(
+      authState.adminSubject
+    );
+
+    if (!isAdminSuperUser) {
+      new ConsoleLogger("fail", `this admin can't create courses!`);
+      return;
+    }
 
     pendingCourse.creatorID = authState.adminSubject as string;
     await pendingCourse.save();
@@ -573,4 +583,224 @@ export const handleListStudentCourses: HandlerFunctionType = async (
   }
 
   await EnrollmentModel.displayAll(authState.subject as string);
+};
+
+export const handleUserInfoUpdate: HandlerFunctionType = async (
+  authState,
+  ac
+) => {
+  if (!verifyAccess(authState, ac)) {
+    new ConsoleLogger(
+      "fail",
+      "this action is only accessible to platform users"
+    );
+    return;
+  }
+
+  const userTypePrompt: {
+    userType: string;
+  } = await inquirer.prompt([
+    {
+      type: "input",
+      name: "userType",
+      message:
+        "WHAT TYPE OF USER ARE YOU?\n\
+      1.  => student\n\
+      2.  => creator\n\
+      3.  => go back [<-]\n\
+      \ninput your choice:",
+    },
+  ]);
+
+  const { userType } = userTypePrompt;
+
+  switch (userType) {
+    case "1":
+      await handleStudentOrCreatorInfoUpdate(authState, "student");
+      break;
+    case "2":
+      await handleStudentOrCreatorInfoUpdate(authState, "creator");
+      break;
+    case "3":
+      return;
+    default:
+      new ConsoleLogger("info", "no valid option picked");
+      return;
+  }
+};
+
+export const handleStudentOrCreatorInfoUpdate = async (
+  authState: AuthStateType,
+  type: UserRoleType
+) => {
+  const userInfoPrompt: {
+    updateOption: string;
+  } = await inquirer.prompt([
+    {
+      type: "input",
+      name: "updateOption",
+      message:
+        "AVAILABLE UPDATE OPTIONS :\n\
+      1.  => profile image\n\
+      2.  => email\n\
+      3.  => names (first and/or last)\n\
+      4.  => password\n\
+      5.  => go back [<-]\n\
+      \ninput your choice:",
+    },
+  ]);
+
+  const { updateOption } = userInfoPrompt;
+
+  try {
+    switch (updateOption) {
+      case "1":
+        const avatarResponse = await handleAvatarUpdateFetch();
+        const newAvatar = avatarResponse?.newAvatar;
+        await StudentModel.updateAvatar(
+          authState.subject as string,
+          newAvatar,
+          "student"
+        );
+        break;
+      case "2":
+        const emailResponse = await handleEmailUpdateFetch();
+        const email = emailResponse?.email;
+        await UserModel.updateEmail(authState.subject as string, email, type);
+        break;
+      case "3":
+        const namesResponse = await handleNamesUpdateFetch();
+        const firstName = namesResponse?.firstName || null;
+        const lastName = namesResponse?.lastName || null;
+        await UserModel.updateNames(
+          authState.subject as string,
+          firstName,
+          lastName,
+          type
+        );
+        break;
+      case "4":
+        const passwordsResponse = await handlePasswordUpdateFetch();
+        const oldPassword = passwordsResponse?.oldPassword;
+        const newPassword = passwordsResponse?.newPassword;
+        await UserModel.updatePassword(
+          authState.subject as string,
+          oldPassword,
+          newPassword,
+          type
+        );
+        break;
+      case "5":
+        return;
+      default:
+        new ConsoleLogger("info", "no valid option picked");
+        return;
+    }
+    new ConsoleLogger("success", "user info update success!");
+  } catch (err) {
+    new ConsoleLogger("fail", `user info update failed! reason: ${(err as Error).message || (err as string)}`);
+  }
+  return;
+};
+
+export const handleAvatarUpdateFetch: () => Promise<{
+  newAvatar: string;
+}> = async () => {
+  return new Promise(async (resolve, reject) => {
+    const avatarPrompt: {
+      newAvatar: string;
+    } = await inquirer.prompt([
+      {
+        type: "input",
+        name: "newAvatar",
+        message: "profile image url :",
+      },
+    ]);
+
+    try {
+      resolve(avatarPrompt);
+    } catch (err) {
+      reject(new Error("error getting email!"));
+    }
+  });
+};
+
+export const handleEmailUpdateFetch: () => Promise<{
+  email: string;
+}> = async () => {
+  return new Promise(async (resolve, reject) => {
+    const namesPrompt: {
+      email: string;
+    } = await inquirer.prompt([
+      {
+        type: "input",
+        name: "email",
+        message: "email :",
+      },
+    ]);
+
+    try {
+      resolve(namesPrompt);
+    } catch (err) {
+      reject(new Error("error getting email!"));
+    }
+  });
+};
+
+export const handleNamesUpdateFetch: () => Promise<{
+  firstName: string;
+  lastName: string;
+}> = async () => {
+  return new Promise(async (resolve, reject) => {
+    const namesPrompt: {
+      firstName: string;
+      lastName: string;
+    } = await inquirer.prompt([
+      {
+        type: "input",
+        name: "firstName",
+        message: "first name (hit enter to keep) :",
+      },
+      {
+        type: "input",
+        name: "lastName",
+        message: "last name (hit enter to keep) :",
+      },
+    ]);
+
+    try {
+      resolve(namesPrompt);
+    } catch (err) {
+      reject(new Error("error getting names!"));
+    }
+  });
+};
+
+export const handlePasswordUpdateFetch: () => Promise<{
+  oldPassword: string;
+  newPassword: string;
+}> = async () => {
+  return new Promise(async (resolve, reject) => {
+    const passwordPrompt: {
+      oldPassword: string;
+      newPassword: string;
+    } = await inquirer.prompt([
+      {
+        type: "password",
+        name: "oldPassword",
+        message: "old password :",
+      },
+      {
+        type: "password",
+        name: "newPassword",
+        message: "new password :",
+      },
+    ]);
+
+    try {
+      resolve(passwordPrompt);
+    } catch (err) {
+      reject(new Error("error getting passwords!"));
+    }
+  });
 };
