@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# db teardown, cleanup and setup
 source ./.environment.zshrc
 
 for i in $(find ./setup -type f | sort -n); do
