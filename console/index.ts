@@ -21,7 +21,9 @@ import {
   handleListStudentCourses,
   handleListStudents,
   handleViewCourse,
-  handleUserInfoUpdate
+  handleUserInfoUpdate,
+  handleListStudentRecommendedCourses,
+  handleListStudentRecentUnfinished,
 } from "./option-handlers.js";
 import { AuthPosition } from "./option-handlers.js";
 import { ConsoleLogger } from "./utils.js";
@@ -70,14 +72,14 @@ const RootOptions: ConsoleRootOptionType[] = [
   { id: 4, shortcut: "rc", description: "review course" },
   { id: 5, shortcut: "lc", description: "list courses" },
   { id: 6, shortcut: "ls", description: "list students" },
-  { id: 12, shortcut: "lmc", description: "list my courses" },
-  { id: 15, shortcut: "a", description: "authenticate user" },
-  { id: 16, shortcut: "vc", description: "view course" },
   { id: 8, shortcut: "ec", description: "enroll course" },
   { id: 9, shortcut: "uc", description: "unenroll course" },
   { id: 10, shortcut: "uui", description: "update user info" },
-  { id: 11, shortcut: "aa", description: "attempt assessment" },
+  { id: 12, shortcut: "lmc", description: "list my courses" },
+  { id: 15, shortcut: "a", description: "authenticate user" },
+  { id: 16, shortcut: "vc", description: "view course" },
   { id: 13, shortcut: "vrc", description: "view recommended courses" },
+  { id: 11, shortcut: "aa", description: "attempt assessment" }, // last implementation
   { id: 14, shortcut: "vruc", description: "view last unfinished course" },
   { id: 7, shortcut: "lcr", description: "list creators" },
   { id: 17, shortcut: "dc", description: "delete course" },
@@ -88,14 +90,17 @@ const parseOptionListToString = (options: ConsoleRootOptionType[]) => {
   const columnNumber = Math.round(tileRatio * 2.5);
 
   const columnSize = Math.round(process.stdout.columns / 3.5);
+  const longestOptionLength = 28;
 
   return (
     "\n" +
     options.reduce((acc, curr, i) => {
       acc +=
         `${i % columnNumber === 0 && !!i ? "\n" : !!i ? "\t" : ""}` +
-        `${curr.id}. '${curr.shortcut}' ->  ${curr.description}`.padEnd(
-          tileRatio * columnSize,
+        `${curr.id}. ${curr.shortcut} ->  ${chalk
+          .ansi256(10 * (i + 8))(curr.description)
+          .padStart(longestOptionLength, " ")}`.padEnd(
+          tileRatio * (columnSize + 8),
           " "
         );
       return acc;
@@ -116,7 +121,10 @@ async function promptAndProcess(options: any) {
   };
 
   while (!options.quit) {
-    console.log(figlet.textSync("COURSETA", "Banner3-D"));
+    console.log("\n");
+    console.log(
+      chalk.hex("#e4e4ef")(figlet.textSync("/COURSETA\\", "Banner3-D"))
+    );
 
     if (options.email && options.password && options.identifier) {
       const res = await AdminModel.search(options.email);
@@ -125,9 +133,9 @@ async function promptAndProcess(options: any) {
           AUTH_STATE.status[AuthPosition.ADMIN_AUTH] = true;
           AUTH_STATE.adminSubject = options.identifier;
           if (!runCount)
-            console.log(
-              chalk.green("SUCCESS: "),
-              "admin authenticated successfully!"
+            new ConsoleLogger(
+              "success",
+              "admin authenticated successfully (thread carefully :))"
             );
         }
       }
@@ -152,7 +160,7 @@ async function promptAndProcess(options: any) {
     switch (response) {
       case "q":
       case "1":
-        console.log(chalk.yellowBright("INFO: "), "exiting the application...");
+        new ConsoleLogger("info", "exiting the application...");
         await pool.end();
         process.exit();
       case "cc":
@@ -190,6 +198,17 @@ async function promptAndProcess(options: any) {
       case "lmc":
       case "12":
         await handleListStudentCourses(AUTH_STATE, "require-student");
+        break;
+      case "vrc":
+      case "13":
+        await handleListStudentRecommendedCourses(
+          AUTH_STATE,
+          "require-student"
+        );
+        break;
+      case "14":
+      case "vruc":
+        await handleListStudentRecentUnfinished(AUTH_STATE, "require-student");
         break;
       case "a":
       case "15":
