@@ -13,3 +13,4 @@ EXTENDED FEATURES:
 > we need an analytics feature for the dashboard of students
 > we need a leaderboard feature in the extended version
 
+> a cron job to vacuum the database at regular intervals
