@@ -440,7 +440,7 @@ export const handleListCourses: HandlerFunctionType = async (authState, ac) => {
     return;
   }
 
-  await CourseModel.displayAll();
+  await CourseModel.displayAll(CourseModel.all());
   return;
 };
 
@@ -698,7 +698,12 @@ export const handleStudentOrCreatorInfoUpdate = async (
     }
     new ConsoleLogger("success", "user info update success!");
   } catch (err) {
-    new ConsoleLogger("fail", `user info update failed! reason: ${(err as Error).message || (err as string)}`);
+    new ConsoleLogger(
+      "fail",
+      `user info update failed! reason: ${
+        (err as Error).message || (err as string)
+      }`
+    );
   }
   return;
 };
@@ -803,4 +808,34 @@ export const handlePasswordUpdateFetch: () => Promise<{
       reject(new Error("error getting passwords!"));
     }
   });
+};
+
+export const handleListStudentRecommendedCourses: HandlerFunctionType = async (
+  authState,
+  ac
+) => {
+  if (!verifyAccess(authState, ac)) {
+    new ConsoleLogger("fail", "this action is only accessible to students");
+    return;
+  }
+
+  await CourseModel.displayAll(
+    CourseModel.allRecommended(authState.subject as string)
+  );
+  return;
+};
+
+export const handleListStudentRecentUnfinished: HandlerFunctionType = async (
+  authState,
+  ac
+) => {
+  if (!verifyAccess(authState, ac)) {
+    new ConsoleLogger("fail", "this action is only accessible to students");
+    return;
+  }
+
+  await CourseModel.displayAll(
+    CourseModel.allRecentUnfinished(authState.subject as string)
+  );
+  return;
 };

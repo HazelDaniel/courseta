@@ -1,4 +1,9 @@
-import type { CourseOutlineViewType, CourseViewType } from "./../types.d";
+import type {
+  CourseDetailViewType,
+  CourseOutlineViewType,
+  CourseSummaryViewType,
+  CourseViewType,
+} from "./../types.d";
 import { pool } from "../db.js";
 import chalk from "chalk";
 import { BaseModel } from "./base-model.js";
@@ -18,8 +23,8 @@ export class CourseModel extends BaseModel<void> {
     super();
   }
 
-  static get all() {
-    const fetchAllCourses: () => Promise<CourseViewType[]> = async () => {
+  static all(): Promise<CourseViewType[]> {
+    return new Promise(async (resolve, reject) => {
       const client = await pool.connect();
       try {
         const query: QueryConfig<string[]> = {
@@ -49,18 +54,110 @@ export class CourseModel extends BaseModel<void> {
             title,
           };
         });
-        return resCourses;
+        resolve(resCourses);
       } catch (err) {
         console.error(
           `${chalk.red("QUERY_ERR:")} could not fetch courses!. reason: ${err}`
         );
-        throw err;
+        reject();
       } finally {
         client.release();
       }
-    };
+    });
+  }
 
-    return fetchAllCourses();
+  static allRecommended(studentID: string): Promise<CourseViewType[]> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const client = await pool.connect();
+        const query: QueryConfig<[string]> = {
+          name: "get_recommended_courses_for_student",
+          text: "SELECT * FROM get_recommended_courses_for_student($1)",
+          values: [studentID],
+        };
+
+        const res: QueryResult<{
+          course_id: string;
+          lesson_count: string;
+          thumbnail: string;
+          title: string;
+        }> = await client.query(query);
+
+        const { rows } = res;
+        const resCourses = rows.map((el) => {
+          const {
+            course_id: courseID,
+            lesson_count: lessonCount,
+            thumbnail,
+            title,
+          } = el;
+          return {
+            courseID,
+            lessonCount: +lessonCount,
+            thumbnail,
+            title,
+          };
+        });
+        resolve(resCourses);
+      } catch (err) {
+        console.error(
+          `${chalk.red(
+            "QUERY_ERR:"
+          )} could not fetch recommended courses!. reason: ${err}`
+        );
+        reject(err);
+      }
+    });
+  }
+
+  static allRecentUnfinished(
+    studentID: string
+  ): Promise<CourseSummaryViewType[]> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const client = await pool.connect();
+        const query: QueryConfig<[string]> = {
+          name: "get_student_recent_unfinished_course",
+          text: "SELECT * FROM get_student_recent_unfinished_course($1)",
+          values: [studentID],
+        };
+
+        const res: QueryResult<{
+          course_id: string;
+          lesson_count: string;
+          thumbnail: string;
+          title: string;
+          progress: string;
+        }> = await client.query(query);
+
+        const { rows } = res;
+        const resCourses = rows.map((el) => {
+          const {
+            course_id: courseID,
+            lesson_count: lessonCount,
+            thumbnail,
+            title,
+            progress,
+          } = el;
+          return {
+            courseID,
+            lessonCount: +lessonCount,
+            thumbnail,
+            title,
+            progress: +progress,
+          };
+        });
+
+        resolve(resCourses);
+      } catch (err) {
+        console.error(
+          `${chalk.red(
+            "QUERY_ERR:"
+          )} could not fetch last unfinished courses!. reason: ${err}`
+        );
+        reject(err);
+      }
+    });
   }
 
   static display(CourseOutline: CourseOutlineViewType) {
@@ -102,11 +199,11 @@ export class CourseModel extends BaseModel<void> {
     console.log("");
   }
 
-  static async displayAll() {
+  static async displayAll(fn: Promise<CourseViewType[]>) {
     const { level2Nest, border, marginDecoratorCount, frameChar } =
       BoardDisplay;
     try {
-      const resCourses = this.all;
+      const resCourses = fn;
       const allCourses = await resCourses;
       console.log(chalk.yellow("[ALL COURSES]\n"));
       console.log(chalk.green(frameChar.repeat(marginDecoratorCount / 2)));
@@ -284,7 +381,7 @@ export class CourseModel extends BaseModel<void> {
 
   get all() {
     try {
-      return CourseModel.all;
+      return CourseModel.all();
     } catch (err) {
       return [];
     }
