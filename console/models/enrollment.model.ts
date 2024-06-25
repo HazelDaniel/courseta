@@ -37,31 +37,6 @@ export class EnrollmentModel extends BaseModel<void> {
     }
   }
 
-  static async displayAll(studentID: string) {
-    const { level2Nest, border, marginDecoratorCount, frameChar } =
-      BoardDisplay;
-    try {
-      const resCourses = this.all(studentID);
-      const allCourses = await resCourses;
-      console.log(chalk.yellow("[ALL MY COURSES]\n"));
-      console.log(chalk.green(frameChar.repeat(marginDecoratorCount / 2)));
-
-      allCourses.forEach((entry) => {
-        Object.keys(entry).forEach((key) => {
-          console.log(border, level2Nest, key, " ->", " ", entry[key]);
-        });
-
-        console.log(chalk.green(frameChar.repeat(marginDecoratorCount / 2)));
-      });
-      console.log("\n");
-    } catch (err) {
-      new ConsoleLogger(
-        "error",
-        `an error occurred getting all your courses, ${err}`
-      );
-    }
-  }
-
   static all(studentID: string) {
     const fetchAllStudentCourses: () => Promise<
       CourseSummaryViewType[]
