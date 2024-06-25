@@ -44,7 +44,7 @@ SELECT * FROM creators;
 -- DELETE FROM students WHERE student_id = :'courseta_var_student_id_3';
 -- DELETE FROM students WHERE student_id = :'courseta_var_student_id_1';
 
-DELETE FROM students WHERE student_id = '2a8c9187-e2e9-43b6-9c0b-920bfa0143ce';
-DELETE FROM students WHERE student_id = '2a8c9187-e2e9-43b6-9c0b-920bfa0143ce';
+-- DELETE FROM students WHERE student_id = '2a8c9187-e2e9-43b6-9c0b-920bfa0143ce';
+-- DELETE FROM students WHERE student_id = '2a8c9187-e2e9-43b6-9c0b-920bfa0143ce';
 SELECT * FROM creators;
 SELECT COUNT(*) all_student_count FROM students;

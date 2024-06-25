@@ -64,7 +64,7 @@ SELECT review_course_for_student(:'courseta_var_student_id_1', 2, '5', 'wow, awe
 SELECT review_course_for_student(:'courseta_var_student_id_2', 2, '3', 'meh');
 
 SELECT review_course_for_student(:'courseta_var_student_id_3', 2, '5', 'mind blowing');
-SELECT review_course_for_student(:'courseta_var_student_id_3', 3, '3', 'look who mid');
+SELECT review_course_for_student(:'courseta_var_student_id_3', 3, '4', 'look who above mid');
 SELECT review_course_for_student(:'courseta_var_student_id_3', 1, '1', 'ahh, poor!');
 
 -- SELECT * FROM courses;
@@ -76,8 +76,19 @@ SELECT * FROM get_recommended_courses_for_student(:'courseta_var_student_id_1');
 SELECT * FROM get_recommended_courses_for_student(:'courseta_var_student_id_2');
 SELECT * FROM get_recommended_courses_for_student(:'courseta_var_student_id_3');
 
+
 \echo 'testing the average course ratings on a creator';
 SELECT * FROM creators WHERE creator_id = :'courseta_var_creator_id_1';
+
+\echo 'testing the course ratings on a course before an unenrollment';
+SELECT * FROM courses WHERE course_id = 3;
+
+\echo 'unenrolling a student from a course';
+SELECT unenroll_student_from_course(:'courseta_var_student_id_3', 3);
+-- \echo 'testing the average course ratings on a creator after an unenrollment';
+-- SELECT * FROM creators;
+\echo 'testing the course ratings on a course after an unenrollment';
+SELECT * FROM courses WHERE course_id = 3;
 
 \echo 'getting all reviews for a course';
 SELECT * FROM get_course_reviews(1::BIGINT);
