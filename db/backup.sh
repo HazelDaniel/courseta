@@ -9,7 +9,7 @@ for i in `cat ./backup/dependency.txt`; do
 	if [[ ! -d "./backup/tables/$i"  ]]; then
 		mkdir ./backup/tables/"$i"
 	fi
-	psql -Utoughware -p5432 -hlocalhost -d courseta -c "\COPY $i TO backup/tables/$i/$i-$(date +%N).csv DELIMITER ',' HEADER CSV";
+	psql -Utoughware -p5432 -hlocalhost -d courseta -c "\COPY $i TO backup/tables/$i/$i-$(date +%y-%m_%d_%H_%M_%S_%N).csv DELIMITER ',' HEADER CSV";
 done
 
 echo "backup created successfully!"
