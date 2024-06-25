@@ -1,4 +1,5 @@
 import type {
+  CreatorSummaryViewType,
   CreatorViewType,
   UserRoleType,
 } from "./../types.d";
@@ -23,45 +24,78 @@ export class CreatorModel extends UserModel {
     super();
   }
 
-  static get all() {
-    const fetchAllCreators: () => Promise<CreatorViewType[]> = async () => {
+  static all(studentID?: string): Promise<CreatorSummaryViewType[]> {
+    return new Promise(async (resolve, reject) => {
       const client = await pool.connect();
       try {
-        const query: QueryConfig<string[]> = {
-          name: "get_all_creators",
-          text: "SELECT creators.creator_id, creators.email, creators.role, creators.creator_pass, creators.avatar->>'url' FROM creators",
-        };
-        const res: QueryResult<[string, string, UserRoleType, string, string]> =
-          await client.query(query);
+        let query: QueryConfig<string[]>;
+
+        if (studentID) {
+          query = {
+            name: "get_creator_summaries_for_student",
+            text: "SELECT * FROM get_creator_summaries_for_student($1)",
+            values: [studentID],
+          };
+        } else {
+          query = {
+            name: "get_creator_summaries",
+            text: "SELECT * FROM get_creator_summaries()",
+          };
+        }
+
+        const res: QueryResult<{
+          creator_id: string;
+          email: string;
+          first_name: string;
+          last_name: string;
+          avatar_url: string;
+          average_course_rating: string;
+          course_count: string;
+          student_count: string;
+          course_review_count: string;
+        }> = await client.query(query);
+
         const { rows } = res;
         const resCreators = rows.map((el) => {
-          const [creatorID, email, role, creatorPass, avatarUrl] = el;
+          const {
+            avatar_url: avatarUrl,
+            average_course_rating,
+            course_count,
+            course_review_count,
+            creator_id: creatorID,
+            email,
+            first_name: firstName,
+            last_name: lastName,
+            student_count,
+          } = el;
           return {
             creatorID,
-            email,
-            role,
-            creatorPass,
             avatarUrl,
+            averageCourseRating: +average_course_rating,
+            courseCount: +course_count,
+            courseReviewCount: +course_review_count,
+            email,
+            firstName,
+            lastName,
+            studentCount: +student_count,
           };
         });
 
-        return resCreators;
+        resolve(resCreators);
       } catch (err) {
         console.error(
-          `${chalk.red("QUERY_ERR:")} could not fetch creators!. reason: ${err}`
+          `${chalk.red("QUERY_ERR:")} could not fetch courses!. reason: ${err}`
         );
-        throw err;
+        reject();
       } finally {
         client.release();
       }
-    };
-
-    return fetchAllCreators();
+    });
   }
 
   get all() {
     try {
-      return CreatorModel.all;
+      return CreatorModel.all();
     } catch (err) {
       return [];
     }
@@ -195,4 +229,6 @@ export class CreatorModel extends UserModel {
       client.release();
     }
   }
+
+  // async delete() {}
 }
