@@ -24,6 +24,7 @@ import {
   handleUserInfoUpdate,
   handleListStudentRecommendedCourses,
   handleListStudentRecentUnfinished,
+  handleListCreators,
 } from "./option-handlers.js";
 import { AuthPosition } from "./option-handlers.js";
 import { ConsoleLogger } from "./utils.js";
@@ -76,11 +77,11 @@ const RootOptions: ConsoleRootOptionType[] = [
   { id: 9, shortcut: "uc", description: "unenroll course" },
   { id: 10, shortcut: "uui", description: "update user info" },
   { id: 12, shortcut: "lmc", description: "list my courses" },
+  { id: 13, shortcut: "vrc", description: "view recommended courses" },
+  { id: 14, shortcut: "vruc", description: "view last unfinished course" },
   { id: 15, shortcut: "a", description: "authenticate user" },
   { id: 16, shortcut: "vc", description: "view course" },
-  { id: 13, shortcut: "vrc", description: "view recommended courses" },
   { id: 11, shortcut: "aa", description: "attempt assessment" }, // last implementation
-  { id: 14, shortcut: "vruc", description: "view last unfinished course" },
   { id: 7, shortcut: "lcr", description: "list creators" },
   { id: 17, shortcut: "dc", description: "delete course" },
 ];
@@ -123,7 +124,7 @@ async function promptAndProcess(options: any) {
   while (!options.quit) {
     console.log("\n");
     console.log(
-      chalk.hex("#e4e4ef")(figlet.textSync("/COURSETA\\", "Banner3-D"))
+      chalk.hex("#e4e4ef")(figlet.textSync(">_ COURSETA", "Banner3-D"))
     );
 
     if (options.email && options.password && options.identifier) {
@@ -182,6 +183,10 @@ async function promptAndProcess(options: any) {
       case "ls":
       case "6":
         await handleListStudents(AUTH_STATE, "none");
+        break;
+      case "lcr":
+      case "7":
+        await handleListCreators(AUTH_STATE, "none");
         break;
       case "ec":
       case "8":
