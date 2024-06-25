@@ -1,17 +1,9 @@
 DO
 $block$
 BEGIN
-  RAISE NOTICE '[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for update of the course.lesson_count.';
+  -- RAISE NOTICE '[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for update of the course.lesson_count.';
 
-  RAISE NOTICE '<[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for addition to the course.lesson_count.';
-
-  CREATE OR REPLACE FUNCTION add_lesson_count_to_course () RETURNS TRIGGER AS
-  $block1$
-  BEGIN
-    CALL add_lesson_equiv_course_count(NEW.course_id);
-		RETURN NEW;
-  END;
-  $block1$ LANGUAGE PLPGSQL;
+  -- RAISE NOTICE '<[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for addition to the course.lesson_count.';
 
   CREATE OR REPLACE PROCEDURE add_lesson_equiv_course_count
   (course_id_ BIGINT) LANGUAGE PLPGSQL AS
@@ -22,18 +14,18 @@ BEGIN
   END;
   $block2$;
 
-  RAISE NOTICE '<[SETUP]  PROCEDURE/FUNCTION: DONE setting up procedures/functions for addition to the course.review_count.';
-
-
-  RAISE NOTICE '<[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for deduction from the course.quiz_count.';
-
-  CREATE OR REPLACE FUNCTION remove_equiv_quiz_count_from_course () RETURNS TRIGGER AS
+  CREATE OR REPLACE FUNCTION add_lesson_count_to_course () RETURNS TRIGGER AS
   $block1$
   BEGIN
-    CALL subtract_quiz_equiv_lesson_count(OLD.lesson_id);
-		RETURN OLD;
+    CALL add_lesson_equiv_course_count(NEW.course_id);
+		RETURN NEW;
   END;
   $block1$ LANGUAGE PLPGSQL;
+
+  -- RAISE NOTICE '<[SETUP]  PROCEDURE/FUNCTION: DONE setting up procedures/functions for addition to the course.review_count.';
+
+
+  -- RAISE NOTICE '<[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for deduction from the course.quiz_count.';
 
   CREATE OR REPLACE PROCEDURE subtract_quiz_equiv_lesson_count
   (lesson_id_ BIGINT) LANGUAGE PLPGSQL AS
@@ -62,18 +54,17 @@ BEGIN
   END;
   $block2$;
 
-  RAISE NOTICE '<[SETUP]  PROCEDURE/FUNCTION: DONE setting up procedures/functions for deduction from the course.quiz_count.';
-
-
-  RAISE NOTICE '<[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for deduction from the course.lesson_count.';
-
-  CREATE OR REPLACE FUNCTION remove_lesson_count_from_course () RETURNS TRIGGER AS
+  CREATE OR REPLACE FUNCTION remove_equiv_quiz_count_from_course () RETURNS TRIGGER AS
   $block1$
   BEGIN
-    CALL subtract_lesson_equiv_course_count(OLD.course_id);
+    CALL subtract_quiz_equiv_lesson_count(OLD.lesson_id);
 		RETURN OLD;
   END;
   $block1$ LANGUAGE PLPGSQL;
+
+
+
+  -- RAISE NOTICE '<[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for deduction from the course.lesson_count.';
 
   CREATE OR REPLACE PROCEDURE subtract_lesson_equiv_course_count
   (course_id_ BIGINT) LANGUAGE PLPGSQL AS
@@ -84,8 +75,16 @@ BEGIN
   END;
   $block2$;
 
-  RAISE NOTICE '<[SETUP]  PROCEDURE/FUNCTION: DONE setting up procedures/functions for deduction from the course.lesson_count.';
+  CREATE OR REPLACE FUNCTION remove_lesson_count_from_course () RETURNS TRIGGER AS
+  $block1$
+  BEGIN
+    CALL subtract_lesson_equiv_course_count(OLD.course_id);
+		RETURN OLD;
+  END;
+  $block1$ LANGUAGE PLPGSQL;
 
-  RAISE NOTICE '[SETUP]  PROCEDURE/FUNCTION: DONE setting up procedures/functions for update of the course.lesson_count.';
+  -- RAISE NOTICE '<[SETUP]  PROCEDURE/FUNCTION: DONE setting up procedures/functions for deduction from the course.lesson_count.';
+
+  -- RAISE NOTICE '[SETUP]  PROCEDURE/FUNCTION: DONE setting up procedures/functions for update of the course.lesson_count.';
 END
 $block$ LANGUAGE PLPGSQL;

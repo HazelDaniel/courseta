@@ -1,7 +1,7 @@
 DO
 $block$
 BEGIN
-  RAISE NOTICE '[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for update of the assessment.total_points.';
+  -- RAISE NOTICE '[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for update of the assessment.total_points.';
 
   CREATE OR REPLACE PROCEDURE update_question_equiv_assessment_points
   (assessment_id_ UUID, new_point INT) LANGUAGE PLPGSQL AS
@@ -21,7 +21,7 @@ BEGIN
   END;
   $block1$ LANGUAGE PLPGSQL;
 
-  RAISE NOTICE '<[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for addition to the assessment.total_points.';
+  -- RAISE NOTICE '<[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for addition to the assessment.total_points.';
 
   CREATE OR REPLACE PROCEDURE add_question_equiv_assessment_points_and_count
   (assessment_id_ UUID, new_point INT) LANGUAGE PLPGSQL AS
@@ -43,10 +43,10 @@ BEGIN
   END;
   $block1$ LANGUAGE PLPGSQL;
 
-  RAISE NOTICE '<[SETUP]  PROCEDURE/FUNCTION: DONE setting up procedures/functions for addition to the assessment.total_points.';
+  -- RAISE NOTICE '<[SETUP]  PROCEDURE/FUNCTION: DONE setting up procedures/functions for addition to the assessment.total_points.';
 
 
-  RAISE NOTICE '<[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for subtraction from the assessment.total_points.';
+  -- RAISE NOTICE '<[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for subtraction from the assessment.total_points.';
 
   CREATE OR REPLACE FUNCTION remove_points_and_question_count_from_assessment () RETURNS TRIGGER AS
   $block1$
@@ -66,8 +66,8 @@ BEGIN
   END;
   $block2$;
 
-  RAISE NOTICE '<[SETUP]  PROCEDURE/FUNCTION: DONE setting up procedures/functions for subtraction from the assessment.total_points.';
+  -- RAISE NOTICE '<[SETUP]  PROCEDURE/FUNCTION: DONE setting up procedures/functions for subtraction from the assessment.total_points.';
 
-  RAISE NOTICE '[SETUP]  PROCEDURE/FUNCTION: DONE setting up procedures/functions for update of the assessment.total_points.';
+  -- RAISE NOTICE '[SETUP]  PROCEDURE/FUNCTION: DONE setting up procedures/functions for update of the assessment.total_points.';
 END
 $block$ LANGUAGE PLPGSQL;

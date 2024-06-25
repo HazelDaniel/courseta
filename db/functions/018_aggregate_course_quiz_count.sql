@@ -3,15 +3,6 @@ $block$
 BEGIN
   RAISE NOTICE '[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for update of the course.quiz_count.';
 
-  RAISE NOTICE '<[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for addition to the course.quiz_count.';
-
-  CREATE OR REPLACE FUNCTION add_quiz_count_to_course () RETURNS TRIGGER AS
-  $block1$
-  BEGIN
-    CALL add_quiz_equiv_course_count(NEW.quiz_id);
-		RETURN NEW;
-  END;
-  $block1$ LANGUAGE PLPGSQL;
 
   CREATE OR REPLACE PROCEDURE add_quiz_equiv_course_count
   (quiz_id_ UUID) LANGUAGE PLPGSQL AS
@@ -28,19 +19,6 @@ BEGIN
 		WHERE courses.course_id = equiv_course_id;
   END;
   $block2$;
-
-  RAISE NOTICE '<[SETUP]  PROCEDURE/FUNCTION: DONE setting up procedures/functions for addition to the course.quiz_count.';
-
-
-  RAISE NOTICE '<[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for deduction from the course.quiz_count.';
-
-  CREATE OR REPLACE FUNCTION remove_quiz_count_from_course () RETURNS TRIGGER AS
-  $block1$
-  BEGIN
-    CALL subtract_quiz_equiv_lesson_count(OLD.quiz_id);
-		RETURN OLD;
-  END;
-  $block1$ LANGUAGE PLPGSQL;
 
   CREATE OR REPLACE PROCEDURE subtract_quiz_equiv_lesson_count
   (quiz_id_ UUID) LANGUAGE PLPGSQL AS
@@ -66,6 +44,29 @@ BEGIN
     END IF;
   END;
   $block2$;
+
+  RAISE NOTICE '<[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for addition to the course.quiz_count.';
+
+  CREATE OR REPLACE FUNCTION add_quiz_count_to_course () RETURNS TRIGGER AS
+  $block1$
+  BEGIN
+    CALL add_quiz_equiv_course_count(NEW.quiz_id);
+		RETURN NEW;
+  END;
+  $block1$ LANGUAGE PLPGSQL;
+
+  RAISE NOTICE '<[SETUP]  PROCEDURE/FUNCTION: DONE setting up procedures/functions for addition to the course.quiz_count.';
+
+
+  RAISE NOTICE '<[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for deduction from the course.quiz_count.';
+
+  CREATE OR REPLACE FUNCTION remove_quiz_count_from_course () RETURNS TRIGGER AS
+  $block1$
+  BEGIN
+    CALL subtract_quiz_equiv_lesson_count(OLD.quiz_id);
+		RETURN OLD;
+  END;
+  $block1$ LANGUAGE PLPGSQL;
 
   RAISE NOTICE '<[SETUP]  PROCEDURE/FUNCTION: DONE setting up procedures/functions for deduction from the course.quiz_count.';
 

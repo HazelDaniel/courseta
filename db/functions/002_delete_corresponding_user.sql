@@ -1,7 +1,16 @@
 DO
 $block$
 BEGIN
-  RAISE NOTICE '[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for user deletion.';
+  -- RAISE NOTICE '[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for user deletion.';
+
+  CREATE OR REPLACE PROCEDURE delete_user_with_student_id (student_id UUID)
+  LANGUAGE PLPGSQL AS
+  $block2$
+  BEGIN
+    DELETE FROM users WHERE users.user_id = student_id;
+  END;
+  $block2$;
+
   CREATE OR REPLACE FUNCTION delete_student_equiv_user () RETURNS TRIGGER AS
   $block1$
     BEGIN
@@ -11,11 +20,11 @@ BEGIN
   $block1$ LANGUAGE PLPGSQL;
 
 
-  CREATE OR REPLACE PROCEDURE delete_user_with_student_id (student_id UUID)
+  CREATE OR REPLACE PROCEDURE delete_user_with_creator_id (creator_id UUID)
   LANGUAGE PLPGSQL AS
   $block2$
   BEGIN
-    DELETE FROM users WHERE users.user_id = student_id;
+    DELETE FROM users WHERE users.user_id = creator_id;
   END;
   $block2$;
 
@@ -27,14 +36,6 @@ BEGIN
     END;
   $block3$ LANGUAGE PLPGSQL;
 
-  CREATE OR REPLACE PROCEDURE delete_user_with_creator_id (creator_id UUID)
-  LANGUAGE PLPGSQL AS
-  $block2$
-  BEGIN
-    DELETE FROM users WHERE users.user_id = creator_id;
-  END;
-  $block2$;
-
-  RAISE NOTICE '[SETUP]  PROCEDURE/FUNCTION: DONE setting up procedures/functions for user deletion.';
+  -- RAISE NOTICE '[SETUP]  PROCEDURE/FUNCTION: DONE setting up procedures/functions for user deletion.';
 END
 $block$ LANGUAGE PLPGSQL;

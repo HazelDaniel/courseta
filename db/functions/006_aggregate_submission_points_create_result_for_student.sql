@@ -1,7 +1,7 @@
 DO
 $block$
 BEGIN
-  RAISE NOTICE '[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for update on the students.points column.';
+  -- RAISE NOTICE '[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for update on the students.points column.';
 
   CREATE OR REPLACE FUNCTION deduct_student_existing_points (student_id_ UUID, assessment_id_ UUID, submitted_at_ TIMESTAMPTZ) RETURNS VOID AS
   $block1$
@@ -50,7 +50,7 @@ BEGIN
   END;
   $block1$ LANGUAGE PLPGSQL;
 
-  RAISE NOTICE '[SETUP]  PROCEDURE/FUNCTION: DONE setting up procedures/functions for update on the students.points column.';
+  -- RAISE NOTICE '[SETUP]  PROCEDURE/FUNCTION: DONE setting up procedures/functions for update on the students.points column.';
 
 END
 $block$ LANGUAGE PLPGSQL;

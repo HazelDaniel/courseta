@@ -3,17 +3,6 @@ $block$
 BEGIN
   RAISE NOTICE '[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for update of the student.rank.';
 
-  CREATE OR REPLACE FUNCTION update_student_rank_with_points () RETURNS TRIGGER AS
-  $block1$
-  BEGIN
-    IF NEW.points != OLD.points THEN
-      CALL select_student_rank_update_with_points(NEW.points, NEW.student_id);
-    END IF;
-		RETURN NEW;
-  END;
-  $block1$ LANGUAGE PLPGSQL;
-
-
   CREATE OR REPLACE PROCEDURE select_student_rank_update_with_points
   (student_points INT, student_id_ UUID) LANGUAGE PLPGSQL AS
   $block2$
@@ -29,6 +18,16 @@ BEGIN
     END) WHERE student_id = student_id_;
   END;
   $block2$;
+
+  CREATE OR REPLACE FUNCTION update_student_rank_with_points () RETURNS TRIGGER AS
+  $block1$
+  BEGIN
+    IF NEW.points != OLD.points THEN
+      CALL select_student_rank_update_with_points(NEW.points, NEW.student_id);
+    END IF;
+		RETURN NEW;
+  END;
+  $block1$ LANGUAGE PLPGSQL;
 
   RAISE NOTICE '[SETUP]  PROCEDURE/FUNCTION: DONE setting up procedures/functions for update of the student.rank.';
 END

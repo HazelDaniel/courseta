@@ -3,19 +3,6 @@ $block$
 BEGIN
   RAISE NOTICE '[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for updating courses.progress.';
 
-  CREATE OR REPLACE FUNCTION update_equiv_course_progress () RETURNS TRIGGER AS
-  $block1$
-    BEGIN
-      IF NEW.waiting = OLD.waiting OR NEW.waiting = 'true' THEN
-        RETURN NEW; -- don't do anything further if the assessment submission is not past the waiting state
-      END IF;
-
-      CALL update_progress_for_course(NEW.assessment_id, NEW.student_id, NEW.submitted_at);
-
-      RETURN NEW;
-    END;
-  $block1$ LANGUAGE PLPGSQL;
-
   CREATE OR REPLACE PROCEDURE update_progress_for_course (assessment_id_ UUID, student_id_ UUID, submitted_at_ TIMESTAMPTZ)
   LANGUAGE PLPGSQL AS
   $block2$
@@ -79,6 +66,19 @@ BEGIN
 
   END;
   $block2$;
+
+  CREATE OR REPLACE FUNCTION update_equiv_course_progress () RETURNS TRIGGER AS
+  $block1$
+    BEGIN
+      IF NEW.waiting = OLD.waiting OR NEW.waiting = 'true' THEN
+        RETURN NEW; -- don't do anything further if the assessment submission is not past the waiting state
+      END IF;
+
+      CALL update_progress_for_course(NEW.assessment_id, NEW.student_id, NEW.submitted_at);
+
+      RETURN NEW;
+    END;
+  $block1$ LANGUAGE PLPGSQL;
 
   RAISE NOTICE '[SETUP]  PROCEDURE/FUNCTION: DONE setting up procedures/functions for updating courses.progress.';
 
