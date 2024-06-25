@@ -13,6 +13,7 @@ import { AdminModel } from "./models/admin.model.js";
 import { ReviewModel } from "./models/review.model.js";
 import { EnrollmentModel } from "./models/enrollment.model.js";
 import { UserModel } from "./models/user.model.js";
+import { BaseModel } from "./models/base-model.js";
 
 export enum AuthPosition {
   ADMIN_AUTH,
@@ -440,7 +441,10 @@ export const handleListCourses: HandlerFunctionType = async (authState, ac) => {
     return;
   }
 
-  await CourseModel.displayAll(CourseModel.all());
+  await BaseModel.displayAll(CourseModel.all(), {
+    headerMessage: "[ALL COURSES]",
+    errorMessage: "error displaying all courses!",
+  });
   return;
 };
 
@@ -456,7 +460,11 @@ export const handleListStudents: HandlerFunctionType = async (
     return;
   }
 
-  await StudentModel.displayAll();
+  await BaseModel.displayAll(StudentModel.all, {
+    headerMessage: "[ALL STUDENTS]",
+    errorMessage: "error displaying all students!",
+  });
+
   return;
 };
 
@@ -582,7 +590,10 @@ export const handleListStudentCourses: HandlerFunctionType = async (
     return;
   }
 
-  await EnrollmentModel.displayAll(authState.subject as string);
+  await BaseModel.displayAll(EnrollmentModel.all(authState.subject as string), {
+    headerMessage: "[MY COURSES]",
+    errorMessage: "error displaying your courses!",
+  });
 };
 
 export const handleUserInfoUpdate: HandlerFunctionType = async (
@@ -819,8 +830,12 @@ export const handleListStudentRecommendedCourses: HandlerFunctionType = async (
     return;
   }
 
-  await CourseModel.displayAll(
-    CourseModel.allRecommended(authState.subject as string)
+  await BaseModel.displayAll(
+    CourseModel.allRecommended(authState.subject as string),
+    {
+      headerMessage: "[MY COURSES]",
+      errorMessage: "error displaying recommended courses!",
+    }
   );
   return;
 };
@@ -834,8 +849,31 @@ export const handleListStudentRecentUnfinished: HandlerFunctionType = async (
     return;
   }
 
-  await CourseModel.displayAll(
-    CourseModel.allRecentUnfinished(authState.subject as string)
+  await BaseModel.displayAll(
+    CourseModel.allRecentUnfinished(authState.subject as string),
+    {
+      headerMessage: "[MY COURSES]",
+      errorMessage: "error displaying recommended courses!",
+    }
+  );
+  return;
+};
+
+export const handleListCreators: HandlerFunctionType = async (
+  authState,
+  ac
+) => {
+  if (!verifyAccess(authState, ac)) {
+    new ConsoleLogger(
+      "fail",
+      "this action is only accessible to console users"
+    );
+    return;
+  }
+
+  await BaseModel.displayAll(
+    CreatorModel.all(),
+    {headerMessage: "[ALL CREATORS]", errorMessage: "could not fetch all creators!"}
   );
   return;
 };
