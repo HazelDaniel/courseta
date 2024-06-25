@@ -21,8 +21,6 @@ export class ReviewModel extends BaseModel<void> {
 
   static display() {}
 
-  static async displayAll() {}
-
   static search(_1: string | null) {
     return Promise.resolve({});
   }
@@ -39,7 +37,7 @@ export class ReviewModel extends BaseModel<void> {
     const client = await pool.connect();
     try {
       const query: QueryConfig<(string | number)[]> = {
-        name: "set_new_course",
+        name: "review_course_for_student",
         text: "SELECT review_course_for_student($1, $2, $3, $4)",
         values: [this.studentID, this.courseID, this.rating, this.reviewText],
       };
