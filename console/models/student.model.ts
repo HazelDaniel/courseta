@@ -25,7 +25,7 @@ export class StudentModel extends UserModel {
     super();
   }
 
-   static get all() {
+  static get all() {
     const fetchAllStudents: () => Promise<StudentViewType[]> = async () => {
       const client = await pool.connect();
       try {
@@ -80,32 +80,6 @@ export class StudentModel extends UserModel {
       return StudentModel.all;
     } catch (err) {
       return [];
-    }
-  }
-
-  static async displayAll() {
-    const { level2Nest, border, marginDecoratorCount, frameChar } =
-      BoardDisplay;
-    try {
-      const resStudents = this.all;
-      const allStudents = await resStudents;
-      console.log(chalk.yellow("[ALL STUDENTS]\n"));
-      console.log(chalk.green(frameChar.repeat(marginDecoratorCount / 2)));
-
-      allStudents.forEach((entry) => {
-        Object.keys(entry).forEach((key) => {
-          console.log(border, level2Nest, key, " ->", " ", entry[key]);
-        });
-
-        console.log(chalk.green(frameChar.repeat(marginDecoratorCount / 2)));
-      });
-
-      console.log("\n");
-    } catch (err) {
-      new ConsoleLogger(
-        "error",
-        `an error occurred getting all students, ${err}`
-      );
     }
   }
 
