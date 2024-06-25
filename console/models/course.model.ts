@@ -199,31 +199,6 @@ export class CourseModel extends BaseModel<void> {
     console.log("");
   }
 
-  static async displayAll(fn: Promise<CourseViewType[]>) {
-    const { level2Nest, border, marginDecoratorCount, frameChar } =
-      BoardDisplay;
-    try {
-      const resCourses = fn;
-      const allCourses = await resCourses;
-      console.log(chalk.yellow("[ALL COURSES]\n"));
-      console.log(chalk.green(frameChar.repeat(marginDecoratorCount / 2)));
-
-      allCourses.forEach((entry) => {
-        Object.keys(entry).forEach((key) => {
-          console.log(border, level2Nest, key, " ->", " ", entry[key]);
-        });
-
-        console.log(chalk.green(frameChar.repeat(marginDecoratorCount / 2)));
-      });
-
-      console.log("\n");
-    } catch (err) {
-      new ConsoleLogger(
-        "error",
-        `an error occurred getting all courses, ${err}`
-      );
-    }
-  }
 
   static search(courseID: string | null) {
     const fetchCourse: () => Promise<CourseOutlineViewType> = async () => {
