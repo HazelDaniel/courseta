@@ -36,6 +36,15 @@ export interface CreatorViewType {
   avatarUrl: string;
 }
 
+export interface CreatorSummaryViewType extends Omit<CreatorViewType, "role", "creatorPass"> {
+  firstName: string;
+  lastName: string;
+  averageCourseRating: number;
+  courseCount: number;
+  studentCount: number;
+  courseReviewCount: number;
+}
+
 export interface AdminViewType {
   adminID: string;
   email: string;
