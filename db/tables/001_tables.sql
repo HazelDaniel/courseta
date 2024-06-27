@@ -6,6 +6,7 @@ BEGIN
   CREATE SCHEMA courseta;
   CREATE EXTENSION IF NOT EXISTS pgcrypto SCHEMA courseta;
   ALTER DATABASE courseta SET search_path TO courseta;
+  ALTER DATABASE courseta_test SET search_path TO courseta;
 
   CREATE TYPE courseta.USER_ROLE_TYPE AS ENUM('student', 'creator');
 

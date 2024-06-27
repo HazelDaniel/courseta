@@ -1,2 +1,5 @@
 DROP DATABASE IF EXISTS courseta;
 CREATE DATABASE courseta;
+
+DROP DATABASE IF EXISTS courseta_test;
+CREATE DATABASE courseta_test;
