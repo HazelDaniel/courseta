@@ -9,7 +9,7 @@ BEGIN
   AFTER INSERT
   ON students__courses
   FOR EACH ROW
-  EXECUTE FUNCTION add_student_count_to_course();
+  EXECUTE FUNCTION p_02_add_student_count_to_course();
 
   -- RAISE NOTICE '<[SETUP]   TRIGGER: DONE updating course.student_count addition triggers ...';
 
@@ -20,13 +20,13 @@ BEGIN
   AFTER DELETE
   ON students__courses
   FOR EACH ROW
-  EXECUTE FUNCTION remove_student_count_from_course();
+  EXECUTE FUNCTION p_02_remove_student_count_from_course();
 
   CREATE OR REPLACE TRIGGER trigger_enrollment_review_removal
   AFTER DELETE
   ON students__courses
   FOR EACH ROW
-  EXECUTE FUNCTION remove_review_for_enrollment();
+  EXECUTE FUNCTION p_02_remove_review_for_enrollment();
 
   -- RAISE NOTICE '<[SETUP]   TRIGGER: DONE updating course._student_count deduction triggers ...';
 
@@ -37,7 +37,7 @@ BEGIN
   AFTER INSERT OR UPDATE OR DELETE
   ON lessons
   FOR EACH ROW
-  EXECUTE FUNCTION update_course_length();
+  EXECUTE FUNCTION p_02_update_course_length();
 
   -- RAISE NOTICE '<[SETUP]   TRIGGER: DONE updating course.course_length update triggers ...';
 
@@ -48,7 +48,7 @@ BEGIN
   AFTER INSERT OR UPDATE OR DELETE
   ON reviews
   FOR EACH ROW
-  EXECUTE FUNCTION update_review_on_course();
+  EXECUTE FUNCTION p_02_update_review_on_course();
 
   -- RAISE NOTICE '<[SETUP]   TRIGGER: DONE updating course.[review attribute] update triggers ...';
 
@@ -59,7 +59,7 @@ BEGIN
   AFTER INSERT
   ON lessons
   FOR EACH ROW
-  EXECUTE FUNCTION add_lesson_count_to_course();
+  EXECUTE FUNCTION p_02_add_lesson_count_to_course();
 
   -- RAISE NOTICE '<[SETUP]   TRIGGER: DONE updating course.[review attribute] addition triggers ...';
 
@@ -71,13 +71,13 @@ BEGIN
   BEFORE DELETE
   ON lessons
   FOR EACH ROW
-  EXECUTE FUNCTION remove_equiv_quiz_count_from_course();
+  EXECUTE FUNCTION p_02_remove_equiv_quiz_count_from_course();
 
   CREATE OR REPLACE TRIGGER trigger_course_lesson_count_removal
   AFTER DELETE
   ON lessons
   FOR EACH ROW
-  EXECUTE FUNCTION remove_lesson_count_from_course();
+  EXECUTE FUNCTION p_02_remove_lesson_count_from_course();
 
   -- RAISE NOTICE '<[SETUP]   TRIGGER: DONE updating course.quiz_count and course.lesson_count deduction triggers ...';
 
@@ -88,7 +88,7 @@ BEGIN
   AFTER UPDATE
   ON students__assessments
   FOR EACH ROW
-  EXECUTE FUNCTION update_equiv_course_progress();
+  EXECUTE FUNCTION p_02_update_equiv_course_progress();
 
   -- RAISE NOTICE '<[SETUP]   TRIGGER: DONE updating course.progress update triggers ...';
 
@@ -99,7 +99,7 @@ BEGIN
   AFTER INSERT
   ON quizzes
   FOR EACH ROW
-  EXECUTE FUNCTION add_quiz_count_to_course();
+  EXECUTE FUNCTION p_02_add_quiz_count_to_course();
 
   -- RAISE NOTICE '<[SETUP]   TRIGGER: DONE updating course.quiz_count increment triggers ...';
 
@@ -109,7 +109,7 @@ BEGIN
   BEFORE DELETE
   ON quizzes
   FOR EACH ROW
-  EXECUTE FUNCTION remove_quiz_count_from_course();
+  EXECUTE FUNCTION p_02_remove_quiz_count_from_course();
 
   -- RAISE NOTICE '<[SETUP]   TRIGGER: DONE updating course.quiz_count decrement triggers ...';
 

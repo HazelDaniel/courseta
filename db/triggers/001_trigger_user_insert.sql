@@ -6,13 +6,13 @@ BEGIN
   AFTER INSERT
   ON students
   FOR EACH ROW
-  EXECUTE FUNCTION insert_student_equiv_user();
+  EXECUTE FUNCTION p_02_insert_student_equiv_user();
 
   CREATE OR REPLACE TRIGGER trigger_creator_equiv_user_insert
   AFTER INSERT
   ON creators
   FOR EACH ROW
-  EXECUTE FUNCTION insert_creator_equiv_user();
+  EXECUTE FUNCTION p_02_insert_creator_equiv_user();
   -- RAISE NOTICE '[SETUP]   TRIGGER: DONE updating user insertion triggers...';
 END
 $block$ LANGUAGE PLPGSQL

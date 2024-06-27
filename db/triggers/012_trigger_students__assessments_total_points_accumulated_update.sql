@@ -6,7 +6,7 @@ BEGIN
   AFTER UPDATE
   ON students__questions
   FOR EACH ROW
-  EXECUTE FUNCTION agg_questions_attempt_points_to_submission();
+  EXECUTE FUNCTION p_02_agg_questions_attempt_points_to_submission();
 
   -- RAISE NOTICE '[SETUP]   TRIGGER: DONE updating students__assessments.total_points_accumulated update triggers...';
 END

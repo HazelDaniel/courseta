@@ -7,7 +7,7 @@ BEGIN
   AFTER INSERT OR UPDATE OR DELETE
   ON lesson_contents
   FOR EACH ROW
-  EXECUTE FUNCTION update_lesson_duration_and_content_count();
+  EXECUTE FUNCTION p_02_update_lesson_duration_and_content_count();
 
   -- RAISE NOTICE '[SETUP]   TRIGGER: DONE updating lesson.total_duration update triggers ...';
 END

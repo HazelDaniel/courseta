@@ -6,7 +6,7 @@ BEGIN
   AFTER INSERT
   ON students__answers
   FOR EACH ROW
-  EXECUTE FUNCTION agg_answer_submission_points_to_question();
+  EXECUTE FUNCTION p_02_agg_answer_submission_points_to_question();
 
   -- RAISE NOTICE '[SETUP]   TRIGGER: DONE updating students__questions.points_accumulated update triggers...';
 END

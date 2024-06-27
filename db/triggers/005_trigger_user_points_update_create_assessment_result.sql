@@ -6,7 +6,7 @@ BEGIN
   AFTER UPDATE
   ON students__assessments
   FOR EACH ROW
-  EXECUTE FUNCTION agg_assessment_submission_points_to_student();
+  EXECUTE FUNCTION p_02_agg_assessment_submission_points_to_student();
 
   -- RAISE NOTICE '[SETUP]   TRIGGER: DONE updating students.points update triggers...';
 END

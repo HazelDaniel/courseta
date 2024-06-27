@@ -6,13 +6,13 @@ BEGIN
   AFTER DELETE
   ON exams
   FOR EACH ROW
-  EXECUTE FUNCTION delete_exam_equiv_assessment();
+  EXECUTE FUNCTION p_02_delete_exam_equiv_assessment();
 
   CREATE OR REPLACE TRIGGER trigger_quiz_equiv_assessment_delete
   AFTER DELETE
   ON quizzes
   FOR EACH ROW
-  EXECUTE FUNCTION delete_quiz_equiv_assessment();
+  EXECUTE FUNCTION p_02_delete_quiz_equiv_assessment();
   -- RAISE NOTICE '[SETUP]   TRIGGER: DONE updating assessment deletion triggers...';
 END
 $block$ LANGUAGE PLPGSQL

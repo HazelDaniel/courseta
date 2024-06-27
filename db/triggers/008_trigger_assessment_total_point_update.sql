@@ -7,7 +7,7 @@ BEGIN
   AFTER UPDATE
   ON questions
   FOR EACH ROW
-  EXECUTE FUNCTION update_points_and_question_count_on_assessment();
+  EXECUTE FUNCTION p_02_update_points_and_question_count_on_assessment();
 
   -- RAISE NOTICE '<[SETUP]   TRIGGER: updating assessments.total_points addition triggers ...';
 
@@ -15,7 +15,7 @@ BEGIN
   AFTER INSERT
   ON questions
   FOR EACH ROW
-  EXECUTE FUNCTION add_points_and_question_count_to_assessment();
+  EXECUTE FUNCTION p_02_add_points_and_question_count_to_assessment();
 
   -- RAISE NOTICE '<[SETUP]   TRIGGER: DONE updating assessments.total_points addition triggers ...';
 
@@ -26,7 +26,7 @@ BEGIN
   BEFORE DELETE
   ON questions
   FOR EACH ROW
-  EXECUTE FUNCTION remove_points_and_question_count_from_assessment();
+  EXECUTE FUNCTION p_02_remove_points_and_question_count_from_assessment();
 
   -- RAISE NOTICE '<[SETUP]   TRIGGER: DONE updating assessments.total_points deletion triggers ...';
 

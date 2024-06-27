@@ -6,7 +6,7 @@ BEGIN
   AFTER UPDATE
   ON students
   FOR EACH ROW
-  EXECUTE FUNCTION update_student_rank_with_points();
+  EXECUTE FUNCTION p_02_update_student_rank_with_points();
 
   -- RAISE NOTICE '[SETUP]   TRIGGER: DONE updating students.points update triggers (after update)...';
 END
