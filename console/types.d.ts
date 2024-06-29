@@ -19,6 +19,7 @@ export type StudentRankType =
   | "legendary";
 
 export type AssessmentVariantType = "exam" | "quiz";
+export type lessonVariantType = "text" | "video";
 
 export interface StudentViewType {
   studentID: string;
@@ -36,7 +37,8 @@ export interface CreatorViewType {
   avatarUrl: string;
 }
 
-export interface CreatorSummaryViewType extends Omit<CreatorViewType, "role", "creatorPass"> {
+export interface CreatorSummaryViewType
+  extends Omit<CreatorViewType, "role", "creatorPass"> {
   firstName: string;
   lastName: string;
   averageCourseRating: number;
@@ -55,7 +57,7 @@ export interface CourseViewType {
   title: string;
   lessonCount: number;
   thumbnail: string;
-  courseID: string;
+  courseID: number;
 }
 
 export interface CourseSummaryViewType extends CourseViewType {
@@ -80,7 +82,7 @@ export interface CourseOutlineViewType {
 export type CourseOutlineType = {
   lessonID: string;
   title: string;
-  courseID: string;
+  courseID: number;
   contentCount: number;
   totalDuration: number;
   quizID: string;
@@ -132,4 +134,24 @@ export interface UserContractType {
     newAvatar: string,
     type: UserRoleType
   ): Promise<void>;
+}
+
+export interface LessonInputType {
+  title: string;
+  contentCount: number;
+  quizCount: number;
+}
+
+export interface LessonsLessonContentInputType {
+  title: string;
+  href: string;
+  contentType: string;
+  duration: number;
+}
+
+export interface LessonsQuizInputType {
+  quizTitle: string;
+  description: string;
+  passScore: number;
+  totalPoints: number;
 }
