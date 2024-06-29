@@ -9,16 +9,22 @@ import chalk from "chalk";
 import { BaseModel } from "./base-model.js";
 import type { QueryConfig, QueryResult } from "pg";
 import { BoardDisplay, ConsoleLogger } from "../utils.js";
+import { LessonModel } from "./lesson.model.js";
+import { LessonContentModel } from "./lesson-content.model.js";
+import { QuizModel } from "./quiz.model.js";
 
 export class CourseModel extends BaseModel<void> {
-  courseID: string | null = null;
+  courseID: number | null = null;
 
   constructor(
     public readonly title: string,
-    public readonly desciption: string,
+    public readonly description: string,
     public readonly thumbnail: string,
     public creatorID: string,
-    public readonly tags: string
+    public readonly tags: string,
+    public lessonData?: LessonModel[],
+    public lessonContentData?: LessonContentModel[],
+    public lessonQuizData?: QuizModel[]
   ) {
     super();
   }
@@ -48,7 +54,7 @@ export class CourseModel extends BaseModel<void> {
             title,
           } = el;
           return {
-            courseID,
+            courseID: +courseID,
             lessonCount: +lessonCount,
             thumbnail,
             title,
@@ -92,7 +98,7 @@ export class CourseModel extends BaseModel<void> {
             title,
           } = el;
           return {
-            courseID,
+            courseID: +courseID,
             lessonCount: +lessonCount,
             thumbnail,
             title,
@@ -140,7 +146,7 @@ export class CourseModel extends BaseModel<void> {
             progress,
           } = el;
           return {
-            courseID,
+            courseID: +courseID,
             lessonCount: +lessonCount,
             thumbnail,
             title,
@@ -199,21 +205,20 @@ export class CourseModel extends BaseModel<void> {
     console.log("");
   }
 
-
-  static search(courseID: string | null) {
+  static search(courseID: number | null) {
     const fetchCourse: () => Promise<CourseOutlineViewType> = async () => {
       const client = await pool.connect();
       try {
-        const courseQuery: QueryConfig<string[]> = {
+        const courseQuery: QueryConfig<(string | number)[]> = {
           name: "get_course_details",
           text: "SELECT * FROM get_course_details($1)",
-          values: [courseID as string],
+          values: [courseID as number],
         };
 
-        const courseOutlineQuery: QueryConfig<string[]> = {
+        const courseOutlineQuery: QueryConfig<(string | number)[]> = {
           name: "get_course_outline",
           text: "SELECT * FROM get_course_outline($1)",
-          values: [courseID as string],
+          values: [courseID as number],
         };
 
         const courseReq: Promise<
@@ -273,7 +278,7 @@ export class CourseModel extends BaseModel<void> {
             title,
             courseLength: +course_length,
             updatedAt: updated_at,
-            courseID: courseID as string,
+            courseID: +(courseID as number),
             averageRating: +average_rating,
           };
         })[0];
@@ -292,7 +297,7 @@ export class CourseModel extends BaseModel<void> {
 
           return {
             contentCount: +content_count,
-            courseID: course_id,
+            courseID: +course_id,
             lessonID: lesson_id,
             quizID: quiz_id,
             quizTitle: quiz_title,
@@ -315,7 +320,7 @@ export class CourseModel extends BaseModel<void> {
     return fetchCourse();
   }
 
-  search(courseID: string | null) {
+  search(courseID: number | null) {
     try {
       return CourseModel.search(courseID);
     } catch (err) {
@@ -323,27 +328,65 @@ export class CourseModel extends BaseModel<void> {
     }
   }
 
-  async save() {
+  async save(creatorID?: string) {
     const client = await pool.connect();
+    type Q = QueryConfig<(string | object[] | object)[]>;
+
     try {
-      const query: QueryConfig<(string | string[])[]> = {
-        name: "set_new_course",
-        text: "SELECT course_id FROM set_new_course($1, $2, $3, $4, $5)",
-        values: [
-          this.title,
-          this.desciption,
-          this.thumbnail,
-          this.creatorID,
-          this.tags.split(" "),
-        ],
+      let query: Q;
+
+      const emptyCourse = {
+        title: this.title,
+        description: this.description,
+        thumbnail: this.thumbnail,
+        creatorID: this.creatorID,
+        tags: this.tags.split(" "),
       };
-      const res: QueryResult<{
-        course_id: string;
-      }> = await client.query(query);
-      const { rows } = res;
-      const { course_id: courseID } = rows[0];
-      this.courseID = courseID;
-      this.show();
+
+      const values = [
+        creatorID,
+        JSON.stringify(emptyCourse),
+        JSON.stringify(this.lessonData),
+        JSON.stringify(this.lessonQuizData),
+        JSON.stringify(this.lessonContentData),
+      ];
+
+      console.log("input values are ");
+      console.log(values);
+
+      if (creatorID) {
+        query = {
+          name: "create_course_for_creator",
+          text: "SELECT create_course_for_creator($1, $2, $3, $4, $5)",
+          values: values as string[],
+        };
+
+        const res: QueryResult<{ create_course_for_creator: string }> =
+          await client.query(query);
+        const courseID = res.rows[0].create_course_for_creator;
+        this.courseID = +courseID;
+        this.show();
+      } else {
+        query = {
+          name: "set_new_course",
+          text: "SELECT course_id FROM set_new_course($1, $2, $3, $4, $5)",
+          values: [
+            this.title,
+            this.description,
+            this.thumbnail,
+            this.creatorID,
+            this.tags.split(" "),
+          ],
+        };
+
+        const res: QueryResult<{ course_id: string }> = await client.query(
+          query
+        );
+        const courseID = res.rows[0].course_id;
+        this.courseID = +courseID;
+        this.show();
+        return courseID;
+      }
     } catch (err) {
       console.error(
         `${chalk.red("QUERY_ERR:")} could not create course!. reason: ${err}`
