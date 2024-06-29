@@ -4,6 +4,10 @@ import type {
   HandlerFunctionType,
   AuthStateType,
   UserRoleType,
+  lessonVariantType,
+  LessonsQuizInputType,
+  LessonsLessonContentInputType,
+  LessonInputType,
 } from "./types";
 import { ConsoleLogger } from "./utils.js";
 import { StudentModel } from "./models/student.model.js";
@@ -14,6 +18,9 @@ import { ReviewModel } from "./models/review.model.js";
 import { EnrollmentModel } from "./models/enrollment.model.js";
 import { UserModel } from "./models/user.model.js";
 import { BaseModel } from "./models/base-model.js";
+import { LessonModel } from "./models/lesson.model.js";
+import { QuizModel } from "./models/quiz.model.js";
+import { LessonContentModel } from "./models/lesson-content.model.js";
 
 export enum AuthPosition {
   ADMIN_AUTH,
@@ -330,11 +337,23 @@ export const handleCreateCourse: HandlerFunctionType = async (
     return;
   }
 
+  if (!isCreatorAuthentic) {
+    const { isSuperUser: isAdminSuperUser } = await AdminModel.isSuperUser(
+      authState.adminSubject
+    );
+
+    if (!isAdminSuperUser) {
+      new ConsoleLogger("fail", `this admin can't create courses!`);
+      return;
+    }
+  }
+
   const courseCreationPrompt: {
     title: string;
     description: string;
     thumbnail: string;
     tags: string;
+    lessonCount: number;
   } = await inquirer.prompt([
     {
       type: "input",
@@ -356,44 +375,153 @@ export const handleCreateCourse: HandlerFunctionType = async (
       name: "tags",
       message: "Enter keywords (space separated) :",
     },
+    {
+      type: "input",
+      name: "lessonCount",
+      message: "Number of lessons :",
+    },
   ]);
 
-  const { title, description, thumbnail, tags } = courseCreationPrompt;
+  let { title, description, thumbnail, tags, lessonCount } =
+    courseCreationPrompt;
+  const lessonsList: LessonModel[] = [],
+    quizzesList: QuizModel[] = [],
+    contentsList: LessonContentModel[] = [];
+
+  lessonCount = +lessonCount;
+  let i: number;
+
+  for (i = 0; i < lessonCount; i++) {
+    const lessonCreationPrompt: LessonInputType = await inquirer.prompt([
+      {
+        type: "input",
+        name: "title",
+        message: `Enter lesson ${i + 1} title :`,
+      },
+      {
+        type: "input",
+        name: "contentCount",
+        message: `Number of contents? :`,
+      },
+      {
+        type: "input",
+        name: "quizCount",
+        message: `number of quizzes? :`,
+      },
+    ]);
+
+    const { title, contentCount, quizCount } = lessonCreationPrompt;
+
+    const pendingLesson = new LessonModel(title, i);
+    let j: number;
+
+    for (j = 0; j < contentCount; j++) {
+      const lessonContentCreationPrompt: LessonsLessonContentInputType =
+        await inquirer.prompt([
+          {
+            type: "input",
+            name: "title",
+            message: `Enter lesson content ${j + 1} title :`,
+          },
+          {
+            type: "input",
+            name: "contentType",
+            message: `Enter lesson content ${j + 1} type ('video'/'text'):`,
+          },
+          {
+            type: "input",
+            name: "href",
+            message: `Enter lesson content ${j + 1} link :`,
+          },
+          {
+            type: "input",
+            name: "duration",
+            message: `how long is this content (in seconds)? :`,
+          },
+        ]);
+
+      const { title, href, contentType, duration } =
+        lessonContentCreationPrompt;
+
+      const pendingLessonContent = new LessonContentModel(
+        title,
+        href,
+        contentType as lessonVariantType,
+        +duration,
+        i
+      );
+      contentsList.push(pendingLessonContent);
+    }
+
+    let k: number;
+
+    for (k = 0; k < quizCount; k++) {
+      const quizCreationPrompt: LessonsQuizInputType = await inquirer.prompt([
+        {
+          type: "input",
+          name: "quizTitle",
+          message: `quiz ${k + 1} title :`,
+        },
+        {
+          type: "input",
+          name: "description",
+          message: `Enter quiz ${k + 1} description:`,
+        },
+        {
+          type: "input",
+          name: "passScore",
+          message: `Enter quiz ${k + 1} pass score (?/100) :`,
+        },
+        {
+          type: "input",
+          name: "totalPoints",
+          message: `Enter quiz ${k + 1} total points :`,
+        },
+      ]);
+
+      const { description, passScore, quizTitle, totalPoints } =
+        quizCreationPrompt;
+
+      const pendingQuiz = new QuizModel(
+        quizTitle,
+        description,
+        +passScore,
+        +totalPoints,
+        i
+      );
+      quizzesList.push(pendingQuiz);
+    }
+
+    lessonsList.push(pendingLesson);
+  }
+
   const pendingCourse = new CourseModel(
     title,
     description,
     thumbnail,
     "",
-    tags
+    tags,
+    lessonsList,
+    contentsList,
+    quizzesList
   );
 
   try {
     if (isCreatorAuthentic) {
       pendingCourse.creatorID = authState.subject as string;
-      await pendingCourse.save();
+      await pendingCourse.save(authState.subject as string);
       new ConsoleLogger(
         "success",
-        `course (${pendingCourse.courseID}) created successfully!`
+        `course created successfully!`
       );
       return;
     }
-
-    const { isSuperUser: isAdminSuperUser } = await AdminModel.isSuperUser(
-      authState.adminSubject
-    );
-
-    if (!isAdminSuperUser) {
-      new ConsoleLogger("fail", `this admin can't create courses!`);
-      return;
-    }
-
     pendingCourse.creatorID = authState.adminSubject as string;
-    await pendingCourse.save();
+    await pendingCourse.save(authState.adminSubject as string);
     new ConsoleLogger(
       "success",
-      `course (${pendingCourse.courseID}) created successfully!`
+      `course created successfully!`
     );
-    return;
   } catch (err) {
     new ConsoleLogger("error", `error creating course. reason: ${err}`);
     return;
@@ -422,7 +550,7 @@ export const handleViewCourse: HandlerFunctionType = async (authState, ac) => {
   const { courseID } = courseCreationPrompt;
 
   try {
-    const resCourse = await CourseModel.search(courseID);
+    const resCourse = await CourseModel.search(+courseID);
     CourseModel.display(resCourse);
 
     return;
@@ -833,7 +961,7 @@ export const handleListStudentRecommendedCourses: HandlerFunctionType = async (
   await BaseModel.displayAll(
     CourseModel.allRecommended(authState.subject as string),
     {
-      headerMessage: "[MY COURSES]",
+      headerMessage: "[RECOMMENDED COURSES]",
       errorMessage: "error displaying recommended courses!",
     }
   );
@@ -871,9 +999,52 @@ export const handleListCreators: HandlerFunctionType = async (
     return;
   }
 
-  await BaseModel.displayAll(
-    CreatorModel.all(),
-    {headerMessage: "[ALL CREATORS]", errorMessage: "could not fetch all creators!"}
-  );
+  await BaseModel.displayAll(CreatorModel.all(), {
+    headerMessage: "[ALL CREATORS]",
+    errorMessage: "could not fetch all creators!",
+  });
+  return;
+};
+
+export const handleDeleteCourseForCreator: HandlerFunctionType = async (
+  authState,
+  ac
+) => {
+  const isAdminVerified = authState.adminSubject;
+  const isCreatorAuthentic = verifyAccess(authState, ac);
+
+  if (!isCreatorAuthentic && !isAdminVerified) {
+    new ConsoleLogger("fail", "this action is only accessible to creators");
+    return;
+  }
+
+  const courseDeletionPrompt: {
+    courseID: string;
+  } = await inquirer.prompt([
+    {
+      type: "input",
+      name: "courseID",
+      message: "Enter course id :",
+    },
+  ]);
+
+  const { courseID } = courseDeletionPrompt;
+
+  try {
+    if (isCreatorAuthentic) {
+      await CreatorModel.delete(courseID, authState.subject as string);
+    } else {
+      await CreatorModel.delete(courseID, authState.adminSubject as string);
+    }
+    new ConsoleLogger("success", `course (${courseID}) deleted successfully!`);
+  } catch (err) {
+    new ConsoleLogger(
+      "fail",
+      `course deletion failed! reason: ${
+        (err as Error).message || (err as string)
+      }`
+    );
+  }
+  // await CreatorModel.delete();
   return;
 };
