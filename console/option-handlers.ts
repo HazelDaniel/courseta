@@ -537,7 +537,7 @@ export const handleViewCourse: HandlerFunctionType = async (authState, ac) => {
     return;
   }
 
-  const courseCreationPrompt: {
+  const courseDisplayPrompt: {
     courseID: string;
   } = await inquirer.prompt([
     {
@@ -547,7 +547,7 @@ export const handleViewCourse: HandlerFunctionType = async (authState, ac) => {
     },
   ]);
 
-  const { courseID } = courseCreationPrompt;
+  const { courseID } = courseDisplayPrompt;
 
   try {
     const resCourse = await CourseModel.search(+courseID);
