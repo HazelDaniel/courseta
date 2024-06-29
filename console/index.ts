@@ -1,9 +1,7 @@
 #!/usr/bin/env node
-import { AuthStateType } from "./../server/types.d";
-
 import { config } from "dotenv";
 config({ path: [".env", ".env.dev"] });
-
+import { AuthStateType } from "./../server/types.d";
 import inquirer from "inquirer";
 import { Command } from "commander";
 import { AdminModel } from "./models/admin.model.js";
@@ -25,6 +23,7 @@ import {
   handleListStudentRecommendedCourses,
   handleListStudentRecentUnfinished,
   handleListCreators,
+  handleDeleteCourseForCreator,
 } from "./option-handlers.js";
 import { AuthPosition } from "./option-handlers.js";
 import { ConsoleLogger } from "./utils.js";
@@ -73,16 +72,16 @@ const RootOptions: ConsoleRootOptionType[] = [
   { id: 4, shortcut: "rc", description: "review course" },
   { id: 5, shortcut: "lc", description: "list courses" },
   { id: 6, shortcut: "ls", description: "list students" },
+  { id: 7, shortcut: "lcr", description: "list creators" },
   { id: 8, shortcut: "ec", description: "enroll course" },
   { id: 9, shortcut: "uc", description: "unenroll course" },
   { id: 10, shortcut: "uui", description: "update user info" },
+  { id: 11, shortcut: "aa", description: "attempt assessment" }, // last implementation
   { id: 12, shortcut: "lmc", description: "list my courses" },
   { id: 13, shortcut: "vrc", description: "view recommended courses" },
   { id: 14, shortcut: "vruc", description: "view last unfinished course" },
   { id: 15, shortcut: "a", description: "authenticate user" },
   { id: 16, shortcut: "vc", description: "view course" },
-  { id: 11, shortcut: "aa", description: "attempt assessment" }, // last implementation
-  { id: 7, shortcut: "lcr", description: "list creators" },
   { id: 17, shortcut: "dc", description: "delete course" },
 ];
 
@@ -222,6 +221,10 @@ async function promptAndProcess(options: any) {
       case "vc":
       case "16":
         await handleViewCourse(AUTH_STATE, "none");
+        break;
+      case "dc":
+      case "17":
+        await handleDeleteCourseForCreator(AUTH_STATE, "require-creator");
         break;
       default:
         new ConsoleLogger("info", "no valid option picked");
