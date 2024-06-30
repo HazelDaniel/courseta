@@ -465,7 +465,7 @@ export const handleCreateCourse: HandlerFunctionType = async (
         {
           type: "input",
           name: "description",
-          message: `Enter quiz ${k + 1} description:`,
+          message: `Enter quiz ${k + 1} description :`,
         },
         {
           type: "input",
@@ -510,21 +510,256 @@ export const handleCreateCourse: HandlerFunctionType = async (
     if (isCreatorAuthentic) {
       pendingCourse.creatorID = authState.subject as string;
       await pendingCourse.save(authState.subject as string);
-      new ConsoleLogger(
-        "success",
-        `course created successfully!`
-      );
+      new ConsoleLogger("success", `course created successfully!`);
       return;
     }
     pendingCourse.creatorID = authState.adminSubject as string;
     await pendingCourse.save(authState.adminSubject as string);
-    new ConsoleLogger(
-      "success",
-      `course created successfully!`
-    );
+    new ConsoleLogger("success", `course created successfully!`);
   } catch (err) {
     new ConsoleLogger("error", `error creating course. reason: ${err}`);
     return;
+  }
+};
+
+export const handleAddLessonsToCourse: (
+  courseID: number
+) => Promise<void> = async (courseID) => {
+  return new Promise(async (resolve, reject) => {
+    const lessonAdditionPrompt: {
+      lessonCount: number;
+    } = await inquirer.prompt([
+      {
+        type: "input",
+        name: "lessonCount",
+        message: "Number of lessons :",
+      },
+    ]);
+
+    let { lessonCount } = lessonAdditionPrompt;
+
+    lessonCount = +lessonCount;
+    let i: number;
+
+    for (i = 0; i < lessonCount; i++) {
+      const lessonCreationPrompt: LessonInputType = await inquirer.prompt([
+        {
+          type: "input",
+          name: "title",
+          message: `Enter lesson ${i + 1} title :`,
+        },
+        {
+          type: "input",
+          name: "contentCount",
+          message: `Number of contents? :`,
+        },
+        {
+          type: "input",
+          name: "quizCount",
+          message: `number of quizzes? :`,
+        },
+      ]);
+
+      const { title, contentCount, quizCount } = lessonCreationPrompt;
+
+      const pendingLesson = new LessonModel(title, i, courseID);
+      let j: number;
+
+      for (j = 0; j < contentCount; j++) {
+        const lessonContentCreationPrompt: LessonsLessonContentInputType =
+          await inquirer.prompt([
+            {
+              type: "input",
+              name: "title",
+              message: `Enter lesson content ${j + 1} title :`,
+            },
+            {
+              type: "input",
+              name: "contentType",
+              message: `Enter lesson content ${j + 1} type ('video'/'text'):`,
+            },
+            {
+              type: "input",
+              name: "href",
+              message: `Enter lesson content ${j + 1} link :`,
+            },
+            {
+              type: "input",
+              name: "duration",
+              message: `how long is this content (in seconds)? :`,
+            },
+          ]);
+
+        const { title, href, contentType, duration } =
+          lessonContentCreationPrompt;
+
+        const pendingLessonContent = new LessonContentModel(
+          title,
+          href,
+          contentType as lessonVariantType,
+          +duration,
+          i
+        );
+        pendingLesson.lessonContentData = pendingLessonContent;
+      }
+
+      let k: number;
+
+      for (k = 0; k < quizCount; k++) {
+        const quizCreationPrompt: LessonsQuizInputType = await inquirer.prompt([
+          {
+            type: "input",
+            name: "quizTitle",
+            message: `quiz ${k + 1} title :`,
+          },
+          {
+            type: "input",
+            name: "description",
+            message: `Enter quiz ${k + 1} description:`,
+          },
+          {
+            type: "input",
+            name: "passScore",
+            message: `Enter quiz ${k + 1} pass score (?/100) :`,
+          },
+          {
+            type: "input",
+            name: "totalPoints",
+            message: `Enter quiz ${k + 1} total points :`,
+          },
+        ]);
+
+        const { description, passScore, quizTitle, totalPoints } =
+          quizCreationPrompt;
+
+        const pendingQuiz = new QuizModel(
+          quizTitle,
+          description,
+          +passScore,
+          +totalPoints,
+          i
+        );
+        pendingLesson.lessonQuizData = pendingQuiz;
+      }
+      pendingLesson.save();
+    }
+
+    try {
+      await LessonModel.saveAll();
+      resolve();
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
+
+export const handleChangeCourseDetail: (
+  courseID: number
+) => Promise<void> = async (courseID) => {
+  return new Promise(async (resolve, reject) => {
+    const fieldUpdatePrompt: {
+      thumbnail: string;
+      description: string;
+      keywords: string;
+    } = await inquirer.prompt([
+      {
+        type: "input",
+        name: "thumbnail",
+        message: "new image url (hit enter to keep) :",
+      },
+      {
+        type: "input",
+        name: "description",
+        message: "new description (hit enter to keep) :",
+      },
+      {
+        type: "input",
+        name: "keywords",
+        message: "new keywords - space separated (hit enter to keep) :",
+      },
+    ]);
+
+    const { description, keywords, thumbnail } = fieldUpdatePrompt;
+
+    try {
+      await CourseModel.updateFields(courseID ,thumbnail, description, keywords);
+      resolve();
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
+
+export const handleUpdateCourse: HandlerFunctionType = async (
+  authState,
+  ac
+) => {
+  const isAdminVerified = authState.adminSubject;
+  const isCreatorAuthentic = verifyAccess(authState, ac);
+
+  if (!isCreatorAuthentic && !isAdminVerified) {
+    new ConsoleLogger("fail", "this action is only accessible to creators");
+    return;
+  }
+
+  if (!isCreatorAuthentic) {
+    const { isSuperUser: isAdminSuperUser } = await AdminModel.isSuperUser(
+      authState.adminSubject
+    );
+
+    if (!isAdminSuperUser) {
+      new ConsoleLogger("fail", `this admin can't create courses!`);
+      return;
+    }
+  }
+
+  const courseCreationPrompt: {
+    courseID: string;
+  } = await inquirer.prompt([
+    {
+      type: "input",
+      name: "courseID",
+      message: "Enter course id :",
+    },
+  ]);
+
+  let { courseID } = courseCreationPrompt;
+
+  const courseUpdatePrompt: {
+    opt: string;
+  } = await inquirer.prompt([
+    {
+      type: "input",
+      name: "opt",
+      message:
+        "WHAT ACTION DO YOU WANNA PERFORM?\n\
+      1.  => add lesson\n\
+      2.  => change picture/description/tags\n\
+      3.  => go back [<-]\n\
+      \ninput your choice:",
+    },
+  ]);
+
+  const { opt } = courseUpdatePrompt;
+
+  try {
+    switch (opt) {
+      case "1":
+        await handleAddLessonsToCourse(+courseID);
+        new ConsoleLogger("success", `lessons added successfully!`);
+        break;
+      case "2":
+        await handleChangeCourseDetail(+courseID);
+        new ConsoleLogger("success", `course details updated successfully!`);
+        break;
+      case "3":
+        return;
+      default:
+        new ConsoleLogger("info", "no valid option picked");
+        return;
+    }
+  } catch (err) {
+    new ConsoleLogger("error", `error updating course. reason: ${err}`);
   }
 };
 
