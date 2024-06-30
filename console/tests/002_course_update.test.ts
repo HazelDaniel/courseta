@@ -84,13 +84,13 @@ describe("CourseModel.updateFields Integration Test", () => {
     );
 
     expect(result).toBeDefined();
-    expect(result.tags).toEqual([]);
+    expect(result.tags).toEqual(["updated", "tag1", "tag2", "tag3"]);
 
     const updatedCourse = await CourseModel.search(createdCourseId);
     expect(updatedCourse).toBeDefined();
   });
 
-  it("should throw an error for invalid input", async () => {
+  it("test a thumbnail update", async () => {
     const result = await CourseModel.updateFields(
       createdCourseId,
       "newer-thumbnail-path"
