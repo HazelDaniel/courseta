@@ -29,6 +29,14 @@ export class CourseModel extends BaseModel<void> {
     super();
   }
 
+  get all() {
+    try {
+      return CourseModel.all();
+    } catch (err) {
+      return [];
+    }
+  }
+
   static all(): Promise<CourseViewType[]> {
     return new Promise(async (resolve, reject) => {
       const client = await pool.connect();
@@ -340,7 +348,7 @@ export class CourseModel extends BaseModel<void> {
         description: this.description,
         thumbnail: this.thumbnail,
         creatorID: this.creatorID,
-        tags: this.tags.split(" "),
+        tags: this.tags?.split(" ").filter((str) => !!str) || [],
       };
 
       const values = [
@@ -351,8 +359,8 @@ export class CourseModel extends BaseModel<void> {
         JSON.stringify(this.lessonContentData),
       ];
 
-      console.log("input values are ");
-      console.log(values);
+      // console.log("input values are :");
+      // console.log(values);
 
       if (creatorID) {
         query = {
@@ -366,6 +374,7 @@ export class CourseModel extends BaseModel<void> {
         const courseID = res.rows[0].create_course_for_creator;
         this.courseID = +courseID;
         this.show();
+        return +courseID;
       } else {
         query = {
           name: "set_new_course",
@@ -385,7 +394,7 @@ export class CourseModel extends BaseModel<void> {
         const courseID = res.rows[0].course_id;
         this.courseID = +courseID;
         this.show();
-        return courseID;
+        return +courseID;
       }
     } catch (err) {
       console.error(
@@ -397,11 +406,47 @@ export class CourseModel extends BaseModel<void> {
     }
   }
 
-  get all() {
-    try {
-      return CourseModel.all();
-    } catch (err) {
-      return [];
-    }
+  static updateFields(
+    courseID: number,
+    thumbnail?: string,
+    description?: string,
+    tags?: string
+  ): Promise<{ thumbnail: string; description: string; tags: string[] }> {
+    return new Promise(async (resolve, reject) => {
+      const client = await pool.connect();
+      try {
+        const courseDiff = {
+          thumbnail: thumbnail || null,
+          description: description || null,
+          tags: tags?.split(" ").filter((str) => !!str) || [],
+          courseID,
+        };
+
+        // console.log("course difference is ");
+        // console.log(courseDiff);
+
+        const query: QueryConfig<(typeof courseDiff)[]> = {
+          name: "update_course_attributes",
+          text: "SELECT * FROM update_course_attributes($1)",
+          values: [courseDiff],
+        };
+        const res: QueryResult<{
+          thumbnail: string;
+          description: string;
+          tags: string[];
+        }> = await client.query(query);
+        const resCourse = res.rows[0];
+        resolve(resCourse);
+      } catch (err) {
+        console.error(
+          `${chalk.red(
+            "QUERY_ERR:"
+          )} could not update course details!. reason: ${err}`
+        );
+        reject(new Error(err as string));
+      } finally {
+        client.release();
+      }
+    });
   }
 }
