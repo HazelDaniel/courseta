@@ -230,5 +230,24 @@ export class CreatorModel extends UserModel {
     }
   }
 
-  // async delete() {}
+ static async delete(courseID: string, creatorID: string): Promise<void> {
+    return new Promise(async (resolve, reject) => {
+      const client = await pool.connect();
+      try {
+        const query: QueryConfig<string[]> = {
+          name: "delete_course_if_creator_is",
+          text: "SELECT p_02_delete_course_if_creator_is($1, $2)",
+          values: [courseID, creatorID],
+        };
+        await client.query(query);
+        resolve();
+      } catch (err) {
+        console.error(
+          `${chalk.red("QUERY_ERR:")} could not delete course!. reason: ${err}`
+        );
+        client.release();
+        reject(err);
+      }
+    });
+  }
 }
