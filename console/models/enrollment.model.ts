@@ -68,7 +68,7 @@ export class EnrollmentModel extends BaseModel<void> {
             progress,
           } = el;
           return {
-            courseID,
+            courseID: +courseID,
             lessonCount: +lessonCount,
             thumbnail,
             title,
