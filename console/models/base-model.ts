@@ -4,7 +4,7 @@ import { BoardDisplay, ConsoleLogger } from "../utils.js";
 export abstract class BaseModel<T> {
   abstract save(): T;
 
-  abstract search(email: string | null): Promise<object> | null;
+  abstract search(searchKey: string | number | null): Promise<object> | null;
 
   static async displayAll(
     fn: Promise<object[]>,
