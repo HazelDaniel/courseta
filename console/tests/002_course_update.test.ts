@@ -19,7 +19,7 @@ describe("CourseModel.updateFields Integration Test", () => {
     );
     const courseID = await courseData.save(creatorID);
     createdCourseId = courseID as number;
-    console.log("created course id is ", createdCourseId);
+    // console.log("created course id is ", createdCourseId);
   });
 
   afterAll(async () => {

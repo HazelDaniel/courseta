@@ -72,7 +72,7 @@ describe("Course and Lesson Creation Integration Tests", () => {
       ),
     ];
     const quizData = [
-      new QuizModel("Quiz 1", "Quiz description", 70, 100, lesson1PositionID),
+      new QuizModel("Quiz 1", "Quiz description", 70, lesson1PositionID, lesson1PositionID),
     ];
 
     const courseData = new CourseModel(
@@ -89,12 +89,14 @@ describe("Course and Lesson Creation Integration Tests", () => {
     await courseData.save(creatorId);
 
     // Fetch the created course to verify its attributes
-    console.log("searching with course id,  ", courseData.courseID);
+    // console.log("searching with course id,  ", courseData.courseID);
     const createdCourse = await CourseModel.search(courseData.courseID);
 
     expect(createdCourse).toBeDefined();
     expect(createdCourse?.detail.title).toBe("Advanced Course");
     expect(createdCourse?.detail.lessonCount).toBe(2);
+    // console.log("created course outline is ");
+    // console.log(createdCourse?.outline);
     expect(typeof createdCourse?.outline[0].quizID).toBe("string");
     expect(createdCourse?.detail.courseLength).toBe(300);
   });
@@ -114,5 +116,4 @@ describe("Course and Lesson Creation Integration Tests", () => {
       console.error("test suite error: ", err);
     }
   });
-
 });
