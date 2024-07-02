@@ -24,6 +24,8 @@ import {
   handleListStudentRecentUnfinished,
   handleListCreators,
   handleDeleteCourseForCreator,
+  handleUpdateCourse,
+  handleCreateAssessment,
 } from "./option-handlers.js";
 import { AuthPosition } from "./option-handlers.js";
 import { ConsoleLogger } from "./utils.js";
@@ -83,6 +85,9 @@ const RootOptions: ConsoleRootOptionType[] = [
   { id: 15, shortcut: "a", description: "authenticate user" },
   { id: 16, shortcut: "vc", description: "view course" },
   { id: 17, shortcut: "dc", description: "delete course" },
+  { id: 18, shortcut: "uci", description: "update course info" },
+  { id: 19, shortcut: "ua", description: "update assessment" },
+  { id: 20, shortcut: "ca", description: "create assessment" },
 ];
 
 const parseOptionListToString = (options: ConsoleRootOptionType[]) => {
@@ -225,6 +230,14 @@ async function promptAndProcess(options: any) {
       case "dc":
       case "17":
         await handleDeleteCourseForCreator(AUTH_STATE, "require-creator");
+        break;
+      case "uci":
+      case "18":
+        await handleUpdateCourse(AUTH_STATE, "require-creator");
+        break;
+      case "20":
+      case "ca":
+        await handleCreateAssessment(AUTH_STATE, "require-creator");
         break;
       default:
         new ConsoleLogger("info", "no valid option picked");
