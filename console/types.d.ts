@@ -155,3 +155,22 @@ export interface LessonsQuizInputType {
   passScore: number;
   totalPoints: number;
 }
+
+export interface AssessmentInputType {
+  parentEntityID?: number;
+  passScore: number;
+  description: string;
+  quizTitle?: string;
+  duration?: number;
+  startDate?: string;
+  endDate?: string;
+}
+
+export interface QuestionInputType {
+  questionText: string;
+  points: number;
+  positionID?: number;
+  answerCount: number;
+}
+
+export interface AnswerInputType {}
