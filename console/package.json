@@ -2,13 +2,13 @@
   "name": "console",
   "version": "1.0.0",
   "description": "",
-	"type": "module",
+  "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "./hs test && NODE_OPTIONS=--experimental-vm-modules jest --detectOpenHandles",
     "dev": "tsc -w & nodemon --quiet src/index.js",
     "start": "node src/index.js",
-    "build": "webpack"
+    "test:watch": "./hs test && NODE_OPTIONS=--experimental-vm-modules jest --watch"
   },
   "keywords": [],
   "author": "",
@@ -16,18 +16,27 @@
   "dependencies": {
     "@types/figlet": "^1.5.8",
     "@types/pg": "^8.11.6",
+    "@types/uuid": "^10.0.0",
     "chalk": "^5.3.0",
     "commander": "^12.1.0",
     "figlet": "^1.7.0",
     "inquirer": "^9.2.23",
-    "pg": "^8.12.0"
+    "pg": "^8.12.0",
+    "uuid": "^10.0.0"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.24.7",
+    "@babel/preset-typescript": "^7.24.7",
     "@types/commander": "^2.12.2",
     "@types/dotenv": "^8.2.0",
     "@types/inquirer": "^9.0.7",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.14.9",
+    "babel-jest": "^29.7.0",
     "dotenv": "^16.4.5",
+    "jest": "^29.7.0",
     "nodemon": "^3.1.2",
+    "ts-jest": "^29.1.5",
     "typescript": "^5.5.2",
     "util": "^0.12.5"
   }
