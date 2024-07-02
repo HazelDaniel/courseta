@@ -8,6 +8,10 @@ import type {
   LessonsQuizInputType,
   LessonsLessonContentInputType,
   LessonInputType,
+  AssessmentVariantType,
+  AssessmentInputType,
+  QuestionInputType,
+  AnswerInputType,
 } from "./types";
 import { ConsoleLogger } from "./utils.js";
 import { StudentModel } from "./models/student.model.js";
@@ -21,6 +25,10 @@ import { BaseModel } from "./models/base-model.js";
 import { LessonModel } from "./models/lesson.model.js";
 import { QuizModel } from "./models/quiz.model.js";
 import { LessonContentModel } from "./models/lesson-content.model.js";
+import { AssessmentModel } from "./models/assessment.model.js";
+import { QuestionModel } from "./models/question.model.js";
+import { AnswerModel } from "./models/answer.model.js";
+import { ExamModel } from "./models/exam.model.js";
 
 export enum AuthPosition {
   ADMIN_AUTH,
@@ -472,23 +480,11 @@ export const handleCreateCourse: HandlerFunctionType = async (
           name: "passScore",
           message: `Enter quiz ${k + 1} pass score (?/100) :`,
         },
-        {
-          type: "input",
-          name: "totalPoints",
-          message: `Enter quiz ${k + 1} total points :`,
-        },
       ]);
 
-      const { description, passScore, quizTitle, totalPoints } =
-        quizCreationPrompt;
+      const { description, passScore, quizTitle } = quizCreationPrompt;
 
-      const pendingQuiz = new QuizModel(
-        quizTitle,
-        description,
-        +passScore,
-        +totalPoints,
-        i
-      );
+      const pendingQuiz = new QuizModel(quizTitle, description, +passScore, i);
       quizzesList.push(pendingQuiz);
     }
 
@@ -682,7 +678,12 @@ export const handleChangeCourseDetail: (
     const { description, keywords, thumbnail } = fieldUpdatePrompt;
 
     try {
-      await CourseModel.updateFields(courseID ,thumbnail, description, keywords);
+      await CourseModel.updateFields(
+        courseID,
+        thumbnail,
+        description,
+        keywords
+      );
       resolve();
     } catch (err) {
       reject(err);
@@ -713,7 +714,7 @@ export const handleUpdateCourse: HandlerFunctionType = async (
     }
   }
 
-  const courseCreationPrompt: {
+  const courseSelectionPrompt: {
     courseID: string;
   } = await inquirer.prompt([
     {
@@ -723,7 +724,7 @@ export const handleUpdateCourse: HandlerFunctionType = async (
     },
   ]);
 
-  let { courseID } = courseCreationPrompt;
+  let { courseID } = courseSelectionPrompt;
 
   const courseUpdatePrompt: {
     opt: string;
@@ -1280,6 +1281,234 @@ export const handleDeleteCourseForCreator: HandlerFunctionType = async (
       }`
     );
   }
-  // await CreatorModel.delete();
   return;
+};
+
+export const handleCreateAssessment: HandlerFunctionType = async (
+  authState,
+  ac
+) => {
+  const isAdminVerified = authState.adminSubject;
+  const isCreatorAuthentic = verifyAccess(authState, ac);
+
+  if (!isCreatorAuthentic && !isAdminVerified) {
+    new ConsoleLogger("fail", "this action is only accessible to creators");
+    return;
+  }
+
+  if (!isCreatorAuthentic) {
+    const { isSuperUser: isAdminSuperUser } = await AdminModel.isSuperUser(
+      authState.adminSubject
+    );
+
+    if (!isAdminSuperUser) {
+      new ConsoleLogger("fail", `this admin can't create assessments!`);
+      return;
+    }
+  }
+
+  try {
+    let parentEntityID: number;
+    let assessmentType: AssessmentVariantType;
+    const assessmentTypePrompt: { type: string } = await inquirer.prompt([
+      {
+        type: "input",
+        name: "type",
+        message:
+          "WHAT TYPE OF ASSESSMENT?\n\
+          1. => quiz\n\
+          2. => exam\n\
+          3.  => go back [<-]\n\
+          \ninput your choice:",
+      },
+    ]);
+
+    const { type } = assessmentTypePrompt;
+
+    switch (type) {
+      case "1":
+        assessmentType = "quiz";
+        const lessonIDPrompt: { lessonID: string } = await inquirer.prompt([
+          {
+            type: "input",
+            name: "lessonID",
+            message: "input lesson id :",
+          },
+        ]);
+        const { lessonID } = lessonIDPrompt;
+        parentEntityID = +lessonID;
+        break;
+      case "2":
+        assessmentType = "exam";
+        const courseIDPrompt: { courseID: string } = await inquirer.prompt([
+          {
+            type: "input",
+            name: "courseID",
+            message: "input course id :",
+          },
+        ]);
+        const { courseID } = courseIDPrompt;
+        parentEntityID = +courseID;
+        break;
+      case "3":
+        return;
+      default:
+        new ConsoleLogger("info", "no valid option picked");
+        return;
+    }
+
+    const questionAdditionPrompt: { questionCount: number } =
+      await inquirer.prompt([
+        {
+          type: "input",
+          name: "questionCount",
+          message: "Number of questions :",
+        },
+      ]);
+
+    const { questionCount } = questionAdditionPrompt;
+    let i: number;
+    let assessmentCreationPrompt: AssessmentInputType;
+
+    if (assessmentType === "exam") {
+      assessmentCreationPrompt = await inquirer.prompt([
+        {
+          type: "input",
+          name: "passScore",
+          message: `Enter passScore :`,
+        },
+        {
+          type: "input",
+          name: "description",
+          message: `Enter description :`,
+        },
+        {
+          type: "input",
+          name: "duration",
+          message: `Enter duration (seconds) :`,
+        },
+        {
+          type: "input",
+          name: "startDate",
+          message: `Enter start date (timestamp) :`,
+        },
+        {
+          type: "input",
+          name: "endDate",
+          message: `Enter end date (timestamp) :`,
+        },
+      ]);
+    } else {
+      assessmentCreationPrompt = await inquirer.prompt([
+        {
+          type: "input",
+          name: "passScore",
+          message: `Enter passScore :`,
+        },
+        {
+          type: "input",
+          name: "description",
+          message: `Enter description :`,
+        },
+        {
+          type: "input",
+          name: "quizTitle",
+          message: `Enter quiz title :`,
+        },
+      ]);
+    }
+
+    const { description, passScore, duration, quizTitle, endDate, startDate } =
+      assessmentCreationPrompt;
+
+    let rawAssessment: QuizModel | ExamModel;
+
+    if (assessmentType === "exam") {
+      rawAssessment = new ExamModel(
+        parentEntityID,
+        passScore,
+        description,
+        duration as number,
+        startDate as string,
+        endDate as string,
+        assessmentType
+      );
+    } else {
+      rawAssessment = new QuizModel(
+        quizTitle as string,
+        description,
+        passScore,
+        undefined,
+        parentEntityID
+      );
+    }
+
+    for (i = 0; i < questionCount; i++) {
+      const questionCreationPrompt: Omit<QuestionInputType, "positionID"> =
+        await inquirer.prompt([
+          {
+            type: "input",
+            name: "questionText",
+            message: `Enter question ${i + 1} text :`,
+          },
+          {
+            type: "input",
+            name: "points",
+            message: `Enter question ${i + 1} points :`,
+          },
+          {
+            type: "input",
+            name: "answerCount",
+            message: `Enter question ${i + 1} answer count :`,
+          },
+        ]);
+
+      const { points, questionText, answerCount } = questionCreationPrompt;
+      const pendingQuestion = new QuestionModel(questionText, points, i);
+      (rawAssessment as AssessmentModel).questionData = pendingQuestion;
+      let j: number;
+
+      for (j = 0; j < answerCount; j++) {
+        const answerCreationPrompt: {
+          answerText: string;
+          isCorrect: string;
+          questionPositionID?: number;
+        } = await inquirer.prompt([
+          {
+            type: "input",
+            name: "answerText",
+            message: `Enter answer ${j + 1} text :`,
+          },
+          {
+            type: "input",
+            name: "isCorrect",
+            message: `is answer ${j + 1} correct (y/n)? :`,
+          },
+        ]);
+
+        const { answerText, isCorrect } = answerCreationPrompt;
+
+        const pendingAnswer = new AnswerModel(
+          answerText,
+          isCorrect === "y" ? true : false,
+          i
+        );
+
+        (rawAssessment as AssessmentModel).answerData = pendingAnswer;
+      }
+    }
+
+    const resAssessmentID = await rawAssessment.save();
+    new ConsoleLogger(
+      "success",
+      `assessment (${resAssessmentID}) created successfully!`
+    );
+  } catch (err) {
+    new ConsoleLogger(
+      "fail",
+      `assessment creation failed! reason: ${
+        (err as Error).message || (err as string)
+      }`
+    );
+  }
 };
