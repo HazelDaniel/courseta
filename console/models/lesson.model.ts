@@ -109,10 +109,6 @@ export class LessonModel extends BaseModel<void> {
       const res: QueryResult<{ add_lessons_to_course: number[] }> =
         await client.query(query);
       const lessonIDArray = res.rows[0].add_lessons_to_course;
-      this.courseID = null;
-      this.lessonData = [];
-      this.lessonQuizData = [];
-      this.lessonContentData = [];
       return lessonIDArray;
     } catch (err) {
       console.error(
@@ -120,6 +116,10 @@ export class LessonModel extends BaseModel<void> {
       );
       throw new Error(err as string);
     } finally {
+      this.courseID = null;
+      this.lessonData = [];
+      this.lessonQuizData = [];
+      this.lessonContentData = [];
       client.release();
     }
   }
