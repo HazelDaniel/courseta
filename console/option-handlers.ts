@@ -1512,3 +1512,228 @@ export const handleCreateAssessment: HandlerFunctionType = async (
     );
   }
 };
+
+export const handleUpdateAssessment: HandlerFunctionType = async (
+  authState,
+  ac
+) => {
+  const isAdminVerified = authState.adminSubject;
+  const isCreatorAuthentic = verifyAccess(authState, ac);
+
+  if (!isCreatorAuthentic && !isAdminVerified) {
+    new ConsoleLogger("fail", "this action is only accessible to creators");
+    return;
+  }
+
+  if (!isCreatorAuthentic) {
+    const { isSuperUser: isAdminSuperUser } = await AdminModel.isSuperUser(
+      authState.adminSubject
+    );
+
+    if (!isAdminSuperUser) {
+      new ConsoleLogger("fail", `this admin can't update assessments!`);
+      return;
+    }
+  }
+
+  try {
+    let assessmentType: AssessmentVariantType;
+    const assessmentTypePrompt: { type: string } = await inquirer.prompt([
+      {
+        type: "input",
+        name: "type",
+        message:
+          "WHAT TYPE OF ASSESSMENT?\n\
+          1. => quiz\n\
+          2. => exam\n\
+          3.  => go back [<-]\n\
+          \ninput your choice:",
+      },
+    ]);
+
+    const { type } = assessmentTypePrompt;
+
+    switch (type) {
+      case "1":
+        assessmentType = "quiz";
+        break;
+      case "2":
+        assessmentType = "exam";
+        break;
+      case "3":
+        return;
+      default:
+        new ConsoleLogger("info", "no valid option picked");
+        return;
+    }
+
+    const assessmentActionTypePrompt: { action: string } = await inquirer.prompt([
+      {
+        type: "input",
+        name: "action",
+        message: "ACTION TO PERFORM?\n\
+          1. => delete question(s)\n\
+          2. => add question(s)\n\
+          3.  => go back [<-]\n\
+          \ninput your choice:",
+      },
+    ]);
+
+    const {action} = assessmentActionTypePrompt;
+
+    switch (action) {
+      case "1":
+        await handleDeleteAssessmentQuestions(assessmentType);
+        break;
+      case "2":
+        await handleAddQuestionsToAssessment(assessmentType);
+        break;
+      case "3":
+        return;
+      default:
+        new ConsoleLogger("info", "no valid option picked");
+        return;
+    }
+
+    new ConsoleLogger(
+      "success",
+      `assessment updated successfully!`
+    );
+  } catch (err) {
+    new ConsoleLogger(
+      "fail",
+      `assessment update failed! reason: ${
+        (err as Error).message || (err as string)
+      }`
+    );
+  }
+};
+
+export const handleAddQuestionsToAssessment: (
+  assessmentType: AssessmentVariantType
+) => Promise<void> = async (assessmentType) => {
+  return new Promise(async (resolve, reject) => {
+    const questionAdditionPrompt: {
+      questionCount: number;
+      assessmentID: string;
+    } = await inquirer.prompt([
+      {
+        type: "input",
+        name: "assessmentID",
+        message: "Enter assessment ID :",
+      },
+      {
+        type: "input",
+        name: "questionCount",
+        message: "Number of questions :",
+      },
+    ]);
+
+    let { questionCount, assessmentID } = questionAdditionPrompt;
+
+    questionCount = +questionCount;
+    let i: number;
+
+    for (i = 0; i < questionCount; i++) {
+      const questionCreationPrompt: QuestionInputType = await inquirer.prompt([
+        {
+          type: "input",
+          name: "questionText",
+          message: `Enter question ${i + 1} text :`,
+        },
+        {
+          type: "input",
+          name: "points",
+          message: `Enter question ${i + 1} points :`,
+        },
+        {
+          type: "input",
+          name: "answerCount",
+          message: `number of answers? :`,
+        },
+      ]);
+
+      const { answerCount, points, questionText } = questionCreationPrompt;
+
+      const pendingQuestion = new QuestionModel(
+        questionText,
+        points,
+        i,
+        assessmentID,
+        assessmentType
+      );
+      let j: number;
+
+      for (j = 0; j < answerCount; j++) {
+        const answerCreationPrompt: AnswerInputType = await inquirer.prompt([
+          {
+            type: "input",
+            name: "answerText",
+            message: `Enter answer ${j + 1} text :`,
+          },
+          {
+            type: "input",
+            name: "isCorrect",
+            message: `is answer ${j + 1} correct (y/n)? :`,
+          },
+        ]);
+
+        const { answerText, isCorrect } = answerCreationPrompt;
+
+        const pendingAnswer = new AnswerModel(
+          answerText,
+          isCorrect === "y" ? true : false,
+          i
+        );
+        pendingQuestion.answersData = pendingAnswer;
+      }
+
+      pendingQuestion.save();
+    }
+
+    try {
+      await QuestionModel.saveAll();
+      resolve();
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
+
+export const handleDeleteAssessmentQuestions: (
+  assessmentType: AssessmentVariantType
+) => Promise<void> = async (assessmentType) => {
+  return new Promise(async (resolve, reject) => {
+    const questionAdditionPrompt: {
+      assessmentID: string;
+      questionIDs: string;
+    } = await inquirer.prompt([
+      {
+        type: "input",
+        name: "assessmentID",
+        message: "Enter assessment ID :",
+      },
+      {
+        type: "input",
+        name: "questionIDs",
+        message: "Enter question IDs (space separated) :",
+      },
+    ]);
+
+    let { assessmentID, questionIDs } = questionAdditionPrompt;
+
+    try {
+      await QuestionModel.delete(
+        assessmentID,
+        questionIDs
+          .split(" ")
+          .filter((el) => !!el && !Number.isNaN(el))
+          .map((el) => +el),
+        assessmentType
+      );
+      resolve();
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
