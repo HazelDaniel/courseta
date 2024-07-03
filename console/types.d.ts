@@ -173,4 +173,7 @@ export interface QuestionInputType {
   answerCount: number;
 }
 
-export interface AnswerInputType {}
+export interface AnswerInputType {
+  answerText: string;
+  isCorrect: string;
+}
