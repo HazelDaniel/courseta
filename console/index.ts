@@ -6,6 +6,7 @@ import inquirer from "inquirer";
 import { Command } from "commander";
 import { AdminModel } from "./models/admin.model.js";
 
+
 import chalk from "chalk";
 import figlet from "figlet";
 import {
@@ -26,6 +27,7 @@ import {
   handleDeleteCourseForCreator,
   handleUpdateCourse,
   handleCreateAssessment,
+  handleUpdateAssessment,
 } from "./option-handlers.js";
 import { AuthPosition } from "./option-handlers.js";
 import { ConsoleLogger } from "./utils.js";
@@ -103,7 +105,7 @@ const parseOptionListToString = (options: ConsoleRootOptionType[]) => {
       acc +=
         `${i % columnNumber === 0 && !!i ? "\n" : !!i ? "\t" : ""}` +
         `${curr.id}. ${curr.shortcut} ->  ${chalk
-          .ansi256(10 * (i + 8))(curr.description)
+          .ansi256(10 * (i + 3))(curr.description)
           .padStart(longestOptionLength, " ")}`.padEnd(
           tileRatio * (columnSize + 8),
           " "
@@ -234,6 +236,10 @@ async function promptAndProcess(options: any) {
       case "uci":
       case "18":
         await handleUpdateCourse(AUTH_STATE, "require-creator");
+        break;
+      case "ua":
+      case "19":
+        await handleUpdateAssessment(AUTH_STATE, "require-creator");
         break;
       case "20":
       case "ca":
