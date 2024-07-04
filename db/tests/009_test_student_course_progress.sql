@@ -39,7 +39,10 @@
 \set courseta_var_answer_id_11 11
 
 
+
 \set courseta_var_submission_time '2024-06-04 15:03:37.808+02'
+\set courseta_var_retake_time '2024-07-04 15:03:37.200+02'
+\set courseta_var_retake_time2 '2024-09-04 16:03:37.902+02'
 
 
 INSERT INTO creators (email, first_name, last_name, password, creator_id)
@@ -70,8 +73,8 @@ VALUES ('fintech course', 'this is a fintech course', 0, :'courseta_var_creator_
 SELECT enroll_student_to_course(:'courseta_var_student_id_1', 1);
 SELECT enroll_student_to_course(:'courseta_var_student_id_1', 2);
 
-SELECT enroll_student_to_course(:'courseta_var_student_id_2', 3);
 SELECT enroll_student_to_course(:'courseta_var_student_id_2', 1);
+SELECT enroll_student_to_course(:'courseta_var_student_id_2', 2);
 
 SELECT enroll_student_to_course(:'courseta_var_student_id_3', 2);
 SELECT enroll_student_to_course(:'courseta_var_student_id_3', 3);
@@ -122,8 +125,8 @@ INSERT INTO answers (answer_id, answer_text, is_correct, question_id)
 VALUES (:'courseta_var_answer_id_5', '0 sides', true, :'courseta_var_question_id_2');
 
 
-INSERT INTO exams (assessment_id, exam_id, pass_score, description, duration, start_date, end_date, assessment_type)
-VALUES (:'courseta_var_exam_id_1', :'courseta_var_exam_id_1', 80, 'an exam quiz on blockchain', 200,
+INSERT INTO exams (course_id, assessment_id, exam_id, pass_score, description, duration, start_date, end_date, assessment_type)
+VALUES (:'courseta_var_course_id_1', :'courseta_var_exam_id_1', :'courseta_var_exam_id_1', 80, 'an exam quiz on blockchain', 200,
 '2020-08-04 08:03:37.808+02'::TIMESTAMPTZ, '2020-08-04 15:03:37.808+02'::TIMESTAMPTZ, 'exam');
 
 INSERT INTO questions (assessment_id, question_id, question_text, points)
@@ -150,124 +153,75 @@ VALUES (:'courseta_var_answer_id_11', 'bash', false, :'courseta_var_question_id_
 
 
 
--- ASSESSMENT FLOW FOR STUDENT 1 ON QUIZ 1
-\echo 'attempting assessments';
-INSERT INTO students__assessments (student_id, assessment_id, submitted_at)
-VALUES (:'courseta_var_student_id_1', :'courseta_var_quiz_id_1', :'courseta_var_submission_time'::timestamp);
-
-INSERT INTO students__assessments (student_id, assessment_id, submitted_at)
-VALUES (:'courseta_var_student_id_1', :'courseta_var_exam_id_1', :'courseta_var_submission_time'::timestamp);
-
-\echo 'checking students__assessments.total_points_accumulated before attempting an assessment';
-SELECT * FROM students__assessments WHERE student_id = :'courseta_var_student_id_1';
-
-\echo 'answering questions';
-INSERT INTO students__questions (student_id, question_id, answered_at)
-VALUES (:'courseta_var_student_id_1', :'courseta_var_question_id_1', :'courseta_var_submission_time'::timestamp);
-
-INSERT INTO students__questions (student_id, question_id, answered_at)
-VALUES (:'courseta_var_student_id_1', :'courseta_var_question_id_2', :'courseta_var_submission_time'::timestamp);
-
-INSERT INTO students__questions (student_id, question_id, answered_at)
-VALUES (:'courseta_var_student_id_1', :'courseta_var_question_id_3', :'courseta_var_submission_time'::timestamp);
-
-INSERT INTO students__questions (student_id, question_id, answered_at)
-VALUES (:'courseta_var_student_id_1', :'courseta_var_question_id_4', :'courseta_var_submission_time'::timestamp);
-
 \echo 'checking all attempts on questions:';
 SELECT * FROM students__questions;
 
-\echo 'selecting answers';
-INSERT INTO students__answers (student_id, answer_id, question_id, selected_at)
-VALUES
-(:'courseta_var_student_id_1', :'courseta_var_answer_id_1', :'courseta_var_question_id_1', :'courseta_var_submission_time'::timestamp),
-(:'courseta_var_student_id_1', :'courseta_var_answer_id_2', :'courseta_var_question_id_1', :'courseta_var_submission_time'::timestamp),
-(:'courseta_var_student_id_1', :'courseta_var_answer_id_3', :'courseta_var_question_id_1', :'courseta_var_submission_time'::timestamp),
-(:'courseta_var_student_id_1', :'courseta_var_answer_id_6', :'courseta_var_question_id_1', :'courseta_var_submission_time'::timestamp),
 
-(:'courseta_var_student_id_1', :'courseta_var_answer_id_5', :'courseta_var_question_id_2', :'courseta_var_submission_time'::timestamp);
+-- ASSESSMENT FLOW FOR STUDENT 1 ON QUIZ 1 (NEW METHOD)
+\echo 'QUIZ SUBMISSION';
+CALL submit_assessment_for_student(
+    :'courseta_var_student_id_1'::UUID,
+    :'courseta_var_quiz_id_1'::UUID,
+    ARRAY[:courseta_var_question_id_1, :courseta_var_question_id_2]::INT[],
+    (
+        '[{"question_id": ' || :'courseta_var_question_id_1' || ', "answer_id": ' || :'courseta_var_answer_id_1' || '}, ' ||
+        '{"question_id": ' || :'courseta_var_question_id_1' || ', "answer_id": ' || :'courseta_var_answer_id_3' || '}, ' ||
+        '{"question_id": ' || :'courseta_var_question_id_1' || ', "answer_id": ' || :'courseta_var_answer_id_2' || '}, ' ||
+        '{"question_id": ' || :'courseta_var_question_id_1' || ', "answer_id": ' || :'courseta_var_answer_id_6' || '}, ' ||
+        '{"question_id": ' || :'courseta_var_question_id_2' || ', "answer_id": ' || :'courseta_var_answer_id_5' || '}]'
+    )::JSONB,
+    :'courseta_var_submission_time'::timestamptz
+);
 
-
-INSERT INTO students__answers (student_id, answer_id, question_id, selected_at)
-VALUES
-(:'courseta_var_student_id_1', :'courseta_var_answer_id_7', :'courseta_var_question_id_3', :'courseta_var_submission_time'::timestamp),
--- (:'courseta_var_student_id_1', :'courseta_var_answer_id_8', :'courseta_var_question_id_3', :'courseta_var_submission_time'::timestamp),
--- (:'courseta_var_student_id_1', :'courseta_var_answer_id_9', :'courseta_var_question_id_3', :'courseta_var_submission_time'::timestamp),
-
-(:'courseta_var_student_id_1', :'courseta_var_answer_id_10', :'courseta_var_question_id_4', :'courseta_var_submission_time'::timestamp);
--- (:'courseta_var_student_id_1', :'courseta_var_answer_id_11', :'courseta_var_question_id_4', :'courseta_var_submission_time'::timestamp);
-
-
-\echo 'true submission of an assessment';
-UPDATE students__assessments
-SET waiting = 'false'
-WHERE student_id = :'courseta_var_student_id_1'
-AND assessment_id = :'courseta_var_quiz_id_1'
-AND submitted_at = :'courseta_var_submission_time'::timestamp;
-
-UPDATE students__assessments
-SET waiting = 'false'
-WHERE student_id = :'courseta_var_student_id_1'
-AND assessment_id = :'courseta_var_exam_id_1'
-AND submitted_at = :'courseta_var_submission_time'::timestamp;
+\echo 'EXAM SUBMISSION';
+CALL submit_assessment_for_student(
+    :'courseta_var_student_id_1'::UUID,
+    :'courseta_var_exam_id_1'::UUID,
+    ARRAY[:courseta_var_question_id_3, :courseta_var_question_id_4]::INT[],
+    (
+        '[{"question_id": ' || :'courseta_var_question_id_1' || ', "answer_id": ' || :'courseta_var_answer_id_1' || '}, ' ||
+        '{"question_id": ' || :'courseta_var_question_id_1' || ', "answer_id": ' || :'courseta_var_answer_id_3' || '}, ' ||
+        '{"question_id": ' || :'courseta_var_question_id_1' || ', "answer_id": ' || :'courseta_var_answer_id_2' || '}, ' ||
+        '{"question_id": ' || :'courseta_var_question_id_1' || ', "answer_id": ' || :'courseta_var_answer_id_6' || '}, ' ||
+        '{"question_id": ' || :'courseta_var_question_id_2' || ', "answer_id": ' || :'courseta_var_answer_id_5' || '}]'
+    )::JSONB,
+    :'courseta_var_submission_time'::timestamptz
+);
 
 \echo 'checking student points and rank after submission of an assessment';
 SELECT * FROM students WHERE student_id = :'courseta_var_student_id_1';
 
-\echo 'checking students__questions.points_accumulated after submission of an assessment';
-SELECT * FROM students__questions WHERE student_id = :'courseta_var_student_id_1';
+\echo 'QUIZ SUBMISSION';
+CALL submit_assessment_for_student(
+    :'courseta_var_student_id_2'::UUID,
+    :'courseta_var_exam_id_1'::UUID,
+    ARRAY[:courseta_var_question_id_3, :courseta_var_question_id_4]::INT[],
+    (
+        '[{"question_id": ' || :'courseta_var_question_id_1' || ', "answer_id": ' || :'courseta_var_answer_id_1' || '}, ' ||
+        '{"question_id": ' || :'courseta_var_question_id_1' || ', "answer_id": ' || :'courseta_var_answer_id_3' || '}, ' ||
+        '{"question_id": ' || :'courseta_var_question_id_1' || ', "answer_id": ' || :'courseta_var_answer_id_2' || '}, ' ||
+        '{"question_id": ' || :'courseta_var_question_id_1' || ', "answer_id": ' || :'courseta_var_answer_id_6' || '}, ' ||
+        '{"question_id": ' || :'courseta_var_question_id_2' || ', "answer_id": ' || :'courseta_var_answer_id_5' || '}]'
+    )::JSONB,
+    :'courseta_var_submission_time'::timestamptz
+);
 
-\echo 'checking students__assessments.total_points_accumulated after submission of an assessment';
-SELECT * FROM students__assessments WHERE student_id = :'courseta_var_student_id_1';
-
-
-
-
-
--- ASSESSMENT FLOW FOR STUDENT 2 ON QUIZ 1
-\echo 'attempting assessments';
-INSERT INTO students__assessments (student_id, assessment_id, submitted_at)
-VALUES (:'courseta_var_student_id_2', :'courseta_var_quiz_id_1', :'courseta_var_submission_time'::timestamp);
-
-\echo 'checking students__assessments.total_points_accumulated before attempting an assessment';
-SELECT * FROM students__assessments WHERE student_id = :'courseta_var_student_id_2';
-
-\echo 'answering questions';
-INSERT INTO students__questions (student_id, question_id, answered_at)
-VALUES (:'courseta_var_student_id_2', :'courseta_var_question_id_1', :'courseta_var_submission_time'::timestamp);
-
-INSERT INTO students__questions (student_id, question_id, answered_at)
-VALUES (:'courseta_var_student_id_2', :'courseta_var_question_id_2', :'courseta_var_submission_time'::timestamp);
-
-\echo 'checking all attempts on questions:';
-SELECT * FROM students__questions;
-
-\echo 'selecting answers';
-INSERT INTO students__answers (student_id, answer_id, question_id, selected_at)
-VALUES
-(:'courseta_var_student_id_2', :'courseta_var_answer_id_1', :'courseta_var_question_id_1', :'courseta_var_submission_time'::timestamp),
-(:'courseta_var_student_id_2', :'courseta_var_answer_id_2', :'courseta_var_question_id_1', :'courseta_var_submission_time'::timestamp),
--- (:'courseta_var_student_id_2', :'courseta_var_answer_id_3', :'courseta_var_question_id_1', :'courseta_var_submission_time'::timestamp),
--- (:'courseta_var_student_id_2', :'courseta_var_answer_id_6', :'courseta_var_question_id_1', :'courseta_var_submission_time'::timestamp),
-
-(:'courseta_var_student_id_2', :'courseta_var_answer_id_5', :'courseta_var_question_id_2', :'courseta_var_submission_time'::timestamp);
-
-\echo 'true submission of an assessment';
-UPDATE students__assessments
-SET waiting = 'false'
-WHERE student_id = :'courseta_var_student_id_2'
-AND assessment_id = :'courseta_var_quiz_id_1'
-AND submitted_at = :'courseta_var_submission_time'::timestamp;
-
+CALL submit_assessment_for_student(
+    :'courseta_var_student_id_2'::UUID,
+    :'courseta_var_quiz_id_1'::UUID,
+    ARRAY[:courseta_var_question_id_1, :courseta_var_question_id_2]::INT[],
+    (
+        '[{"question_id": ' || :'courseta_var_question_id_1' || ', "answer_id": ' || :'courseta_var_answer_id_1' || '}, ' ||
+        '{"question_id": ' || :'courseta_var_question_id_1' || ', "answer_id": ' || :'courseta_var_answer_id_3' || '}, ' ||
+        '{"question_id": ' || :'courseta_var_question_id_1' || ', "answer_id": ' || :'courseta_var_answer_id_2' || '}, ' ||
+        '{"question_id": ' || :'courseta_var_question_id_1' || ', "answer_id": ' || :'courseta_var_answer_id_6' || '}, ' ||
+        '{"question_id": ' || :'courseta_var_question_id_2' || ', "answer_id": ' || :'courseta_var_answer_id_5' || '}]'
+    )::JSONB,
+    :'courseta_var_submission_time'::timestamptz
+);
 
 \echo 'checking student points and rank after submission of an assessment';
 SELECT * FROM students WHERE student_id = :'courseta_var_student_id_2';
-
-\echo 'checking students__questions.points_accumulated after submission of an assessment';
-SELECT * FROM students__questions WHERE student_id = :'courseta_var_student_id_2';
-
-\echo 'checking students__assessments.total_points_accumulated after submission of an assessment';
-SELECT * FROM students__assessments WHERE student_id = :'courseta_var_student_id_2';
 
 
 

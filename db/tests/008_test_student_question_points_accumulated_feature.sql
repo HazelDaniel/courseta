@@ -2,7 +2,6 @@
 \x
 \set courseta_var_creator_id_1 2aac9187-e2e9-4326-9c0b-920bfa0143b4
 \set courseta_var_creator_id_2 47621eb8-08e0-42d4-87cb-8efac5676290
-
 \set courseta_var_student_id_1 9ae767db-0a13-4cea-8d1f-99c25fa831f6
 \set courseta_var_student_id_2 a69c1374-d4ef-4644-a791-fd8b6601aa8c
 \set courseta_var_student_id_3 a69c1304-d4af-4644-c082-fd8b6601aa8d
