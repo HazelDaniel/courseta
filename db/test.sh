@@ -12,7 +12,7 @@ for i in $(find ./tests -type f | sort -n); do
 	fi
 
 	echo -e "[\e[32mUNIT\e[0m]: RUNNING TEST${x} <=> ${i}...";
-	./setup.sh && psql -Utoughware -p5432 -hlocalhost -d courseta -f "$i";
+	./setup.sh && psql -Utoughware -p5432 -hlocalhost -d courseta_test -f "$i";
 	echo -e "[\e[32mUNIT\e[0m]: DONE RUNNING TEST${x} <=> ${i}. (STATUS: " $?")";
 	((x += 1));
 
