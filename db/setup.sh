@@ -2,9 +2,11 @@
 # db teardown, cleanup and setup
 source ./.environment.zshrc
 
+
 for i in $(find ./setup -type f | sort -n); do
 	psql -Utoughware -p5432 -hlocalhost -d postgres -f "$i";
 done
+
 
 if [[ $? == 0 ]]; then
 	for i in $(find ./tables -type f | sort -n); do
