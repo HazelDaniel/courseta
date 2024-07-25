@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 # populating the db with the stored csv/sql files
+if [[ $1 == 'test' ]]; then
+	exit 0;
+fi
 source ./.environment.zshrc
 echo "populating schema..."
 psql -Utoughware -hlocalhost -dcourseta -f "$(find ./backup/schema -type f | sort -n | tail -n 1)" &&\
