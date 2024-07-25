@@ -12,6 +12,7 @@ import { BoardDisplay, ConsoleLogger } from "../utils.js";
 import { LessonModel } from "./lesson.model.js";
 import { LessonContentModel } from "./lesson-content.model.js";
 import { QuizModel } from "./quiz.model.js";
+import { transcode } from "buffer";
 
 export class CourseModel extends BaseModel<void> {
   courseID: number | null = null;
@@ -49,7 +50,7 @@ export class CourseModel extends BaseModel<void> {
         const res: QueryResult<{
           course_id: string;
           lesson_count: string;
-          thumbnail: string;
+          avatar: { url: string; updated_at: string; created_at: string };
           title: string;
         }> = await client.query(query);
 
@@ -58,13 +59,13 @@ export class CourseModel extends BaseModel<void> {
           const {
             course_id: courseID,
             lesson_count: lessonCount,
-            thumbnail,
+            avatar,
             title,
           } = el;
           return {
             courseID: +courseID,
             lessonCount: +lessonCount,
-            thumbnail,
+            thumbnail: avatar.url,
             title,
           };
         });
@@ -235,7 +236,7 @@ export class CourseModel extends BaseModel<void> {
             lesson_count: string;
             description: string;
             review_count: string;
-            thumbnail: string;
+            avatar: { url: string; updated_at: string; created_at: string };
             creator_id: string;
             student_count: string;
             updated_at: string;
@@ -269,11 +270,11 @@ export class CourseModel extends BaseModel<void> {
             lesson_count,
             review_count,
             student_count,
-            thumbnail,
             title,
             course_length,
             updated_at,
             average_rating,
+            avatar,
           } = el;
 
           return {
@@ -282,7 +283,7 @@ export class CourseModel extends BaseModel<void> {
             lessonCount: +lesson_count,
             reviewCount: +review_count,
             studentCount: +student_count,
-            thumbnail,
+            thumbnail: avatar.url,
             title,
             courseLength: +course_length,
             updatedAt: updated_at,
@@ -431,12 +432,19 @@ export class CourseModel extends BaseModel<void> {
           values: [courseDiff],
         };
         const res: QueryResult<{
-          thumbnail: string;
+          url: string;
           description: string;
           tags: string[];
         }> = await client.query(query);
         const resCourse = res.rows[0];
-        resolve(resCourse);
+        console.log("resolved course is ", resCourse);
+        const { description: resDesc, tags: resTags, url } = resCourse;
+        const transformedCourse: {
+          thumbnail: string;
+          description: string;
+          tags: string[];
+        } = { description: resDesc, tags: resTags, thumbnail: url };
+        resolve(transformedCourse);
       } catch (err) {
         console.error(
           `${chalk.red(
