@@ -8,3 +8,4 @@ src/*.js
 src/models/*.js
 backup
 TODO.txt
+tmp
