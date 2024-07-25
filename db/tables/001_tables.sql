@@ -63,7 +63,7 @@ BEGIN
     title TEXT NOT NULL,
     lesson_count SMALLINT NOT NULL default 0,
     description TEXT NOT NULL DEFAULT 'no description provided',
-    thumbnail TEXT,
+    avatar JSONB NOT NULL DEFAULT '{}'::JSONB,
     review_count INT NOT NULL DEFAULT 0,
     average_rating NUMERIC(2, 1) NOT NULL DEFAULT 5.0,
     creator_id UUID NOT NULL,
@@ -92,7 +92,7 @@ BEGIN
   CREATE TYPE courseta.ASSESSMENT_TYPE AS ENUM('exam', 'quiz');
 
   CREATE TABLE IF NOT EXISTS courseta.assessments (
-    assessment_id UUID PRIMARY KEY,
+    assessment_id UUID NOT NULL PRIMARY KEY DEFAULT gen_random_uuid(),
     pass_score SMALLINT DEFAULT 50,
     description VARCHAR(250),
     assessment_type courseta.ASSESSMENT_TYPE NOT NULL DEFAULT 'quiz',
@@ -111,6 +111,7 @@ BEGIN
 
   CREATE TABLE IF NOT EXISTS courseta.quizzes (
     quiz_id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    assessment_id UUID GENERATED ALWAYS AS (quiz_id) STORED,
     lesson_id BIGINT NOT NULL,
     quiz_title TEXT,
     CHECK (pass_score IS NOT NULL AND pass_score BETWEEN 0 AND 100),
@@ -134,13 +135,18 @@ BEGIN
 
   CREATE TABLE IF NOT EXISTS courseta.exams (
     exam_id UUID DEFAULT gen_random_uuid() PRIMARY KEY, 
+    assessment_id UUID GENERATED ALWAYS AS (exam_id) STORED,
+    assessment_type courseta.ASSESSMENT_TYPE NOT NULL DEFAULT 'exam',
     duration SMALLINT NOT NULL,
     start_date TIMESTAMPTZ NOT NULL,
     end_date TIMESTAMPTZ NOT NULL,
+    course_id BIGINT NOT NULL,
+    FOREIGN KEY (course_id) REFERENCES courseta.courses(course_id) ON DELETE CASCADE,
     CHECK (pass_score IS NOT NULL AND pass_score BETWEEN 0 AND 100),
     CHECK (description IS NOT NULL),
     CHECK (total_points IS NOT NULL),
-    CHECK (EXTRACT(EPOCH FROM end_date) - EXTRACT(EPOCH FROM start_date) > 0)
+    CHECK (EXTRACT(EPOCH FROM end_date) - EXTRACT(EPOCH FROM start_date) > 0),
+    UNIQUE(course_id)
   ) INHERITS (courseta.assessments);
 
   CREATE TABLE IF NOT EXISTS courseta.questions (
@@ -148,6 +154,7 @@ BEGIN
     question_text TEXT NOT NULL,
     points SMALLINT NOT NULL,
     assessment_id UUID NOT NULL,
+    assessment_type courseta.ASSESSMENT_TYPE NOT NULL,
     FOREIGN KEY (assessment_id) REFERENCES courseta.assessments(assessment_id) ON DELETE CASCADE
   );
 
