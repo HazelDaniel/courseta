@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 # backing up db to stored csv/sql files
+
+if [[ $1 == 'test' ]]; then
+	exit 0;
+fi
 source ./.environment.zshrc
 pg_dump -v -Utoughware -hlocalhost -dcourseta --schema=courseta --schema-only > ./backup/schema/"$(date +%y-%m_%d_%H_%M_%S)"-backup.sql
 
