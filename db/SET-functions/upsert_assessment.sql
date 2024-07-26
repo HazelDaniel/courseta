@@ -43,7 +43,7 @@ BEGIN
 
     END LOOP;
 
-    FOR question_id_entry IN ARRAY trash_question_ids LOOP
+    FOREACH question_id_entry IN ARRAY trash_question_ids LOOP
       DELETE FROM courseta.questions WHERE question_id = question_id_entry;
     END LOOP;
 
