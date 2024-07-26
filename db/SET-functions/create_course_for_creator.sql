@@ -5,6 +5,7 @@ BEGIN
 
   CREATE OR REPLACE FUNCTION create_course_for_creator(p_creator_id UUID, course_data JSONB, lessons_data JSONB,
   quizzes_data JSONB, contents_data JSONB)
+  -- +1 overloads
   RETURNS BIGINT
   AS
   $block1$
@@ -15,14 +16,21 @@ BEGIN
     quiz_entry                 JSONB;
     content_entry              JSONB;
     created_quiz_id             UUID;
+    avatar_json                JSONB;
   BEGIN
     -- unit of work: course creation
 
-    INSERT INTO courseta.courses(title, description, thumbnail, creator_id, tags)
+    avatar_json := json_build_object(
+    'url', course_data->>'thumbnail',
+    'created_at', to_json(CURRENT_TIMESTAMP),
+    'updated_at', to_json(CURRENT_TIMESTAMP)
+    );
+
+    INSERT INTO courseta.courses(title, description, avatar, creator_id, tags)
     VALUES (
       course_data->>'title',
       course_data->>'description',
-      course_data->>'thumbnail',
+      avatar_json,
       p_creator_id,
       COALESCE(ARRAY (SELECT jsonb_array_elements_text(course_data->'tags')), ARRAY[]::VARCHAR[])
     )
@@ -38,13 +46,12 @@ BEGIN
       FOR quiz_entry IN SELECT * FROM jsonb_array_elements(quizzes_data) LOOP
         IF quiz_entry->>'lessonPositionID' = lesson_entry->>'positionID' THEN
           created_quiz_id := gen_random_uuid();
-          INSERT INTO courseta.quizzes(lesson_id, quiz_title, description, pass_score, assessment_id, quiz_id)
+          INSERT INTO courseta.quizzes(lesson_id, quiz_title, description, pass_score, quiz_id)
           VALUES (
             created_lesson_id,
             quiz_entry->>'quizTitle',
             quiz_entry->>'description',
             (quiz_entry->>'passScore')::INT,
-            created_quiz_id,
             created_quiz_id
           );
         END IF;
@@ -68,13 +75,51 @@ BEGIN
     RETURN created_course_id;
     -- save unit of work
 
-  EXCEPTION
-    WHEN unique_violation THEN
-      RAISE EXCEPTION 'Duplicate values provided that should be unique: %', SQLERRM;
-    WHEN foreign_key_violation THEN
-      RAISE EXCEPTION 'Some inputs are referencing non-existent columns: %', SQLERRM;
-    WHEN others THEN
-      RAISE EXCEPTION 'Course creation failed. Check your inputs and try again: %', SQLERRM;
+  -- EXCEPTION
+  --   WHEN unique_violation THEN
+  --     RAISE EXCEPTION 'Duplicate values provided that should be unique: %', SQLERRM;
+  --   WHEN foreign_key_violation THEN
+  --     RAISE EXCEPTION 'Some inputs are referencing non-existent columns: %', SQLERRM;
+  --   WHEN others THEN
+  --     RAISE EXCEPTION 'Course creation failed. Check your inputs and try again: %', SQLERRM;
+  END;
+  $block1$ LANGUAGE PLPGSQL;
+
+  CREATE OR REPLACE FUNCTION create_course_for_creator(p_creator_id UUID, course_data JSONB)
+  RETURNS BIGINT
+  AS
+  $block1$
+  DECLARE
+    created_course_id         BIGINT;
+    avatar_json                JSONB;
+  BEGIN
+
+    avatar_json := json_build_object(
+    'url', course_data->>'thumbnail',
+    'created_at', to_json(CURRENT_TIMESTAMP),
+    'updated_at', to_json(CURRENT_TIMESTAMP)
+    );
+
+    INSERT INTO courseta.courses(title, description, avatar, creator_id, tags)
+    VALUES (
+      course_data->>'title',
+      course_data->>'description',
+      avatar_json,
+      p_creator_id,
+      COALESCE(ARRAY (SELECT jsonb_array_elements_text(course_data->'tags')), ARRAY[]::VARCHAR[])
+    )
+    RETURNING course_id INTO created_course_id;
+
+
+    RETURN created_course_id;
+
+  -- EXCEPTION
+  --   WHEN unique_violation THEN
+  --     RAISE EXCEPTION 'Duplicate values provided that should be unique: %', SQLERRM;
+  --   WHEN foreign_key_violation THEN
+  --     RAISE EXCEPTION 'Some inputs are referencing non-existent columns: %', SQLERRM;
+  --   WHEN others THEN
+  --     RAISE EXCEPTION 'Course creation failed. Check your inputs and try again: %', SQLERRM;
   END;
   $block1$ LANGUAGE PLPGSQL;
 
