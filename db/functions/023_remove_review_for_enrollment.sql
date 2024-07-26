@@ -2,7 +2,7 @@ DO
 $block$
 BEGIN
 
-  CREATE OR REPLACE PROCEDURE delete_enrollment_equiv_review
+  CREATE OR REPLACE PROCEDURE p_01_delete_enrollment_equiv_review
   (course_id_ BIGINT, student_id_ UUID) LANGUAGE PLPGSQL AS
   $block2$
   BEGIN
@@ -11,10 +11,10 @@ BEGIN
   END;
   $block2$;
 
-  CREATE OR REPLACE FUNCTION remove_review_for_enrollment () RETURNS TRIGGER AS
+  CREATE OR REPLACE FUNCTION p_02_remove_review_for_enrollment () RETURNS TRIGGER AS
   $block1$
   BEGIN
-    CALL delete_enrollment_equiv_review(OLD.course_id, OLD.student_id);
+    CALL p_01_delete_enrollment_equiv_review(OLD.course_id, OLD.student_id);
     RETURN OLD;
   END;
   $block1$ LANGUAGE PLPGSQL;
