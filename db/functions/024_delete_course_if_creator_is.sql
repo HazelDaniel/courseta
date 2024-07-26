@@ -3,7 +3,7 @@ $block$
 BEGIN
   RAISE NOTICE '[SETUP]   (SET) FUNCTION: setting up the delete_course_if_creator_is function ...';
 
-  CREATE OR REPLACE FUNCTION delete_course_if_creator_is (course_id_ BIGINT, creator_id_ UUID) RETURNS
+  CREATE OR REPLACE FUNCTION p_02_delete_course_if_creator_is (course_id_ BIGINT, creator_id_ UUID) RETURNS
   VOID AS
   $block1$
   DECLARE
@@ -13,12 +13,12 @@ BEGIN
     WHERE course_id = course_id_;
 
     IF equiv_creator_id_ <> creator_id_ THEN
-      RAISE EXCEPTION 'you cannot delete a course you didn''t create!'
+      RAISE EXCEPTION 'you cannot delete a course you didn''t create!';
       RETURN;
     END IF;
 
     DELETE FROM courseta.courses
-    WHERE courses.creator_id = creator_id_;
+    WHERE courses.creator_id = creator_id_ AND courses.course_id = course_id_;
 
   END;
   $block1$ LANGUAGE PLPGSQL;
