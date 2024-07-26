@@ -7,14 +7,14 @@ BEGIN
   TABLE (
     title TEXT,
     lesson_count SMALLINT,
-    thumbnail TEXT,
+    avatar JSONB,
     course_id BIGINT,
     average_rating NUMERIC,
     student_count INT
   ) AS
   $block1$
   BEGIN
-    RETURN QUERY SELECT courses.title, courses.lesson_count, courses.thumbnail, courses.course_id, courses.average_rating, courses.student_count
+    RETURN QUERY SELECT courses.title, courses.lesson_count, courses.avatar, courses.course_id, courses.average_rating, courses.student_count
     FROM courseta.courses WHERE courses.creator_id = creator_id_;
   END;
   $block1$ LANGUAGE PLPGSQL;

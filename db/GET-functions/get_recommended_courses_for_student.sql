@@ -7,19 +7,19 @@ BEGIN
   TABLE (
     title TEXT,
     lesson_count SMALLINT,
-    thumbnail TEXT,
+    avatar JSONB,
     course_id BIGINT
   ) AS
   $block1$
   DECLARE
     enrolled_courses_tags         VARCHAR[];
   BEGIN
-    SELECT INTO enrolled_courses_tags COALESCE(aggregate_enrolled_course_tags_for_student(student_id_), ARRAY[]::VARCHAR[]);
+    SELECT INTO enrolled_courses_tags COALESCE(p_02_aggregate_enrolled_course_tags_for_student(student_id_), ARRAY[]::VARCHAR[]);
 
     RETURN QUERY
     (WITH recommended_courses AS
     (SELECT
-    DISTINCT ON (courses.course_id) courses.title, courses.lesson_count, courses.thumbnail, courses.course_id, students__courses.enrolled_at created_at
+    DISTINCT ON (courses.course_id) courses.title, courses.lesson_count, courses.avatar, courses.course_id, students__courses.enrolled_at created_at
     FROM courseta.students__courses
     JOIN courseta.courses USING (course_id)
     WHERE students__courses.student_id <> student_id_
@@ -34,7 +34,7 @@ BEGIN
     WHERE students__courses.student_id = student_id_
     )
     SELECT
-      rc.title, rc.lesson_count, rc.thumbnail, rc.course_id
+      rc.title, rc.lesson_count, rc.avatar, rc.course_id
     FROM recommended_courses rc
     LEFT JOIN student_enrolled_courses sec USING (course_id)
     WHERE sec.course_id IS NULL

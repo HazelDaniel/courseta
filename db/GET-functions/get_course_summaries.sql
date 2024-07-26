@@ -7,12 +7,12 @@ BEGIN
   TABLE (
     title TEXT,
     lesson_count SMALLINT,
-    thumbnail TEXT,
+    avatar JSONB,
     course_id BIGINT
   ) AS
   $block1$
   BEGIN
-    RETURN QUERY SELECT courses.title, courses.lesson_count, courses.thumbnail, courses.course_id
+    RETURN QUERY SELECT courses.title, courses.lesson_count, courses.avatar, courses.course_id
     FROM courseta.courses;
   END;
   $block1$ LANGUAGE PLPGSQL;
