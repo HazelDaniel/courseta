@@ -4,7 +4,7 @@ BEGIN
   RAISE NOTICE '[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for update of the course.quiz_count.';
 
 
-  CREATE OR REPLACE PROCEDURE add_quiz_equiv_course_count
+  CREATE OR REPLACE PROCEDURE p_01_add_quiz_equiv_course_count
   (quiz_id_ UUID) LANGUAGE PLPGSQL AS
   $block2$
   DECLARE
@@ -20,7 +20,7 @@ BEGIN
   END;
   $block2$;
 
-  CREATE OR REPLACE PROCEDURE subtract_quiz_equiv_lesson_count
+  CREATE OR REPLACE PROCEDURE p_01_subtract_quiz_equiv_lesson_count
   (quiz_id_ UUID) LANGUAGE PLPGSQL AS
   $block2$
   DECLARE
@@ -47,10 +47,10 @@ BEGIN
 
   RAISE NOTICE '<[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for addition to the course.quiz_count.';
 
-  CREATE OR REPLACE FUNCTION add_quiz_count_to_course () RETURNS TRIGGER AS
+  CREATE OR REPLACE FUNCTION p_02_add_quiz_count_to_course () RETURNS TRIGGER AS
   $block1$
   BEGIN
-    CALL add_quiz_equiv_course_count(NEW.quiz_id);
+    CALL p_01_add_quiz_equiv_course_count(NEW.quiz_id);
 		RETURN NEW;
   END;
   $block1$ LANGUAGE PLPGSQL;
@@ -60,10 +60,10 @@ BEGIN
 
   RAISE NOTICE '<[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for deduction from the course.quiz_count.';
 
-  CREATE OR REPLACE FUNCTION remove_quiz_count_from_course () RETURNS TRIGGER AS
+  CREATE OR REPLACE FUNCTION p_02_remove_quiz_count_from_course () RETURNS TRIGGER AS
   $block1$
   BEGIN
-    CALL subtract_quiz_equiv_lesson_count(OLD.quiz_id);
+    CALL p_01_subtract_quiz_equiv_lesson_count(OLD.quiz_id);
 		RETURN OLD;
   END;
   $block1$ LANGUAGE PLPGSQL;
