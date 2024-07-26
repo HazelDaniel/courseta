@@ -2,26 +2,32 @@
 > make sure that a student can't attempt/submit a quiz if not already enrolled in the corresponding course
 > don't know if this is a bug or a feature but when courses have been taken down, the points for students who have attempted them do not change
 > a cron job to vacuum the database backup at regular intervals
-> thumbnail fields on courses should be implemented like the images of users for caching. and there needs to be an attribute called cachable?
-	due to images that might have uploaded with just urls - we won't ba handling those. remember to test
-> remember to test the above todo (implement image for caching). run regression test on existing codebase
 > not fully certain but the lesson counts > quiz count > content count> may not be aggregated correctly . test them
 > question count is not being computed on assessments on question addition. do that and test the values before deletion of questions and addition of questions
 
 > make it so that a creator can delete a course only if users have not already enrolled in it. else, throw exception
 > make sure that the create_course_for_creator also has an exam_data parameter that can be used to create exams with course creation
 
+MORE FUNCTIONS/PROCEDURES TO ADD:
+[GET-functions]
+get_course_lessons_tree_for_creator_edit
+get_assessment_questions_tree_for_creator_edit
+
+
+
 MAKE SURE THAT EACH OF THESE CRUD OPERATIONS HAVE ACCESS CONTROLS BASED ON THEIR CREATORS (creator a can't be seen updating the course of creator b)
 MVC FEATURES:
 > update lesson
 	>> add content
 	>> delete content
+	>> delete quiz
 > update assessment
 	>> add question
 	>> delete question
 
 EXTENDED FEATURES:
 > we need an analytics feature for the dashboard of students and creators
+> handle image uploads with links, opt in/out of caching based on the image upload type
 > we need a leaderboard feature in the extended version. it shouldn't be a generic leader board,
 	instead it should be computed for each area/field (updated by the platform) e.g science, tech, etc.
 > update lesson
