@@ -3,7 +3,7 @@ $block$
 BEGIN
   RAISE NOTICE '[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for update on the students__questions.points_accumulated.';
 
-  CREATE OR REPLACE FUNCTION agg_answer_submission_points_to_question () RETURNS TRIGGER AS
+  CREATE OR REPLACE FUNCTION p_02_agg_answer_submission_points_to_question () RETURNS TRIGGER AS
   $block1$
   DECLARE
     correct_answers_picked           SMALLINT;
