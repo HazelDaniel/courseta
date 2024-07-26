@@ -3,7 +3,7 @@ $block$
 BEGIN
   RAISE NOTICE '[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for update of the courses tags for student.';
 
-  CREATE OR REPLACE FUNCTION aggregate_enrolled_course_tags_for_student (student_id_ UUID)
+  CREATE OR REPLACE FUNCTION p_02_aggregate_enrolled_course_tags_for_student (student_id_ UUID)
   RETURNS VARCHAR[] AS
   $block1$
   DECLARE
