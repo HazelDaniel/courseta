@@ -3,7 +3,7 @@ $block$
 BEGIN
   RAISE NOTICE '[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for update of the creator.course_count.';
 
-  CREATE OR REPLACE PROCEDURE add_course_equiv_creator_count
+  CREATE OR REPLACE PROCEDURE p_01_add_course_equiv_creator_count
   (creator_id_ UUID) LANGUAGE PLPGSQL AS
   $block2$
   BEGIN
@@ -13,7 +13,7 @@ BEGIN
   END;
   $block2$;
 
-  CREATE OR REPLACE PROCEDURE subtract_course_equiv_creator_count
+  CREATE OR REPLACE PROCEDURE p_01_subtract_course_equiv_creator_count
   (creator_id_ UUID) LANGUAGE PLPGSQL AS
   $block2$
   BEGIN
@@ -23,15 +23,15 @@ BEGIN
   END;
   $block2$;
 
-  CREATE OR REPLACE FUNCTION update_course_count_on_creator () RETURNS TRIGGER AS
+  CREATE OR REPLACE FUNCTION p_02_update_course_count_on_creator () RETURNS TRIGGER AS
   $block1$
   BEGIN
     CASE TG_OP
       WHEN 'INSERT' THEN
-        CALL add_course_equiv_creator_count(NEW.creator_id);
+        CALL p_01_add_course_equiv_creator_count(NEW.creator_id);
         RETURN NEW;
       WHEN 'DELETE' THEN
-        CALL subtract_course_equiv_creator_count(OLD.creator_id);
+        CALL p_01_subtract_course_equiv_creator_count(OLD.creator_id);
         RETURN OLD;
     END CASE;
   END;
