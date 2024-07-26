@@ -14,8 +14,8 @@ BEGIN
   $block1$
   BEGIN
     RETURN QUERY
-    INSERT INTO courseta.courses (title, description, thumbnail, creator_id, tags)
-    VALUES (title_, description_, thumbnail_, creator_id_, tags_)
+    INSERT INTO courseta.courses (title, description, avatar, creator_id, tags)
+    VALUES (title_, description_, '{}' || ('{"url": "' || thumbnail_ || '", "created_at": "' ||  CURRENT_TIMESTAMP::TEXT || '", "updated_at": "' || CURRENT_TIMESTAMP::TEXT || '"}')::JSONB , creator_id_, tags_)
     RETURNING courses.course_id;
   END;
   $block1$ LANGUAGE PLPGSQL;
