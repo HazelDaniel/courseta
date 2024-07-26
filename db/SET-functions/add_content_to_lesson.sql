@@ -1,7 +1,7 @@
 DO
 $block$
 BEGIN
-CREATE OR REPLACE FUNCTION add_content_to_lesson (p_lesson_id, p_title, p_href, p_content_type, p_duration) RETURNS VOID
+CREATE OR REPLACE FUNCTION add_content_to_lesson (p_lesson_id BIGINT, p_title TEXT, p_href TEXT, p_content_type courseta.LESSON_CONTENT_TYPE, p_duration INT) RETURNS VOID
 AS
 $block1$
   BEGIN
@@ -13,10 +13,11 @@ $block1$
       p_content_type::courseta.LESSON_CONTENT_TYPE,
       p_duration::INT
     );
+
   EXCEPTION
     WHEN others THEN
       RAISE EXCEPTION 'content addition failed. Check your inputs and try again: %', SQLERRM;
   END;
-$block1$
+$block1$ LANGUAGE PLPGSQL;
 END;
 $block$ LANGUAGE PLPGSQL;

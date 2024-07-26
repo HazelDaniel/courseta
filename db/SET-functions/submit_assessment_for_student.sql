@@ -4,7 +4,7 @@ BEGIN
   RAISE NOTICE '[SETUP]   (SET) FUNCTION: setting up the SET function to submit assessment.';
 
   CREATE OR REPLACE PROCEDURE submit_assessment_for_student(p_student_id UUID, p_assessment_id UUID,
-    p_questions INT[], p_answers JSONB, p_submission_time TIMESTAMPTZ)
+  p_questions INT[], p_answers JSONB, p_submission_time TIMESTAMPTZ)
   LANGUAGE plpgsql
   AS
   $block1$
@@ -48,21 +48,20 @@ BEGIN
     AND assessment_id = p_assessment_id
     AND submitted_at = p_submission_time;
 
-    EXCEPTION
-      WHEN unique_violation THEN
-        RAISE NOTICE '%', SQLERRM;
-        RAISE NOTICE 'there is a duplicate entry in the submission flow. submission not recorded. rolling back...';
-        ROLLBACK;
-      WHEN foreign_key_violation THEN
-        RAISE NOTICE '%', SQLERRM;
-        RAISE NOTICE 'some of the IDs are referencing other columns that do not exist. rolling back...';
-        ROLLBACK;
-      WHEN others THEN
-        RAISE NOTICE '%', SQLERRM;
-        RAISE NOTICE 'the above exception occurred while trying to submit assessment. rolling back...';
-        ROLLBACK;
+  EXCEPTION
+    WHEN unique_violation THEN
+      RAISE NOTICE '%', SQLERRM;
+      RAISE NOTICE 'there is a duplicate entry in the submission flow. submission not recorded. rolling back...';
+      ROLLBACK;
+    WHEN foreign_key_violation THEN
+      RAISE NOTICE '%', SQLERRM;
+      RAISE NOTICE 'some of the IDs are referencing other columns that do not exist. rolling back...';
+      ROLLBACK;
+    WHEN others THEN
+      RAISE NOTICE '%', SQLERRM;
+      RAISE NOTICE 'the above exception occurred while trying to submit assessment. rolling back...';
+      ROLLBACK;
 
-    COMMIT;
   END;
   $block1$;
 
