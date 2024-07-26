@@ -6,15 +6,16 @@ BEGIN
   CREATE OR REPLACE FUNCTION get_course_summaries_for_creator (creator_id_ UUID) RETURNS
   TABLE (
     title TEXT,
-    lesson_count SMALLINT,
     avatar JSONB,
     course_id BIGINT,
-    average_rating NUMERIC,
-    student_count INT
+    created_at TIMESTAMPTZ,
+    updated_at TIMESTAMPTZ,
+    tags VARCHAR[]
   ) AS
   $block1$
   BEGIN
-    RETURN QUERY SELECT courses.title, courses.lesson_count, courses.avatar, courses.course_id, courses.average_rating, courses.student_count
+    RETURN QUERY SELECT courses.title, courses.avatar, courses.course_id,
+    courses.created_at, courses.updated_at, courses.tags
     FROM courseta.courses WHERE courses.creator_id = creator_id_;
   END;
   $block1$ LANGUAGE PLPGSQL;
