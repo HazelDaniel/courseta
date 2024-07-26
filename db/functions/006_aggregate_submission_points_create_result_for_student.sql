@@ -3,7 +3,7 @@ $block$
 BEGIN
   -- RAISE NOTICE '[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for update on the students.points column.';
 
-  CREATE OR REPLACE FUNCTION deduct_student_existing_points (student_id_ UUID, assessment_id_ UUID, submitted_at_ TIMESTAMPTZ) RETURNS VOID AS
+  CREATE OR REPLACE FUNCTION p_02_deduct_student_existing_points (student_id_ UUID, assessment_id_ UUID, submitted_at_ TIMESTAMPTZ) RETURNS VOID AS
   $block1$
   DECLARE
     retake_points          INT DEFAULT 0;
@@ -26,7 +26,7 @@ BEGIN
   $block1$ LANGUAGE PLPGSQL;
 
     -- TODO: this should be triggered once or always re-computed otherwise
-  CREATE OR REPLACE FUNCTION agg_assessment_submission_points_to_student () RETURNS TRIGGER AS
+  CREATE OR REPLACE FUNCTION p_02_agg_assessment_submission_points_to_student () RETURNS TRIGGER AS
   $block1$
   DECLARE
     gen_result_id                   UUID;
@@ -35,7 +35,7 @@ BEGIN
       RETURN NEW; -- don't do anything further if the assessment submission is not past the waiting state
     END IF;
 
-    PERFORM deduct_student_existing_points(NEW.student_id, NEW.assessment_id, NEW.submitted_at);
+    PERFORM p_02_deduct_student_existing_points(NEW.student_id, NEW.assessment_id, NEW.submitted_at);
 
     -- RAISE NOTICE '[debug]: WE ARE AGGREGATING STUDENT POINTS FROM ASSESSMENT SUBMISSION';
 
@@ -43,8 +43,8 @@ BEGIN
 		WHERE students.student_id = NEW.student_id;
     -- we should create a corresponding assessment result here
 
-    gen_result_id := upsert_equiv_assessment_result(NEW.student_id, NEW.assessment_id, NEW.submitted_at);
-    CALL update_score_on_assessment_result(NEW.student_id, NEW.assessment_id, NEW.submitted_at, gen_result_id);
+    gen_result_id := p_02_upsert_equiv_assessment_result(NEW.student_id, NEW.assessment_id, NEW.submitted_at);
+    CALL p_01_update_score_on_assessment_result(NEW.student_id, NEW.assessment_id, NEW.submitted_at, gen_result_id);
 
     RETURN NEW;
   END;
