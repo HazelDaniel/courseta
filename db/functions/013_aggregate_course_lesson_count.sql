@@ -5,7 +5,7 @@ BEGIN
 
   -- RAISE NOTICE '<[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for addition to the course.lesson_count.';
 
-  CREATE OR REPLACE PROCEDURE add_lesson_equiv_course_count
+  CREATE OR REPLACE PROCEDURE p_01_add_lesson_equiv_course_count
   (course_id_ BIGINT) LANGUAGE PLPGSQL AS
   $block2$
   BEGIN
@@ -14,10 +14,10 @@ BEGIN
   END;
   $block2$;
 
-  CREATE OR REPLACE FUNCTION add_lesson_count_to_course () RETURNS TRIGGER AS
+  CREATE OR REPLACE FUNCTION p_02_add_lesson_count_to_course () RETURNS TRIGGER AS
   $block1$
   BEGIN
-    CALL add_lesson_equiv_course_count(NEW.course_id);
+    CALL p_01_add_lesson_equiv_course_count(NEW.course_id);
 		RETURN NEW;
   END;
   $block1$ LANGUAGE PLPGSQL;
@@ -27,7 +27,7 @@ BEGIN
 
   -- RAISE NOTICE '<[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for deduction from the course.quiz_count.';
 
-  CREATE OR REPLACE PROCEDURE subtract_quiz_equiv_lesson_count
+  CREATE OR REPLACE PROCEDURE p_01_subtract_quiz_equiv_lesson_count
   (lesson_id_ BIGINT) LANGUAGE PLPGSQL AS
   $block2$
   DECLARE
@@ -54,10 +54,10 @@ BEGIN
   END;
   $block2$;
 
-  CREATE OR REPLACE FUNCTION remove_equiv_quiz_count_from_course () RETURNS TRIGGER AS
+  CREATE OR REPLACE FUNCTION p_02_remove_equiv_quiz_count_from_course () RETURNS TRIGGER AS
   $block1$
   BEGIN
-    CALL subtract_quiz_equiv_lesson_count(OLD.lesson_id);
+    CALL p_01_subtract_quiz_equiv_lesson_count(OLD.lesson_id);
 		RETURN OLD;
   END;
   $block1$ LANGUAGE PLPGSQL;
@@ -66,7 +66,7 @@ BEGIN
 
   -- RAISE NOTICE '<[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for deduction from the course.lesson_count.';
 
-  CREATE OR REPLACE PROCEDURE subtract_lesson_equiv_course_count
+  CREATE OR REPLACE PROCEDURE p_01_subtract_lesson_equiv_course_count
   (course_id_ BIGINT) LANGUAGE PLPGSQL AS
   $block2$
   BEGIN
@@ -75,10 +75,10 @@ BEGIN
   END;
   $block2$;
 
-  CREATE OR REPLACE FUNCTION remove_lesson_count_from_course () RETURNS TRIGGER AS
+  CREATE OR REPLACE FUNCTION p_02_remove_lesson_count_from_course () RETURNS TRIGGER AS
   $block1$
   BEGIN
-    CALL subtract_lesson_equiv_course_count(OLD.course_id);
+    CALL p_01_subtract_lesson_equiv_course_count(OLD.course_id);
 		RETURN OLD;
   END;
   $block1$ LANGUAGE PLPGSQL;
