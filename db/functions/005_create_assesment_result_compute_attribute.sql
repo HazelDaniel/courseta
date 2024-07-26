@@ -5,7 +5,7 @@ BEGIN
 
   RAISE NOTICE '<[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for update on the assessment_results.score.';
 
-  CREATE OR REPLACE PROCEDURE update_score_on_assessment_result
+  CREATE OR REPLACE PROCEDURE p_01_update_score_on_assessment_result
   (student_id_ UUID, assessment_id_ UUID, time_attempted TIMESTAMPTZ, result_id UUID)
   LANGUAGE PLPGSQL AS
   $block2$
@@ -37,7 +37,7 @@ BEGIN
 
   RAISE NOTICE '<[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for creation of assessment_result.';
 
-  CREATE OR REPLACE FUNCTION upsert_equiv_assessment_result
+  CREATE OR REPLACE FUNCTION p_02_upsert_equiv_assessment_result
   (student_id_ UUID, assessment_id_ UUID, time_attempted TIMESTAMPTZ)
   RETURNS UUID
   AS
