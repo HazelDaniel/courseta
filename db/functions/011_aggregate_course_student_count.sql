@@ -5,7 +5,7 @@ BEGIN
 
   -- RAISE NOTICE '<[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for addition to the course.student_count.';
 
-  CREATE OR REPLACE PROCEDURE add_student_equiv_course_count
+  CREATE OR REPLACE PROCEDURE p_01_add_student_equiv_course_count
   (course_id_ BIGINT) LANGUAGE PLPGSQL AS
   $block2$
   BEGIN
@@ -14,10 +14,10 @@ BEGIN
   END;
   $block2$;
 
-  CREATE OR REPLACE FUNCTION add_student_count_to_course () RETURNS TRIGGER AS
+  CREATE OR REPLACE FUNCTION p_02_add_student_count_to_course () RETURNS TRIGGER AS
   $block1$
   BEGIN
-    CALL add_student_equiv_course_count(NEW.course_id);
+    CALL p_01_add_student_equiv_course_count(NEW.course_id);
     RETURN NEW;
   END;
   $block1$ LANGUAGE PLPGSQL;
@@ -27,7 +27,7 @@ BEGIN
 
   -- RAISE NOTICE '<[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for removal from the course.student_count.';
 
-  CREATE OR REPLACE PROCEDURE subtract_student_equiv_course_count
+  CREATE OR REPLACE PROCEDURE p_01_subtract_student_equiv_course_count
   (course_id_ BIGINT) LANGUAGE PLPGSQL AS
   $block2$
   BEGIN
@@ -36,10 +36,10 @@ BEGIN
   END;
   $block2$;
 
-  CREATE OR REPLACE FUNCTION remove_student_count_from_course () RETURNS TRIGGER AS
+  CREATE OR REPLACE FUNCTION p_02_remove_student_count_from_course () RETURNS TRIGGER AS
   $block1$
   BEGIN
-    CALL subtract_student_equiv_course_count(OLD.course_id);
+    CALL p_01_subtract_student_equiv_course_count(OLD.course_id);
 		RETURN OLD;
   END;
   $block1$ LANGUAGE PLPGSQL;
