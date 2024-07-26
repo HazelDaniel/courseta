@@ -3,7 +3,7 @@ $block$
 BEGIN
   RAISE NOTICE '[SETUP]  PROCEDURE/FUNCTION: setting up procedures/functions for update on the students__questions.points_accumulated column.';
 
-  CREATE OR REPLACE FUNCTION agg_questions_attempt_points_to_submission () RETURNS TRIGGER AS
+  CREATE OR REPLACE FUNCTION p_02_agg_questions_attempt_points_to_submission () RETURNS TRIGGER AS
   $block1$
   DECLARE
     equiv_assessment_id             UUID;
