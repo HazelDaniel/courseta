@@ -4,7 +4,7 @@ BEGIN
   RAISE NOTICE '[SETUP]   (SET) FUNCTION:  setting up the SET function to create an assessment with its questions and answers included';
 
   CREATE OR REPLACE FUNCTION create_assessment(p_parent_entity_id BIGINT, assessment_data JSONB,
-  questions_data JSONB, answers_data JSONB, assessment_type courseta.ASSESSMENT_TYPE)
+  questions_data JSONB, answers_data JSONB, assessment_type_ courseta.ASSESSMENT_TYPE)
   RETURNS UUID
   AS
   $block1$
@@ -16,7 +16,7 @@ BEGIN
   BEGIN
     -- a parent_entity_id could either be a lesson id or a course id
     -- unit of work: assessment creation
-    CASE assessment_type
+    CASE assessment_type_
     WHEN 'quiz' THEN
       INSERT INTO quizzes (lesson_id, pass_score, description, quiz_title)
       VALUES (p_parent_entity_id, (assessment_data->>'passScore')::SMALLINT, assessment_data->>'description', assessment_data->>'quizTitle') RETURNING quiz_id INTO created_assessment_id;
@@ -28,8 +28,8 @@ BEGIN
 
     -- process questions
     FOR question_entry IN SELECT * FROM jsonb_array_elements(questions_data) LOOP
-      INSERT INTO courseta.questions (assessment_id, question_text, points)
-      VALUES (created_assessment_id, question_entry->>'questionText', (question_entry->>'points')::SMALLINT) RETURNING question_id INTO created_question_id;
+      INSERT INTO courseta.questions (assessment_id, question_text, points, assessment_type)
+      VALUES (created_assessment_id, question_entry->>'questionText', (question_entry->>'points')::SMALLINT, assessment_type_) RETURNING question_id INTO created_question_id;
       -- process answers for this question
       FOR answer_entry IN SELECT * FROM jsonb_array_elements(answers_data) LOOP
         IF answer_entry->>'questionPositionID' = question_entry->>'positionID' THEN
