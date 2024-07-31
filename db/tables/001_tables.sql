@@ -28,6 +28,7 @@ BEGIN
     avatar JSONB NOT NULL DEFAULT '{}'::JSONB,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     password TEXT NOT NULL,
+    salt TEXT NOT NULL,
     UNIQUE(email),
     role courseta.USER_ROLE_TYPE NOT NULL DEFAULT 'student' CHECK (role = 'student')
   );
@@ -38,6 +39,7 @@ BEGIN
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     password TEXT NOT NULL,
+    salt TEXT NOT NULL,
     creator_pass TEXT NOT NULL DEFAULT gen_random_uuid()::TEXT,
     average_course_rating NUMERIC(2, 1) NOT NULL DEFAULT 5.0,
     course_review_count INT NOT NULL DEFAULT 0,
@@ -55,6 +57,7 @@ BEGIN
     email VARCHAR(256) NOT NULL CHECK (email iLIKE '%@%.%'),
     is_superuser BOOLEAN NOT NULL DEFAULT 'false',
     password TEXT NOT NULL,
+    salt TEXT NOT NULL,
     UNIQUE(email)
   );
 
