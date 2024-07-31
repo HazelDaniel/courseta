@@ -1,7 +1,7 @@
 DO
 $block1$
 BEGIN
-	CREATE OR REPLACE FUNCTION create_image(p_image_url TEXT, p_image_id UUID)
+	CREATE OR REPLACE FUNCTION create_image(p_image_url BYTEA, p_image_id UUID)
 	RETURNS UUID AS $$
 	DECLARE
 		new_image_id 				UUID;

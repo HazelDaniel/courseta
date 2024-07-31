@@ -1,7 +1,7 @@
 DO
 $block1$
 BEGIN
-	CREATE OR REPLACE FUNCTION update_image(p_image_id UUID, p_image_url TEXT)
+	CREATE OR REPLACE FUNCTION update_image(p_image_id UUID, p_image_url BYTEA)
 	RETURNS BOOLEAN AS $$
 	DECLARE
 			updated_rows INT;
