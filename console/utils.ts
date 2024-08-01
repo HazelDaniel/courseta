@@ -1,4 +1,5 @@
 import chalk from "chalk";
+import { BufferLike } from "./types";
 
 export class ConsoleLogger {
   tileWidth = process.stdout.columns;
@@ -44,3 +45,42 @@ export class BoardDisplay {
   static border = "|";
   static marginDecoratorCount = 35;
 }
+
+// PARSERS
+export const parseBase64Data: (
+  inputString: string
+) => { mime: string; data: string } | null = (inputString) => {
+  const matches = inputString.match(/^data:(image\/\w+);base64,(.+)$/);
+  if (matches) {
+    const [_1, mime, data] = matches;
+    return { mime, data };
+  }
+
+  return null;
+};
+
+export const base64ToBuffer: (inputString: string) => Buffer | null = (
+  inputString
+) => {
+  const parsedData = parseBase64Data(inputString);
+  if (parsedData) {
+    const { data } = parsedData;
+    return Buffer.from(data, "base64");
+  }
+  return null;
+};
+
+export const bufferToBase64: (inputBufferBuffer, mimeType: string) => string = (
+  inputBuffer,
+  mimeType
+) => {
+  return `data:${mimeType};base64,${inputBuffer.toString("base64")}`;
+};
+
+export const base64toDataURL: (dataUrl: string, mimeType: string) => string | null = (
+  dataUrl,
+  mimeType
+) => {
+  if (!dataUrl) return null;
+  return `data:${mimeType};base64,${dataUrl}`;
+};
