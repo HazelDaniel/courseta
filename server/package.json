@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "src/index.js",
+	"type": "module",
   "scripts": {
     "test": "../console/hs test && NODE_OPTIONS=--experimental-vm-modules jest --detectOpenHandles",
     "start": "node src/index.js",
@@ -10,9 +11,11 @@
   },
   "dependencies": {
     "@types/express": "^4.17.21",
+    "chalk": "^5.3.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "figlet": "^1.7.0",
     "helmet": "^7.1.0",
     "obuf": "^1.1.2",
     "pg": "^8.12.0",
