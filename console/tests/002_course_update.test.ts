@@ -3,23 +3,29 @@ config({ path: [".env", ".env.test"] });
 import { expect, describe, it, beforeAll, afterAll } from "@jest/globals";
 import { CourseModel } from "../models/course.model.js";
 import { pool } from "../db.js";
+import { randomUUID } from "crypto";
 
 describe("CourseModel.updateFields Integration Test", () => {
   let createdCourseId: number;
 
+  const courseImage =
+    "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAP//////////////////////////////////////////////////////////////////////////////////////2wBDAf//////////////////////////////////////////////////////////////////////////////////////wAARCABLAN4DASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAED/8QAHhABAQABAwUAAAAAAAAAAAAAABEBUbHRcYGRweH/xAAUAQEAAAAAAAAAAAAAAAAAAAAA/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8A0AAAAAAEpQUSlBRKUFAAAAAAAAAAEqgCKACQFAAAAABIRQEhFASKAAAAAAAAAAAJFAAAAAAAAAAAE7/C+FATg164UBFAAAAAAAAABFAQUBBQAAAAAAAAASbALRJsQFEJuCiT2c4BRIoAAAAAAAigCAKAAAAAAAAAAAAAAAAAAAAAAAAAACZBQAf/2Q==";
   beforeAll(async () => {
     const creatorID = process.env.CST_TEST_ADMIN_ID; // Replace with a valid UUID
     // Create a test course
     const courseData = new CourseModel(
       "Test Course",
       "Initial description",
-      "initial-thumbnail.jpg",
+      courseImage,
       creatorID as string,
-      "initial tag1 tag2"
+      "initial tag1 tag2",
+      undefined,
+      undefined,
+      undefined,
+      randomUUID()
     );
     const courseID = await courseData.save(creatorID);
     createdCourseId = courseID as number;
-    // console.log("created course id is ", createdCourseId);
   });
 
   afterAll(async () => {
@@ -27,7 +33,8 @@ describe("CourseModel.updateFields Integration Test", () => {
   });
 
   it("should update course fields correctly", async () => {
-    const updatedThumbnail = "updated-thumbnail.jpg";
+    const updatedThumbnail =
+      "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAP//////////////////////////////////////////////////////////////////////////////////////2wBDAf//////////////////////////////////////////////////////////////////////////////////////wAARCABLAN4DASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAED/8QAHhABAQABAwUAAAAAAAAAAAAAABEBUbHRcYGRweH/xAAUAQEAAAAAAAAAAAAAAAAAAAAA/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8A0AAAAAAEpQUSlBRKUFAAAAAAAAAAEqgCKACQFAAAAABIRQEhFASKAAAAAAAAAAAJFAAAAAAAAAAAE7/C+FATg164UBFAAAAAAAAABFAQUBBQAAAAAAAAASbALRJsQFEJuCiT2c4BRIoAAAAAAAigCAKAAAAAAAAAAAAAAAAAAAAAAAAAACZBQAf/2Q==";
     const updatedDescription = "Updated description";
     const updatedTags = "updated tag1 tag2 tag3";
 
@@ -35,8 +42,13 @@ describe("CourseModel.updateFields Integration Test", () => {
       createdCourseId,
       updatedThumbnail,
       updatedDescription,
-      updatedTags
+      updatedTags,
+      randomUUID()
     );
+
+    /* ts-ignore */
+    // console.log("sent thumbnail is ", updatedThumbnail);
+    // console.log("result thumbnail ", result.thumbnail);
 
     expect(result).toBeDefined();
     expect(result.thumbnail).toBe(updatedThumbnail);
@@ -57,7 +69,9 @@ describe("CourseModel.updateFields Integration Test", () => {
     const result = await CourseModel.updateFields(
       createdCourseId,
       undefined,
-      updatedDescription
+      updatedDescription,
+      undefined,
+      randomUUID()
     );
 
     expect(result).toBeDefined();
@@ -80,7 +94,8 @@ describe("CourseModel.updateFields Integration Test", () => {
       createdCourseId,
       undefined,
       undefined,
-      ""
+      "",
+      randomUUID()
     );
 
     expect(result).toBeDefined();
@@ -93,8 +108,11 @@ describe("CourseModel.updateFields Integration Test", () => {
   it("test a thumbnail update", async () => {
     const result = await CourseModel.updateFields(
       createdCourseId,
-      "newer-thumbnail-path"
+      "newer-thumbnail-path",
+      undefined,
+      undefined,
+      randomUUID()
     );
-    expect(result.thumbnail).toEqual("newer-thumbnail-path");
+    expect(result.thumbnail).toEqual(courseImage); // well, because that isn't valid base64
   });
 });

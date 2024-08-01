@@ -6,6 +6,7 @@ import { LessonContentModel } from "../models/lesson-content.model.js";
 import { QuizModel } from "../models/quiz.model.js";
 import { pool } from "../db";
 import { v4 as uuid } from "uuid";
+import { randomUUID } from "crypto";
 
 describe("Course and Lesson Creation Integration Tests", () => {
   beforeAll(async () => {
@@ -27,7 +28,8 @@ describe("Course and Lesson Creation Integration Tests", () => {
       "tag1 tag2 tag3",
       [], // Empty lesson data
       [], // Empty lesson content data
-      [] // Empty quiz data
+      [], // Empty quiz data
+      randomUUID()
     );
 
     await courseData.save(creatorId);
@@ -40,7 +42,7 @@ describe("Course and Lesson Creation Integration Tests", () => {
     expect(createdCourse).toBeDefined();
     expect(createdCourse?.detail.title).toBe("Test Course");
     expect(createdCourse?.detail.description).toBe("This is a test course");
-    expect(createdCourse?.detail.thumbnail).toBe("thumbnail-url");
+    expect(createdCourse.detail.thumbnail.length).toBe(0);
     expect(createdCourse?.detail.creatorID).toBe(creatorId);
     expect(createdCourse?.detail.lessonCount).toBe(0);
     // expect(createdCourse?.detail.quizCount).toBe(0);
@@ -72,7 +74,13 @@ describe("Course and Lesson Creation Integration Tests", () => {
       ),
     ];
     const quizData = [
-      new QuizModel("Quiz 1", "Quiz description", 70, lesson1PositionID, lesson1PositionID),
+      new QuizModel(
+        "Quiz 1",
+        "Quiz description",
+        70,
+        lesson1PositionID,
+        lesson1PositionID
+      ),
     ];
 
     const courseData = new CourseModel(
@@ -83,7 +91,8 @@ describe("Course and Lesson Creation Integration Tests", () => {
       "advanced programming",
       lessonData,
       lessonContentData,
-      quizData
+      quizData,
+      randomUUID()
     );
 
     await courseData.save(creatorId);
