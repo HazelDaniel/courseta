@@ -177,3 +177,8 @@ export interface AnswerInputType {
   answerText: string;
   isCorrect: string;
 }
+
+export interface BufferLike {
+  type: "Buffer";
+  data: number[];
+}
