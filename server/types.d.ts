@@ -1,0 +1,1 @@
+../console/types.d.ts
