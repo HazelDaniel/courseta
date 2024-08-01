@@ -107,5 +107,5 @@
     "skipLibCheck": true /* Skip type checking all .d.ts files. */
   },
   "exclude": ["node_modules"],
-  "include": ["./*.ts", "./models/*.ts", "./tests/*.ts", "./tests/**/*.ts"]
+  "include": ["./*.ts", "./models/*.ts", "./tests/*.ts", "./tests/**/*.ts", "./serializers/*.ts", "./deserializers/*.ts"]
 }
