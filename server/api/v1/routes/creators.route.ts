@@ -4,6 +4,8 @@ import type {
   CourseCreationPayloadType,
   CourseEditPayloadType,
   LessonAdditionPayloadType,
+  LessonContentAdditionPayloadType,
+  QuizCreationPayloadType,
 } from "../../../client.types";
 import { CourseModel } from "../../../models/v1/course.model.js";
 import type { ServerPayloadType } from "../../../types";
@@ -12,11 +14,14 @@ import { LessonContentModel } from "../../../models/v1/lesson-content.model.js";
 import { QuizModel } from "../../../models/v1/quiz.model.js";
 export const v1CreatorsRouter = express.Router();
 
-v1CreatorsRouter.get("/:creator_id/courses", (req, res, next) => {
+v1CreatorsRouter.get("/:creator_id/courses", async (req, res, next) => {
+  const creatorID = req.params.creator_id;
   try {
-    return res
-      .status(200)
-      .json({ message: "welcome to the creator courses route" });
+    const resCourses = await CourseModel.all({ variant: "creator", creatorID });
+    const resPayload: ServerPayloadType<typeof resCourses> = {
+      payload: resCourses,
+    };
+    return res.status(200).json(resPayload);
   } catch (err) {
     next(err);
   }
@@ -59,7 +64,11 @@ v1CreatorsRouter.post("/:creator_id/courses", async (req, res, next) => {
       courseDescription || "",
       courseThumbnail,
       creatorID,
-      tags
+      tags,
+      undefined,
+      undefined,
+      undefined,
+      randomUUID()
     );
     const courseID = await pendingCourse.save(creatorID);
     const resPayload: ServerPayloadType<number> = { payload: courseID };
@@ -115,7 +124,7 @@ v1CreatorsRouter.post(
         const pendingLesson = new LessonModel(
           lessonEl.title,
           lessonEl.positionID,
-          +courseID
+          +lessonEl.courseID
         );
         for (
           let j = 0;
@@ -158,6 +167,71 @@ v1CreatorsRouter.post(
         payload: "success!",
       };
       return res.status(201).json(resPayload);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+v1CreatorsRouter.post(
+  "/:creator_id/courses/:course_id/lessons/:lesson_id/quizzes",
+  async (req, res, next) => {
+    try {
+      const { lesson_id: lessonID } = req.params;
+      const quizCreationPayload: QuizCreationPayloadType =
+        req.body as QuizCreationPayloadType;
+      const { quizTitle, description, parentEntityID, passScore } =
+        quizCreationPayload;
+      const pendingLesson = new LessonModel(
+        "",
+        undefined,
+        undefined,
+        undefined,
+        parentEntityID
+      );
+      const resID = await pendingLesson.addQuiz(
+        quizTitle,
+        description || "",
+        passScore || 0
+      );
+      const resPayload: ServerPayloadType<typeof resID> = { payload: resID };
+      res.status(201).json(resPayload);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+v1CreatorsRouter.post(
+  "/:creator_id/courses/:course_id/lessons/:lesson_id/contents",
+  async (req, res, next) => {
+    try {
+      const { lesson_id: lessonID } = req.params;
+      const contentCreationPayload: LessonContentAdditionPayloadType =
+        req.body as LessonContentAdditionPayloadType;
+      const {
+        contentType,
+        duration,
+        href,
+        title,
+        lessonID: contentLessonID,
+      } = contentCreationPayload;
+      const pendingLesson = new LessonModel(
+        "",
+        undefined,
+        undefined,
+        undefined,
+        contentLessonID
+      );
+      const resID = await pendingLesson.addContent(
+        title || "",
+        href || "",
+        duration || 0,
+        contentType
+      );
+
+      const resPayload: ServerPayloadType<typeof resID> = { payload: resID };
+      res.status(201).json(resPayload);
     } catch (err) {
       next(err);
     }
