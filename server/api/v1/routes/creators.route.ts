@@ -1,8 +1,10 @@
 import { randomUUID } from "crypto";
 import express from "express";
 import type {
+  AssessmentEditPayloadType,
   CourseCreationPayloadType,
   CourseEditPayloadType,
+  ExamCreationPayloadType,
   LessonAdditionPayloadType,
   LessonContentAdditionPayloadType,
   QuizCreationPayloadType,
@@ -19,6 +21,9 @@ import { QuizModel } from "../../../models/v1/quiz.model.js";
 import { CreatorModel } from "../../../models/v1/creator.model.js";
 import { checkPasswordAgainstHash } from "../../../utils.js";
 import { UserModel } from "../../../models/v1/user.model.js";
+import { ExamModel } from "../../../models/v1/exam.model.js";
+import { QuestionModel } from "../../../models/v1/question.model.js";
+import { AnswerModel } from "../../../models/v1/answer.model.js";
 export const v1CreatorsRouter = express.Router();
 
 v1CreatorsRouter.get("/:creator_id/courses", async (req, res, next) => {
@@ -96,6 +101,59 @@ v1CreatorsRouter.put("/:creator_id/me", async (req, res, next) => {
     next(err);
   }
 });
+
+v1CreatorsRouter.put(
+  "/:creator_id/assessments/:assessment_id",
+  async (req, res, next) => {
+    try {
+      const { assessment_id: assessmentID } = req.params;
+      const assessmentUpdatePayload: AssessmentEditPayloadType =
+        req.body as AssessmentEditPayloadType;
+      const {
+        answerDataList,
+        questionDataList,
+        trashQuestionIDList,
+        parentEntityID,
+      } = assessmentUpdatePayload;
+      for (let i = 0; i < questionDataList.length; i++) {
+        const entryQuestion = questionDataList[i];
+        const { assessmentType, points, positionID, questionText } =
+          entryQuestion;
+        const pendingQuestion = new QuestionModel(
+          questionText,
+          points,
+          positionID,
+          assessmentID,
+          assessmentType,
+          undefined,
+          parentEntityID
+        );
+        for (let j = 0; j < answerDataList.length; j++) {
+          const entryAnswer = answerDataList[j];
+          const { answerText, isCorrect, questionPositionID } = entryAnswer;
+          if (questionPositionID === positionID) {
+            const pendingAnswer = new AnswerModel(
+              answerText,
+              isCorrect,
+              questionPositionID
+            );
+            pendingQuestion.answersData = pendingAnswer;
+          }
+        }
+        for (let k = 0; k < trashQuestionIDList.length; k++) {
+          pendingQuestion.trashData = trashQuestionIDList[k];
+        }
+        pendingQuestion.save();
+      }
+
+      await QuestionModel.saveAll();
+      const resPayload: ServerPayloadType<string> = { payload: "success!" };
+      res.status(201).json(resPayload);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
 
 v1CreatorsRouter.post(
   "/:creator_id/courses/:course_id/lessons/",
@@ -181,6 +239,33 @@ v1CreatorsRouter.post(
         passScore || 0
       );
       const resPayload: ServerPayloadType<typeof resID> = { payload: resID };
+      res.status(201).json(resPayload);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+v1CreatorsRouter.post(
+  "/:creator_id/courses/:course_id/exams/",
+  async (req, res, next) => {
+    try {
+      const { course_id: courseID } = req.params;
+      const examCreationPayload: ExamCreationPayloadType =
+        req.body as ExamCreationPayloadType;
+      const { description, duration, startDate, endDate, passScore } =
+        examCreationPayload;
+      const currDate = new Date().toISOString();
+      const pendingExam = new ExamModel(
+        +courseID,
+        passScore || 0,
+        description || "",
+        duration || 0,
+        startDate || currDate,
+        endDate || currDate
+      ); // TODO: make sure that these are passed using validation. do not help the client
+      const examID = await pendingExam.save();
+      const resPayload: ServerPayloadType<typeof examID> = { payload: examID };
       res.status(201).json(resPayload);
     } catch (err) {
       next(err);
