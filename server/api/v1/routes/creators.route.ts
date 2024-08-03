@@ -6,12 +6,19 @@ import type {
   LessonAdditionPayloadType,
   LessonContentAdditionPayloadType,
   QuizCreationPayloadType,
+  UserAuthPayloadType,
 } from "../../../client.types";
 import { CourseModel } from "../../../models/v1/course.model.js";
-import type { ServerPayloadType } from "../../../types";
+import type {
+  CreatorAttributeUpdateType,
+  ServerPayloadType,
+} from "../../../types";
 import { LessonModel } from "../../../models/v1/lesson.model.js";
 import { LessonContentModel } from "../../../models/v1/lesson-content.model.js";
 import { QuizModel } from "../../../models/v1/quiz.model.js";
+import { CreatorModel } from "../../../models/v1/creator.model.js";
+import { checkPasswordAgainstHash } from "../../../utils.js";
+import { UserModel } from "../../../models/v1/user.model.js";
 export const v1CreatorsRouter = express.Router();
 
 v1CreatorsRouter.get("/:creator_id/courses", async (req, res, next) => {
@@ -27,52 +34,14 @@ v1CreatorsRouter.get("/:creator_id/courses", async (req, res, next) => {
   }
 });
 
-v1CreatorsRouter.get("/:creator_id/me", (req, res, next) => {
+v1CreatorsRouter.get("/:creator_id/me", async (req, res, next) => {
   try {
-    return res
-      .status(200)
-      .json({ message: "welcome to the creator profile route" });
-  } catch (err) {
-    next(err);
-  }
-});
-
-v1CreatorsRouter.get("/:creator_id/me", (req, res, next) => {
-  try {
-    return res
-      .status(200)
-      .json({ message: "welcome to the creator profile route" });
-  } catch (err) {
-    next(err);
-  }
-});
-
-v1CreatorsRouter.post("/:creator_id/courses", async (req, res, next) => {
-  try {
-    const creatorID = req.params.creator_id;
-    const courseCreationPayload: CourseCreationPayloadType =
-      req.body as CourseCreationPayloadType;
-    const courseTitle = courseCreationPayload.info?.title;
-    const courseDescription = courseCreationPayload.info?.description;
-    const [courseThumbnail, courseImage] = courseCreationPayload.images as [
-      string,
-      string
-    ];
-    const tags = courseCreationPayload.info?.tags as string;
-    const pendingCourse = new CourseModel(
-      courseTitle || "",
-      courseDescription || "",
-      courseThumbnail,
-      creatorID,
-      tags,
-      undefined,
-      undefined,
-      undefined,
-      randomUUID()
-    );
-    const courseID = await pendingCourse.save(creatorID);
-    const resPayload: ServerPayloadType<number> = { payload: courseID };
-    return res.status(201).json(resPayload);
+    const creatorEmail = process.env.CST_TEST_USER_EMAIL || ""; // hard coded, will be extracted from jwt
+    const resCreator = await CreatorModel.getProfile(creatorEmail);
+    const resPayload: ServerPayloadType<typeof resCreator> = {
+      payload: resCreator,
+    };
+    return res.status(200).json(resPayload);
   } catch (err) {
     next(err);
   }
@@ -111,6 +80,23 @@ v1CreatorsRouter.put(
   }
 );
 
+v1CreatorsRouter.put("/:creator_id/me", async (req, res, next) => {
+  try {
+    const creatorID = req.params.creator_id;
+    const updatePayload: CreatorAttributeUpdateType = {
+      ...(req.body as CreatorAttributeUpdateType),
+      userID: creatorID,
+    };
+    console.log("update payload is ");
+    console.table(updatePayload);
+    await UserModel.updateFields(updatePayload);
+    const resPayload: ServerPayloadType<string> = { payload: "success!" };
+    return res.status(200).json(resPayload);
+  } catch (err) {
+    next(err);
+  }
+});
+
 v1CreatorsRouter.post(
   "/:creator_id/courses/:course_id/lessons/",
   async (req, res, next) => {
@@ -124,7 +110,7 @@ v1CreatorsRouter.post(
         const pendingLesson = new LessonModel(
           lessonEl.title,
           lessonEl.positionID,
-          +lessonEl.courseID
+          +courseID
         );
         for (
           let j = 0;
@@ -237,3 +223,90 @@ v1CreatorsRouter.post(
     }
   }
 );
+
+v1CreatorsRouter.post("/:creator_id/courses", async (req, res, next) => {
+  try {
+    const creatorID = req.params.creator_id;
+    const courseCreationPayload: CourseCreationPayloadType =
+      req.body as CourseCreationPayloadType;
+    const courseTitle = courseCreationPayload.info?.title;
+    const courseDescription = courseCreationPayload.info?.description;
+    const [courseThumbnail, courseImage] = courseCreationPayload.images as [
+      string,
+      string
+    ];
+    const tags = courseCreationPayload.info?.tags as string;
+    const pendingCourse = new CourseModel(
+      courseTitle || "",
+      courseDescription || "",
+      courseThumbnail,
+      creatorID,
+      tags,
+      undefined,
+      undefined,
+      undefined,
+      randomUUID()
+    );
+    const courseID = await pendingCourse.save(creatorID);
+    const resPayload: ServerPayloadType<number> = { payload: courseID };
+    return res.status(201).json(resPayload);
+  } catch (err) {
+    next(err);
+  }
+});
+
+v1CreatorsRouter.post("/auth/signup", async (req, res, next) => {
+  try {
+    const creatorAuthPayload: UserAuthPayloadType =
+      req.body as UserAuthPayloadType;
+    const { email, firstName, lastName, password } = creatorAuthPayload;
+    const pendingCreator = new CreatorModel(
+      email,
+      password,
+      firstName,
+      lastName
+    );
+    await pendingCreator.save();
+    const resPayload: ServerPayloadType<string> = { payload: "success!" };
+    return res.status(201).json(resPayload);
+  } catch (err) {
+    next(err);
+  }
+});
+
+v1CreatorsRouter.post("/auth/login", async (req, res, next) => {
+  try {
+    const creatorAuthPayload: UserAuthPayloadType =
+      req.body as UserAuthPayloadType;
+    const { email, firstName, lastName, password, rememberMe, creatorPass } =
+      creatorAuthPayload;
+    const resultCreator = await CreatorModel.lookUp(email);
+    if (!resultCreator) {
+      const resPayload: ServerPayloadType<string> = {
+        payload: "invalid credentials !",
+      };
+      return res.status(401).json(resPayload);
+    }
+    const {
+      creatorPass: resultCreatorPass,
+      password: hashedPassword,
+      salt,
+    } = resultCreator;
+    if (creatorPass !== resultCreatorPass) {
+      const resPayload: ServerPayloadType<string> = {
+        payload: "invalid creator pass!",
+      };
+      return res.status(401).json(resPayload);
+    }
+    if (!(await checkPasswordAgainstHash(password, hashedPassword, salt))) {
+      const resPayload: ServerPayloadType<string> = {
+        payload: "invalid credentials !",
+      };
+      return res.status(401).json(resPayload);
+    }
+    const resPayload: ServerPayloadType<string> = { payload: "success!" };
+    return res.status(200).json(resPayload);
+  } catch (err) {
+    next(err);
+  }
+});
