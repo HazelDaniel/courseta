@@ -92,8 +92,8 @@ v1CreatorsRouter.put("/:creator_id/me", async (req, res, next) => {
       ...(req.body as CreatorAttributeUpdateType),
       userID: creatorID,
     };
-    console.log("update payload is ");
-    console.table(updatePayload);
+    // console.log("update payload is ");
+    // console.table(updatePayload);
     await UserModel.updateFields(updatePayload);
     const resPayload: ServerPayloadType<string> = { payload: "success!" };
     return res.status(200).json(resPayload);
@@ -115,16 +115,16 @@ v1CreatorsRouter.put(
         trashQuestionIDList,
         parentEntityID,
       } = assessmentUpdatePayload;
+      let ranOnce: boolean = false;
       for (let i = 0; i < questionDataList.length; i++) {
         const entryQuestion = questionDataList[i];
-        const { assessmentType, points, positionID, questionText } =
-          entryQuestion;
+        const { points, positionID, questionText } = entryQuestion;
         const pendingQuestion = new QuestionModel(
           questionText,
           points,
           positionID,
           assessmentID,
-          assessmentType,
+          undefined,
           undefined,
           parentEntityID
         );
@@ -140,9 +140,11 @@ v1CreatorsRouter.put(
             pendingQuestion.answersData = pendingAnswer;
           }
         }
-        for (let k = 0; k < trashQuestionIDList.length; k++) {
-          pendingQuestion.trashData = trashQuestionIDList[k];
-        }
+        if (!ranOnce)
+          for (let k = 0; k < trashQuestionIDList.length; k++) {
+            pendingQuestion.trashData = trashQuestionIDList[k];
+            ranOnce = true;
+          }
         pendingQuestion.save();
       }
 
@@ -395,3 +397,45 @@ v1CreatorsRouter.post("/auth/login", async (req, res, next) => {
     next(err);
   }
 });
+
+v1CreatorsRouter.delete(
+  "/:creator_id/courses/:course_id/exams/:exam_id/",
+  async (req, res, next) => {
+    try {
+      const { course_id: courseID } = req.params;
+      await ExamModel.delete(+courseID);
+      const resPayload: ServerPayloadType<string> = { payload: "success!" };
+      return res.status(204).json(resPayload);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+v1CreatorsRouter.delete(
+  "/:creator_id/courses/:course_id/lessons/:lesson_id/quizzes/:quiz_id",
+  async (req, res, next) => {
+    try {
+      const { lesson_id: lessonID } = req.params;
+      await QuizModel.delete(+lessonID);
+      const resPayload: ServerPayloadType<string> = { payload: "success!" };
+      return res.status(204).json(resPayload);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+v1CreatorsRouter.delete(
+  "/:creator_id/courses/:course_id/lessons/:lesson_id/contents/:content_id",
+  async (req, res, next) => {
+    try {
+      const { lesson_id: lessonID, content_id: contentID } = req.params;
+      await LessonContentModel.delete(+lessonID, +contentID);
+      const resPayload: ServerPayloadType<string> = { payload: "success!" };
+      return res.status(204).json(resPayload);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
