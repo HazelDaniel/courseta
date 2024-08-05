@@ -23,6 +23,7 @@ import type {
 import type {
   CreatorAttributeUpdateType,
   CreatorAuthResponseType,
+  CreatorSessionUserType,
   ServerPayloadType,
 } from "../../../types";
 import { ServerError, checkPasswordAgainstHash } from "../../../utils.js";
@@ -93,14 +94,12 @@ passport.use(
   )
 );
 
-passport.serializeUser<{ id: string; email: string }>(
-  async (user, callback) => {
-    const response: CreatorAuthResponseType & { email: string } = user as any;
-    process.nextTick(function () {
-      callback(null, { id: response.creatorID, email: response.email });
-    });
-  }
-);
+passport.serializeUser<CreatorSessionUserType>(async (user, callback) => {
+  const response: CreatorAuthResponseType & { email: string } = user as any;
+  process.nextTick(function () {
+    callback(null, { id: response.creatorID, email: response.email });
+  });
+});
 
 passport.deserializeUser(function (user, callback) {
   process.nextTick(function () {
@@ -165,7 +164,6 @@ v1CreatorsRouter.get(
         variant: "creator",
         creatorID,
       });
-      console.log("session is ", req.session);
       const resPayload: ServerPayloadType<typeof resCourses> = {
         payload: resCourses,
         message: null,
@@ -182,7 +180,7 @@ v1CreatorsRouter.get(
   creatorIDProtected,
   async (req, res, next) => {
     try {
-      const creatorEmail = (req.user as any).email;
+      const creatorEmail = (req.user as CreatorSessionUserType).email;
       const resCreator = await CreatorModel.getProfile(creatorEmail);
       const resPayload: ServerPayloadType<typeof resCreator> = {
         payload: resCreator,
@@ -601,3 +599,29 @@ v1CreatorsRouter.delete(
     }
   }
 );
+
+v1CreatorsRouter.delete("/:creator_id/courses/:course_id", creatorIDProtected, async (req, res, next) => {
+  try {
+    const {creator_id: creatorID, course_id: courseID} = req.params;
+    await CourseModel.delete(+courseID, creatorID);
+    const resPayload: ServerPayloadType<string> = {
+      message: "course deleted successfully!",
+    };
+    return res.status(204).json(resPayload);
+  } catch (err) {
+    next(err);
+  }
+})
+
+v1CreatorsRouter.post("/:creator_id/courses/:course_id/archive", creatorIDProtected, async (req, res, next) => {
+  try {
+    const {creator_id: creatorID, course_id: courseID} = req.params;
+    await CourseModel.archive(+courseID, creatorID);
+    const resPayload: ServerPayloadType<string> = {
+      message: "course archive successfully!",
+    };
+    return res.status(204).json(resPayload);
+  } catch (err) {
+    next(err);
+  }
+})
