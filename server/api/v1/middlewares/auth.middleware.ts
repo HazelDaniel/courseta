@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import { ServerError } from "../../../utils.js";
+import { CreatorSessionUserType } from "../../../types.d";
 
 export const localProtected = (
   req: Request,
@@ -19,7 +20,7 @@ export const creatorIDProtected = (
   next: NextFunction
 ) => {
   const { creator_id: creatorID } = req.params;
-  if ((req.user as any).id !== creatorID)
+  if ((req.user as CreatorSessionUserType).id !== creatorID)
     next(new ServerError("you are not allowed to access this route!", 403));
   next();
 };
