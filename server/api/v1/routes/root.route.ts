@@ -1,3 +1,4 @@
+import { ErrorBoundary } from "../middlewares/error.middleware.js";
 import { v1AssessmentsRouter } from "./assessments.route.js";
 import { v1StudentsRouter } from "./students.route.js";
 import { v1CoursesRouter } from "./courses.route.js";
@@ -28,6 +29,4 @@ v1Router.get("/*", (req, res) => {
   return res.status(404).json({ message: "endpoint not found" });
 });
 
-v1Router.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  res.status(500).json({ message: `internal server error: ${err.message}` });
-});
+v1Router.use(ErrorBoundary);
