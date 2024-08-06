@@ -212,6 +212,24 @@ v1CreatorsRouter.get(
 );
 
 v1CreatorsRouter.get(
+  "/:creator_id/courses/:course_id/exam/edit",
+  creatorIDProtected,
+  async (req, res, next) => {
+    try {
+      const { course_id: courseID } = req.params;
+      const resData = await ExamModel.fetchForEdit(+courseID);
+      const resPayload: ServerPayloadType<typeof resData> = {
+        message: null,
+        payload: resData,
+      };
+      return res.status(200).json(resPayload);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+v1CreatorsRouter.get(
   "/:creator_id/me",
   creatorIDProtected,
   async (req, res, next) => {
