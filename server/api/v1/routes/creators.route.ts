@@ -176,6 +176,42 @@ v1CreatorsRouter.get(
 );
 
 v1CreatorsRouter.get(
+  "/:creator_id/courses/:course_id/edit",
+  creatorIDProtected,
+  async (req, res, next) => {
+    try {
+      const { course_id: courseID } = req.params;
+      const resData = await CourseModel.fetchForEdit(+courseID);
+      const resPayload: ServerPayloadType<typeof resData> = {
+        message: null,
+        payload: resData,
+      };
+      return res.status(200).json(resPayload);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+v1CreatorsRouter.get(
+  "/:creator_id/courses/:course_id/lessons/edit",
+  creatorIDProtected,
+  async (req, res, next) => {
+    try {
+      const { course_id: courseID } = req.params;
+      const resData = await LessonModel.fetchForCourseEdit(+courseID);
+      const resPayload: ServerPayloadType<typeof resData> = {
+        message: null,
+        payload: resData,
+      };
+      return res.status(200).json(resPayload);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+v1CreatorsRouter.get(
   "/:creator_id/me",
   creatorIDProtected,
   async (req, res, next) => {
@@ -451,14 +487,13 @@ v1CreatorsRouter.post(
         duration,
         href,
         title,
-        lessonID: contentLessonID,
       } = contentCreationPayload;
       const pendingLesson = new LessonModel(
         "",
         undefined,
         undefined,
         undefined,
-        contentLessonID
+        +lessonID
       );
       const resID = await pendingLesson.addContent(
         title || "",
@@ -549,6 +584,23 @@ v1CreatorsRouter.post(
   }
 );
 
+v1CreatorsRouter.post(
+  "/:creator_id/courses/:course_id/archive",
+  creatorIDProtected,
+  async (req, res, next) => {
+    try {
+      const { creator_id: creatorID, course_id: courseID } = req.params;
+      await CourseModel.archive(+courseID, creatorID);
+      const resPayload: ServerPayloadType<string> = {
+        message: "course archive successfully!",
+      };
+      return res.status(204).json(resPayload);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
 v1CreatorsRouter.delete(
   "/:creator_id/courses/:course_id/exams/:exam_id/",
   creatorIDProtected,
@@ -600,28 +652,20 @@ v1CreatorsRouter.delete(
   }
 );
 
-v1CreatorsRouter.delete("/:creator_id/courses/:course_id", creatorIDProtected, async (req, res, next) => {
-  try {
-    const {creator_id: creatorID, course_id: courseID} = req.params;
-    await CourseModel.delete(+courseID, creatorID);
-    const resPayload: ServerPayloadType<string> = {
-      message: "course deleted successfully!",
-    };
-    return res.status(204).json(resPayload);
-  } catch (err) {
-    next(err);
+v1CreatorsRouter.delete(
+  "/:creator_id/courses/:course_id",
+  creatorIDProtected,
+  async (req, res, next) => {
+    try {
+      const { creator_id: creatorID, course_id: courseID } = req.params;
+      await CourseModel.delete(+courseID, creatorID);
+      const resPayload: ServerPayloadType<string> = {
+        message: "course deleted successfully!",
+      };
+      return res.status(204).json(resPayload);
+    } catch (err) {
+      next(err);
+    }
   }
-})
+);
 
-v1CreatorsRouter.post("/:creator_id/courses/:course_id/archive", creatorIDProtected, async (req, res, next) => {
-  try {
-    const {creator_id: creatorID, course_id: courseID} = req.params;
-    await CourseModel.archive(+courseID, creatorID);
-    const resPayload: ServerPayloadType<string> = {
-      message: "course archive successfully!",
-    };
-    return res.status(204).json(resPayload);
-  } catch (err) {
-    next(err);
-  }
-})
