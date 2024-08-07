@@ -4,10 +4,9 @@ import expressSession from "express-session";
 import connectPgSimple from "connect-pg-simple";
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
-import pg from "pg";
 import {
   creatorIDProtected,
-  localProtected,
+  creatorsLocalProtected,
 } from "../middlewares/auth.middleware.js";
 
 import type {
@@ -36,26 +35,25 @@ import { UserModel } from "../../../models/v1/user.model.js";
 import { ExamModel } from "../../../models/v1/exam.model.js";
 import { QuestionModel } from "../../../models/v1/question.model.js";
 import { AnswerModel } from "../../../models/v1/answer.model.js";
-
-const pgPool = new pg.Pool({
-  host: process.env.CST_DB_HOST,
-  user: process.env.CST_DB_USER,
-  database:
-    process.env.CST_CONTEXT === "test"
-      ? process.env.CST_TEST_SESSION
-      : process.env.CST_SESSION,
-  max: 20,
-  password: process.env.CST_DB_PASSWORD,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 50000,
-});
+import { pgPool } from "../../../db.utils.js";
 
 export const v1CreatorsRouter = express.Router();
 const pgSession = connectPgSimple(expressSession);
 v1CreatorsRouter.use(
   expressSession({
     store: new pgSession({
-      pool: pgPool,
+      pool: new pgPool({
+        host: process.env.CST_DB_HOST,
+        user: process.env.CST_DB_USER,
+        database:
+          process.env.CST_CONTEXT === "test"
+            ? process.env.CST_CREATOR_TEST_SESSION
+            : process.env.CST_CREATOR_SESSION,
+        max: 10,
+        password: process.env.CST_DB_PASSWORD,
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 50000,
+      }),
       tableName: "creators",
       createTableIfMissing: true,
     }),
@@ -150,7 +148,7 @@ v1CreatorsRouter.post(
   }
 );
 
-v1CreatorsRouter.use(localProtected);
+v1CreatorsRouter.use(creatorsLocalProtected);
 
 // ROUTE HANDLERS (PROTECTED)
 
@@ -200,6 +198,24 @@ v1CreatorsRouter.get(
     try {
       const { course_id: courseID } = req.params;
       const resData = await LessonModel.fetchForCourseEdit(+courseID);
+      const resPayload: ServerPayloadType<typeof resData> = {
+        message: null,
+        payload: resData,
+      };
+      return res.status(200).json(resPayload);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+v1CreatorsRouter.get(
+  "/:creator_id/assessments/:assessment_id/edit",
+  creatorIDProtected,
+  async (req, res, next) => {
+    try {
+      const { assessment_id: assessmentID } = req.params;
+      const resData = await QuestionModel.fetchForAssessmentEdit(assessmentID);
       const resPayload: ServerPayloadType<typeof resData> = {
         message: null,
         payload: resData,
@@ -295,7 +311,7 @@ v1CreatorsRouter.put(
       // console.log("update payload is ");
       // console.table(updatePayload);
       try {
-        await UserModel.updateFields(updatePayload);
+        await UserModel.updateFields(updatePayload, "creator");
       } catch (err) {
         throw new ServerError(
           "could not update fields, check inputs and try again!",
@@ -500,12 +516,7 @@ v1CreatorsRouter.post(
       const { lesson_id: lessonID } = req.params;
       const contentCreationPayload: LessonContentAdditionPayloadType =
         req.body as LessonContentAdditionPayloadType;
-      const {
-        contentType,
-        duration,
-        href,
-        title,
-      } = contentCreationPayload;
+      const { contentType, duration, href, title } = contentCreationPayload;
       const pendingLesson = new LessonModel(
         "",
         undefined,
@@ -686,4 +697,3 @@ v1CreatorsRouter.delete(
     }
   }
 );
-
