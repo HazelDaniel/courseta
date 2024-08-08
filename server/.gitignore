@@ -3,3 +3,5 @@ src
 models
 **/**.zshrc
 tmp
+*.js
+TODO.txt

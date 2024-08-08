@@ -3,6 +3,7 @@ import { ServerError } from "../../../utils.js";
 import {
   CreatorAuthResponseType,
   CreatorSessionUserType,
+  StudentAuthResponseType,
   StudentSessionUserType,
 } from "../../../types.d";
 import passport from "passport";
@@ -59,7 +60,8 @@ export const serializeDeserializeUser = (
   next: NextFunction
 ) => {
   passport.serializeUser<StudentSessionUserType>(async (user, callback) => {
-    const response: CreatorAuthResponseType & { email: string } = user as any;
+    const response: CreatorAuthResponseType &
+      StudentAuthResponseType & { email: string } = user as any;
     process.nextTick(function () {
       callback(null, {
         id: response.id,
