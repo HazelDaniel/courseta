@@ -1,9 +1,11 @@
 import type { NextFunction, Request, Response } from "express";
 import { ServerError } from "../../../utils.js";
 import {
+  CreatorAuthResponseType,
   CreatorSessionUserType,
   StudentSessionUserType,
 } from "../../../types.d";
+import passport from "passport";
 
 export const creatorsLocalProtected = (
   req: Request,
@@ -48,5 +50,30 @@ export const studentIDProtected = (
   const { student_id: studentID } = req.params;
   if ((req.user as StudentSessionUserType).id !== studentID)
     next(new ServerError("you are not allowed to access this route!", 403));
+  next();
+};
+
+export const serializeDeserializeUser = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  passport.serializeUser<StudentSessionUserType>(async (user, callback) => {
+    const response: CreatorAuthResponseType & { email: string } = user as any;
+    process.nextTick(function () {
+      callback(null, {
+        id: response.id,
+        email: response.email,
+        role: response.role,
+      });
+    });
+  });
+
+  passport.deserializeUser(function (user, callback) {
+    process.nextTick(function () {
+      callback(null, user as any);
+    });
+  });
+
   next();
 };
