@@ -6,6 +6,7 @@ import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import {
   creatorIDProtected,
+  serializeDeserializeUser,
   creatorsLocalProtected,
 } from "../middlewares/auth.middleware.js";
 
@@ -87,28 +88,20 @@ passport.use(
         return done(new ServerError("invalid creator pass!", 401));
       if (!(await checkPasswordAgainstHash(password, hashedPassword, salt)))
         return done(new ServerError("invalid credentials!", 401));
-      return done(null, { email, ...resultCreator });
+      return done(null, {
+        email,
+        id: resultCreator.id,
+        role: "creator",
+      });
     }
   )
 );
-
-passport.serializeUser<CreatorSessionUserType>(async (user, callback) => {
-  const response: CreatorAuthResponseType & { email: string } = user as any;
-  process.nextTick(function () {
-    callback(null, { id: response.creatorID, email: response.email });
-  });
-});
-
-passport.deserializeUser(function (user, callback) {
-  process.nextTick(function () {
-    callback(null, user as any);
-  });
-});
 
 // ROUTER MIDDLEWARES
 
 v1CreatorsRouter.use(passport.session());
 v1CreatorsRouter.use(passport.initialize());
+v1CreatorsRouter.use(serializeDeserializeUser);
 
 // ROUTE HANDLERS (AUTH)
 
@@ -197,7 +190,7 @@ v1CreatorsRouter.get(
   async (req, res, next) => {
     try {
       const { course_id: courseID } = req.params;
-      const resData = await LessonModel.fetchForCourseEdit(+courseID);
+      const resData = await CourseModel.getLessonsFor(+courseID, "edit");
       const resPayload: ServerPayloadType<typeof resData> = {
         message: null,
         payload: resData,
@@ -308,8 +301,6 @@ v1CreatorsRouter.put(
         ...(req.body as CreatorAttributeUpdateType),
         userID: creatorID,
       };
-      // console.log("update payload is ");
-      // console.table(updatePayload);
       try {
         await UserModel.updateFields(updatePayload, "creator");
       } catch (err) {
