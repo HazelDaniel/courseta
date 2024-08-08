@@ -19,6 +19,7 @@ import { UserModel } from "../../../models/v1/user.model.js";
 import { AssessmentModel } from "../../../models/v1/assessment.model.js";
 import {
   studentIDProtected,
+  serializeDeserializeUser,
   studentsLocalProtected,
 } from "../middlewares/auth.middleware.js";
 
@@ -65,26 +66,18 @@ passport.use(
       const { password: hashedPassword, salt } = resultStudent;
       if (!(await checkPasswordAgainstHash(password, hashedPassword, salt)))
         return done(new ServerError("invalid credentials!", 401));
-      return done(null, { email, ...resultStudent });
+      return done(null, {
+        email,
+        id: resultStudent.id,
+        role: "student",
+      });
     }
   )
 );
 
-passport.serializeUser<StudentSessionUserType>(async (user, callback) => {
-  const response: StudentAuthResponseType & { email: string } = user as any;
-  process.nextTick(function () {
-    callback(null, { id: response.studentID, email: response.email });
-  });
-});
-
-passport.deserializeUser(function (user, callback) {
-  process.nextTick(function () {
-    callback(null, user as any);
-  });
-});
-
 v1StudentsRouter.use(passport.initialize());
 v1StudentsRouter.use(passport.session());
+v1StudentsRouter.use(serializeDeserializeUser);
 
 v1StudentsRouter.post("/auth/signup", async (req, res, next) => {
   try {
