@@ -1,0 +1,7 @@
+src
+.env*
+models
+**/**.zshrc
+tmp
+*.js
+TODO.txt
