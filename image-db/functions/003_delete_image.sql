@@ -6,9 +6,9 @@ BEGIN
 	DECLARE
 			deleted_rows INT;
 	BEGIN
-			DELETE FROM courseta.images
+			DELETE FROM courseta_image.images
 			WHERE images.image_id = p_image_id;
-			
+
 			GET DIAGNOSTICS deleted_rows = ROW_COUNT;
 			RETURN deleted_rows > 0;
 	END;
