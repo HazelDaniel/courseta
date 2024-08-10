@@ -288,7 +288,8 @@ v1CreatorsRouter.put(
         courseDescription,
         tags,
         randomUUID(),
-        courseTitle
+        courseTitle,
+        courseImage
       );
       const resPayload: ServerPayloadType<typeof resultCourse> = {
         payload: resultCourse,
@@ -570,7 +571,6 @@ v1CreatorsRouter.post(
         undefined,
         generatedImageID
       );
-      // /here
       const imageUploadpayload: ImageCreationPayloadType = {
         id: generatedImageID,
         imageUrl: courseImage,
