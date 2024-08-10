@@ -93,6 +93,7 @@ v1StudentsRouter.post("/auth/signup", async (req, res, next) => {
     await pendingStudent.save();
     const resPayload: ServerPayloadType<string> = {
       message: "user registered successfully!",
+      ...(() => (req.user ? { user: req.user }  as Express.User : null))(),
     };
     return res.status(201).json(resPayload);
   } catch (err) {
@@ -107,6 +108,7 @@ v1StudentsRouter.post(
     try {
       const resPayload: ServerPayloadType<string> = {
         message: "user authenticated successfully!",
+        ...(() => (req.user ? { user: req.user }  as Express.User : null))(),
       };
       return res.status(200).json(resPayload);
     } catch (err) {
@@ -130,6 +132,7 @@ v1StudentsRouter.get(
       const resPayload: ServerPayloadType<typeof resCourses> = {
         payload: resCourses,
         message: null,
+        ...(() => (req.user ? { user: req.user }  as Express.User : null))(),
       };
       return res.status(200).json(resPayload);
     } catch (err) {
@@ -148,6 +151,7 @@ v1StudentsRouter.get(
       const resPayload: ServerPayloadType<typeof recommendedCourses> = {
         message: null,
         payload: recommendedCourses,
+        ...(() => (req.user ? { user: req.user }  as Express.User : null))(),
       };
       return res.status(200).json(resPayload);
     } catch (err) {
@@ -168,6 +172,7 @@ v1StudentsRouter.get(
       const resPayload: ServerPayloadType<typeof unfinishedCourses> = {
         message: null,
         payload: unfinishedCourses,
+        ...(() => (req.user ? { user: req.user }  as Express.User : null))(),
       };
       return res.status(200).json(resPayload);
     } catch (err) {
@@ -186,6 +191,7 @@ v1StudentsRouter.get(
       const resPayload: ServerPayloadType<typeof reports> = {
         message: null,
         payload: reports,
+        ...(() => (req.user ? { user: req.user }  as Express.User : null))(),
       };
       return res.status(200).json(resPayload);
     } catch (err) {
@@ -204,6 +210,7 @@ v1StudentsRouter.get(
       const resPayload: ServerPayloadType<typeof resStudent> = {
         payload: resStudent,
         message: null,
+        ...(() => (req.user ? { user: req.user }  as Express.User : null))(),
       };
       return res.status(200).json(resPayload);
     } catch (err) {
@@ -231,7 +238,10 @@ v1StudentsRouter.put(
           400
         );
       }
-      const resPayload: ServerPayloadType<string> = { message: "success!" };
+      const resPayload: ServerPayloadType<string> = {
+        message: "success!",
+        ...(() => (req.user ? { user: req.user }  as Express.User : null))(),
+      };
       return res.status(200).json(resPayload);
     } catch (err) {
       next(err);

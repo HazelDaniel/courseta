@@ -119,6 +119,7 @@ v1CreatorsRouter.post("/auth/signup", async (req, res, next) => {
   try {
     const creatorAuthPayload: UserAuthPayloadType =
       req.body as UserAuthPayloadType;
+    const { user } = req;
     const { email, firstName, lastName, password } = creatorAuthPayload;
     const pendingCreator = new CreatorModel(
       email,
@@ -129,6 +130,7 @@ v1CreatorsRouter.post("/auth/signup", async (req, res, next) => {
     await pendingCreator.save();
     const resPayload: ServerPayloadType<string> = {
       message: "user registered successfully!",
+      ...(() => (user ? ({ user } as Express.User) : null))(),
     };
     return res.status(201).json(resPayload);
   } catch (err) {
@@ -141,8 +143,10 @@ v1CreatorsRouter.post(
   passport.authenticate("local"),
   async (req, res, next) => {
     try {
+      const { user } = req;
       const resPayload: ServerPayloadType<string> = {
         message: "user authenticated successfully!",
+        ...(() => (user ? ({ user } as Express.User) : null))(),
       };
       return res.status(200).json(resPayload);
     } catch (err) {
@@ -161,6 +165,7 @@ v1CreatorsRouter.get(
   async (req, res, next) => {
     const creatorID = req.params.creator_id;
     try {
+      const { user } = req;
       const resCourses = await CourseModel.all({
         variant: "creator",
         creatorID,
@@ -168,6 +173,7 @@ v1CreatorsRouter.get(
       const resPayload: ServerPayloadType<typeof resCourses> = {
         payload: resCourses,
         message: null,
+        ...(() => (user ? ({ user } as Express.User) : null))(),
       };
       return res.status(200).json(resPayload);
     } catch (err) {
@@ -181,11 +187,13 @@ v1CreatorsRouter.get(
   creatorIDProtected,
   async (req, res, next) => {
     try {
+      const { user } = req;
       const { course_id: courseID } = req.params;
       const resData = await CourseModel.fetchForEdit(+courseID);
       const resPayload: ServerPayloadType<typeof resData> = {
         message: null,
         payload: resData,
+        ...(() => (user ? ({ user } as Express.User) : null))(),
       };
       return res.status(200).json(resPayload);
     } catch (err) {
@@ -200,10 +208,12 @@ v1CreatorsRouter.get(
   async (req, res, next) => {
     try {
       const { course_id: courseID } = req.params;
+      const { user } = req;
       const resData = await CourseModel.getLessonsFor(+courseID, "edit");
       const resPayload: ServerPayloadType<typeof resData> = {
         message: null,
         payload: resData,
+        ...(() => (user ? ({ user } as Express.User) : null))(),
       };
       return res.status(200).json(resPayload);
     } catch (err) {
@@ -218,10 +228,12 @@ v1CreatorsRouter.get(
   async (req, res, next) => {
     try {
       const { assessment_id: assessmentID } = req.params;
+      const { user } = req;
       const resData = await QuestionModel.fetchForAssessmentEdit(assessmentID);
       const resPayload: ServerPayloadType<typeof resData> = {
         message: null,
         payload: resData,
+        ...(() => (user ? ({ user } as Express.User) : null))(),
       };
       return res.status(200).json(resPayload);
     } catch (err) {
@@ -236,10 +248,12 @@ v1CreatorsRouter.get(
   async (req, res, next) => {
     try {
       const { course_id: courseID } = req.params;
+      const { user } = req;
       const resData = await ExamModel.fetchForEdit(+courseID);
       const resPayload: ServerPayloadType<typeof resData> = {
         message: null,
         payload: resData,
+        ...(() => (user ? ({ user } as Express.User) : null))(),
       };
       return res.status(200).json(resPayload);
     } catch (err) {
@@ -294,6 +308,7 @@ v1CreatorsRouter.put(
       const resPayload: ServerPayloadType<typeof resultCourse> = {
         payload: resultCourse,
         message: "course update success!",
+        ...(() => (req.user ? ({ user: req.user } as Express.User) : null))(),
       };
       return res.status(200).json(resPayload);
     } catch (err) {
@@ -320,7 +335,10 @@ v1CreatorsRouter.put(
           400
         );
       }
-      const resPayload: ServerPayloadType<string> = { message: "success!" };
+      const resPayload: ServerPayloadType<string> = {
+        message: "success!",
+        ...(() => (req.user ? ({ user: req.user } as Express.User) : null))(),
+      };
       return res.status(200).json(resPayload);
     } catch (err) {
       next(err);
@@ -376,7 +394,10 @@ v1CreatorsRouter.put(
       }
 
       await QuestionModel.saveAll();
-      const resPayload: ServerPayloadType<string> = { message: "success!" };
+      const resPayload: ServerPayloadType<string> = {
+        message: "success!",
+        ...(() => (req.user ? ({ user: req.user } as Express.User) : null))(),
+      };
       res.status(201).json(resPayload);
     } catch (err) {
       next(err);
@@ -439,6 +460,7 @@ v1CreatorsRouter.post(
 
       const resPayload: ServerPayloadType<string> = {
         message: "success!",
+        ...(() => (req.user ? ({ user: req.user } as Express.User) : null))(),
       };
       return res.status(201).json(resPayload);
     } catch (err) {
@@ -471,6 +493,7 @@ v1CreatorsRouter.post(
       const resPayload: ServerPayloadType<typeof resID> = {
         payload: resID,
         message: "quiz creation success!",
+        ...(() => (req.user ? ({ user: req.user } as Express.User) : null))(),
       };
       res.status(201).json(resPayload);
     } catch (err) {
@@ -502,6 +525,7 @@ v1CreatorsRouter.post(
       const resPayload: ServerPayloadType<typeof examID> = {
         payload: examID,
         message: "exam creation success!",
+        ...(() => (req.user ? ({ user: req.user } as Express.User) : null))(),
       };
       res.status(201).json(resPayload);
     } catch (err) {
@@ -536,6 +560,7 @@ v1CreatorsRouter.post(
       const resPayload: ServerPayloadType<typeof resID> = {
         payload: resID,
         message: "content created successfully!",
+        ...(() => (req.user ? ({ user: req.user } as Express.User) : null))(),
       };
       res.status(201).json(resPayload);
     } catch (err) {
@@ -591,6 +616,7 @@ v1CreatorsRouter.post(
         const resPayload: ServerPayloadType<number> = {
           payload: courseID,
           message: "course creation success!",
+          ...(() => (req.user ? ({ user: req.user } as Express.User) : null))(),
         };
         return res.status(201).json(resPayload);
       } else {
@@ -636,6 +662,7 @@ v1CreatorsRouter.post(
       const resPayload: ServerPayloadType<string> = {
         payload: resultPass,
         message: "creator pass update success!",
+        ...(() => (req.user ? ({ user: req.user } as Express.User) : null))(),
       };
       return res.status(200).json(resPayload);
     } catch (err) {
@@ -653,6 +680,7 @@ v1CreatorsRouter.post(
       await CourseModel.archive(+courseID, creatorID);
       const resPayload: ServerPayloadType<string> = {
         message: "course archive successfully!",
+        ...(() => (req.user ? ({ user: req.user } as Express.User) : null))(),
       };
       return res.status(204).json(resPayload);
     } catch (err) {
@@ -670,6 +698,7 @@ v1CreatorsRouter.delete(
       await ExamModel.delete(+courseID);
       const resPayload: ServerPayloadType<string> = {
         message: "exam deleted successfully!",
+        ...(() => (req.user ? ({ user: req.user } as Express.User) : null))(),
       };
       return res.status(204).json(resPayload);
     } catch (err) {
@@ -687,6 +716,7 @@ v1CreatorsRouter.delete(
       await QuizModel.delete(+lessonID);
       const resPayload: ServerPayloadType<string> = {
         message: "quiz deleted successfully!",
+        ...(() => (req.user ? ({ user: req.user } as Express.User) : null))(),
       };
       return res.status(204).json(resPayload);
     } catch (err) {
@@ -704,6 +734,7 @@ v1CreatorsRouter.delete(
       await LessonContentModel.delete(+lessonID, +contentID);
       const resPayload: ServerPayloadType<string> = {
         message: "content deleted successfully!",
+        ...(() => (req.user ? ({ user: req.user } as Express.User) : null))(),
       };
       return res.status(204).json(resPayload);
     } catch (err) {
@@ -721,6 +752,7 @@ v1CreatorsRouter.delete(
       await CourseModel.delete(+courseID, creatorID);
       const resPayload: ServerPayloadType<string> = {
         message: "course deleted successfully!",
+        ...(() => (req.user ? ({ user: req.user } as Express.User) : null))(),
       };
       return res.status(204).json(resPayload);
     } catch (err) {
