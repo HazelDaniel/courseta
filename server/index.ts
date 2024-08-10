@@ -2,7 +2,7 @@ import express from "express";
 import { createServer } from "http";
 import { config } from "dotenv";
 config();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.SERVER_PORT || 3000;
 import { v1Router } from "./api/v1/routes/root.route.js";
 import cors from "cors";
 import helmet from "helmet";
