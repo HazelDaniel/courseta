@@ -1,12 +1,8 @@
 import express, { Request } from "express";
-import expressSession from "express-session";
-import connectPgSimple from "connect-pg-simple";
 import passport from "passport";
-import { Strategy as LocalStrategy } from "passport-local";
-import { pgPool } from "../../../db.utils.js";
 import { UserAuthPayloadType } from "../../../client.types";
 import { StudentModel } from "../../../models/v1/student.model.js";
-import { ServerError, checkPasswordAgainstHash } from "../../../utils.js";
+import { ServerError } from "../../../utils.js";
 import type {
   CourseViewType,
   ServerPayloadType,
@@ -25,58 +21,7 @@ import {
 
 export const v1StudentsRouter = express.Router();
 
-const pgSession = connectPgSimple(expressSession);
-v1StudentsRouter.use(
-  expressSession({
-    store: new pgSession({
-      pool: new pgPool({
-        host: process.env.CST_DB_HOST,
-        user: process.env.CST_DB_USER,
-        database:
-          process.env.CST_CONTEXT === "test"
-            ? process.env.CST_STUDENT_TEST_SESSION
-            : process.env.CST_STUDENT_SESSION,
-        max: 10,
-        password: process.env.CST_DB_PASSWORD,
-        idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 50000,
-      }),
-      tableName: "students",
-      createTableIfMissing: true,
-    }),
-    secret: process.env.CST_SESSION_SECRET as string,
-    resave: false,
-    saveUninitialized: false,
-    cookie: { maxAge: 24 * 60 * 60 * 1000 }, //  1 day
-  })
-);
-
-passport.use(
-  "students_local",
-  new LocalStrategy(
-    {
-      passwordField: "password",
-      usernameField: "email",
-      passReqToCallback: true,
-    },
-    async (req, email, password, done) => {
-      const resultStudent = await StudentModel.lookUp(email);
-      if (!resultStudent)
-        return done(new ServerError("invalid credentials!", 401));
-      const { password: hashedPassword, salt } = resultStudent;
-      if (!(await checkPasswordAgainstHash(password, hashedPassword, salt)))
-        return done(new ServerError("invalid credentials!", 401));
-      return done(null, {
-        email,
-        id: resultStudent.id,
-        role: "student",
-      });
-    }
-  )
-);
-
 v1StudentsRouter.use(passport.initialize());
-v1StudentsRouter.use(passport.session());
 v1StudentsRouter.use(serializeDeserializeUser);
 
 v1StudentsRouter.post("/auth/signup", async (req, res, next) => {
@@ -93,7 +38,7 @@ v1StudentsRouter.post("/auth/signup", async (req, res, next) => {
     await pendingStudent.save();
     const resPayload: ServerPayloadType<string> = {
       message: "user registered successfully!",
-      ...(() => (req.user ? { user: req.user }  as Express.User : null))(),
+      ...(() => (req.user ? ({ user: req.user } as Express.User) : null))(),
     };
     return res.status(201).json(resPayload);
   } catch (err) {
@@ -108,7 +53,7 @@ v1StudentsRouter.post(
     try {
       const resPayload: ServerPayloadType<string> = {
         message: "user authenticated successfully!",
-        ...(() => (req.user ? { user: req.user }  as Express.User : null))(),
+        ...(() => (req.user ? ({ user: req.user } as Express.User) : null))(),
       };
       return res.status(200).json(resPayload);
     } catch (err) {
@@ -132,7 +77,7 @@ v1StudentsRouter.get(
       const resPayload: ServerPayloadType<typeof resCourses> = {
         payload: resCourses,
         message: null,
-        ...(() => (req.user ? { user: req.user }  as Express.User : null))(),
+        ...(() => (req.user ? ({ user: req.user } as Express.User) : null))(),
       };
       return res.status(200).json(resPayload);
     } catch (err) {
@@ -151,7 +96,7 @@ v1StudentsRouter.get(
       const resPayload: ServerPayloadType<typeof recommendedCourses> = {
         message: null,
         payload: recommendedCourses,
-        ...(() => (req.user ? { user: req.user }  as Express.User : null))(),
+        ...(() => (req.user ? ({ user: req.user } as Express.User) : null))(),
       };
       return res.status(200).json(resPayload);
     } catch (err) {
@@ -172,7 +117,7 @@ v1StudentsRouter.get(
       const resPayload: ServerPayloadType<typeof unfinishedCourses> = {
         message: null,
         payload: unfinishedCourses,
-        ...(() => (req.user ? { user: req.user }  as Express.User : null))(),
+        ...(() => (req.user ? ({ user: req.user } as Express.User) : null))(),
       };
       return res.status(200).json(resPayload);
     } catch (err) {
@@ -191,7 +136,7 @@ v1StudentsRouter.get(
       const resPayload: ServerPayloadType<typeof reports> = {
         message: null,
         payload: reports,
-        ...(() => (req.user ? { user: req.user }  as Express.User : null))(),
+        ...(() => (req.user ? ({ user: req.user } as Express.User) : null))(),
       };
       return res.status(200).json(resPayload);
     } catch (err) {
@@ -210,7 +155,7 @@ v1StudentsRouter.get(
       const resPayload: ServerPayloadType<typeof resStudent> = {
         payload: resStudent,
         message: null,
-        ...(() => (req.user ? { user: req.user }  as Express.User : null))(),
+        ...(() => (req.user ? ({ user: req.user } as Express.User) : null))(),
       };
       return res.status(200).json(resPayload);
     } catch (err) {
@@ -240,7 +185,7 @@ v1StudentsRouter.put(
       }
       const resPayload: ServerPayloadType<string> = {
         message: "success!",
-        ...(() => (req.user ? { user: req.user }  as Express.User : null))(),
+        ...(() => (req.user ? ({ user: req.user } as Express.User) : null))(),
       };
       return res.status(200).json(resPayload);
     } catch (err) {
