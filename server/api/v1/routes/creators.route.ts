@@ -1,9 +1,6 @@
 import { randomUUID } from "crypto";
 import express, { Request } from "express";
-import expressSession from "express-session";
-import connectPgSimple from "connect-pg-simple";
 import passport from "passport";
-import { Strategy as LocalStrategy } from "passport-local";
 import {
   creatorIDProtected,
   serializeDeserializeUser,
@@ -23,11 +20,10 @@ import type {
 } from "../../../client.types";
 import type {
   CreatorAttributeUpdateType,
-  CreatorAuthResponseType,
   CreatorSessionUserType,
   ServerPayloadType,
 } from "../../../types";
-import { ServerError, checkPasswordAgainstHash } from "../../../utils.js";
+import { ServerError } from "../../../utils.js";
 import { CourseModel } from "../../../models/v1/course.model.js";
 import { LessonModel } from "../../../models/v1/lesson.model.js";
 import { LessonContentModel } from "../../../models/v1/lesson-content.model.js";
@@ -42,74 +38,9 @@ import fetch from "node-fetch";
 import v1Config from "../config.js";
 
 export const v1CreatorsRouter = express.Router();
-const pgSession = connectPgSimple(expressSession);
-v1CreatorsRouter.use(
-  expressSession({
-    store: new pgSession({
-      pool: new pgPool({
-        host: process.env.CST_DB_HOST,
-        user: process.env.CST_DB_USER,
-        database:
-          process.env.CST_CONTEXT === "test"
-            ? process.env.CST_CREATOR_TEST_SESSION
-            : process.env.CST_CREATOR_SESSION,
-        max: 10,
-        password: process.env.CST_DB_PASSWORD,
-        idleTimeoutMillis: 30000,
-        connectionTimeoutMillis: 50000,
-      }),
-      tableName: "creators",
-      createTableIfMissing: true,
-    }),
-    secret: process.env.CST_SESSION_SECRET as string,
-    resave: false,
-    saveUninitialized: false,
-    cookie: { maxAge: 24 * 60 * 60 * 1000 }, //  1 day
-  })
-);
-
-passport.use(
-  new LocalStrategy(
-    {
-      passwordField: "password",
-      usernameField: "email",
-      passReqToCallback: true,
-    },
-    async (req, email, password, done) => {
-      try {
-        const creatorAuthPayload: UserAuthPayloadType =
-          req.body as UserAuthPayloadType;
-        const { creatorPass } = creatorAuthPayload;
-        const resultCreator = await CreatorModel.lookUp(email);
-        if (!resultCreator)
-          return done(new ServerError("invalid credentials!", 401));
-        // return done(null, false);
-        const {
-          creatorPass: resultCreatorPass,
-          password: hashedPassword,
-          salt,
-        } = resultCreator;
-        if (creatorPass !== resultCreatorPass)
-          return done(new ServerError("invalid creator pass!", 401));
-        // return done(null, false);
-        if (!(await checkPasswordAgainstHash(password, hashedPassword, salt)))
-          return done(new ServerError("invalid credentials!", 401));
-        // return done(null, false);
-        return done(null, {
-          email,
-          id: resultCreator.id,
-          role: "creator",
-        });
-      } catch (err) {
-        done(err);
-      }
-    }
-  )
-);
 
 // ROUTER MIDDLEWARES
 
-v1CreatorsRouter.use(passport.session());
 v1CreatorsRouter.use(passport.initialize());
 v1CreatorsRouter.use(serializeDeserializeUser);
 
@@ -140,7 +71,7 @@ v1CreatorsRouter.post("/auth/signup", async (req, res, next) => {
 
 v1CreatorsRouter.post(
   "/auth/login",
-  passport.authenticate("local"),
+  passport.authenticate("creators_local"),
   async (req, res, next) => {
     try {
       const { user } = req;
