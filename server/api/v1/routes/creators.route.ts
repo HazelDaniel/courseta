@@ -15,6 +15,7 @@ import type {
   CourseCreationPayloadType,
   CourseEditPayloadType,
   ExamCreationPayloadType,
+  ImageCreationPayloadType,
   LessonAdditionPayloadType,
   LessonContentAdditionPayloadType,
   QuizCreationPayloadType,
@@ -37,6 +38,8 @@ import { ExamModel } from "../../../models/v1/exam.model.js";
 import { QuestionModel } from "../../../models/v1/question.model.js";
 import { AnswerModel } from "../../../models/v1/answer.model.js";
 import { pgPool } from "../../../db.utils.js";
+import fetch from "node-fetch";
+import v1Config from "../config.js";
 
 export const v1CreatorsRouter = express.Router();
 const pgSession = connectPgSimple(expressSession);
@@ -73,26 +76,33 @@ passport.use(
       passReqToCallback: true,
     },
     async (req, email, password, done) => {
-      const creatorAuthPayload: UserAuthPayloadType =
-        req.body as UserAuthPayloadType;
-      const { creatorPass } = creatorAuthPayload;
-      const resultCreator = await CreatorModel.lookUp(email);
-      if (!resultCreator)
-        return done(new ServerError("invalid credentials!", 401));
-      const {
-        creatorPass: resultCreatorPass,
-        password: hashedPassword,
-        salt,
-      } = resultCreator;
-      if (creatorPass !== resultCreatorPass)
-        return done(new ServerError("invalid creator pass!", 401));
-      if (!(await checkPasswordAgainstHash(password, hashedPassword, salt)))
-        return done(new ServerError("invalid credentials!", 401));
-      return done(null, {
-        email,
-        id: resultCreator.id,
-        role: "creator",
-      });
+      try {
+        const creatorAuthPayload: UserAuthPayloadType =
+          req.body as UserAuthPayloadType;
+        const { creatorPass } = creatorAuthPayload;
+        const resultCreator = await CreatorModel.lookUp(email);
+        if (!resultCreator)
+          return done(new ServerError("invalid credentials!", 401));
+        // return done(null, false);
+        const {
+          creatorPass: resultCreatorPass,
+          password: hashedPassword,
+          salt,
+        } = resultCreator;
+        if (creatorPass !== resultCreatorPass)
+          return done(new ServerError("invalid creator pass!", 401));
+        // return done(null, false);
+        if (!(await checkPasswordAgainstHash(password, hashedPassword, salt)))
+          return done(new ServerError("invalid credentials!", 401));
+        // return done(null, false);
+        return done(null, {
+          email,
+          id: resultCreator.id,
+          role: "creator",
+        });
+      } catch (err) {
+        done(err);
+      }
     }
   )
 );
@@ -305,7 +315,7 @@ v1CreatorsRouter.put(
         await UserModel.updateFields(updatePayload, "creator");
       } catch (err) {
         throw new ServerError(
-          "could not update fields, check inputs and try again!",
+          `could not update fields, check inputs and try again!`,
           400
         );
       }
@@ -548,6 +558,7 @@ v1CreatorsRouter.post(
         string
       ];
       const tags = courseCreationPayload.info?.tags as string;
+      const generatedImageID = randomUUID();
       const pendingCourse = new CourseModel(
         courseTitle || "",
         courseDescription || "",
@@ -557,14 +568,43 @@ v1CreatorsRouter.post(
         undefined,
         undefined,
         undefined,
-        randomUUID()
+        generatedImageID
       );
-      const courseID = await pendingCourse.save(creatorID);
-      const resPayload: ServerPayloadType<number> = {
-        payload: courseID,
-        message: "course creation success!",
+      // /here
+      const imageUploadpayload: ImageCreationPayloadType = {
+        id: generatedImageID,
+        imageUrl: courseImage,
       };
-      return res.status(201).json(resPayload);
+      const imageUploadRequest = await fetch(
+        v1Config.serverOptions.imageServerBaseUrl,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          method: "post",
+          body: JSON.stringify(imageUploadpayload),
+        }
+      );
+
+      if (imageUploadRequest.ok) {
+        const courseID = await pendingCourse.save(creatorID);
+        const resPayload: ServerPayloadType<number> = {
+          payload: courseID,
+          message: "course creation success!",
+        };
+        return res.status(201).json(resPayload);
+      } else {
+        if (
+          imageUploadRequest.status - 400 < 99 &&
+          imageUploadRequest.status >= 400
+        )
+          throw new ServerError("could not upload image!. check inputs ", 400);
+        else
+          throw new ServerError(
+            "something went wrong uploading the image. please try again.",
+            imageUploadRequest.status
+          );
+      }
     } catch (err) {
       next(err);
     }
