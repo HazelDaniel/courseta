@@ -7,7 +7,12 @@ import { EnrollmentModel } from "../../../models/v1/enrollment.model.js";
 import { ExamModel } from "../../../models/v1/exam.model.js";
 import { QuizModel } from "../../../models/v1/quiz.model.js";
 import { LessonModel } from "../../../models/v1/lesson.model.js";
+import passport from "passport";
+import { serializeDeserializeUser } from "../middlewares/auth.middleware.js";
 export const v1CoursesRouter = express.Router();
+
+v1CoursesRouter.use(passport.initialize());
+v1CoursesRouter.use(serializeDeserializeUser);
 
 v1CoursesRouter.get("/", async (req, res, next) => {
   try {
@@ -16,7 +21,7 @@ v1CoursesRouter.get("/", async (req, res, next) => {
     const resPayload: ServerPayloadType<typeof resCourses> = {
       payload: resCourses,
       message: null,
-      ...(() => (user ? { user }  as Express.User : null))(),
+      ...(() => (user ? ({ user } as Express.User) : null))(),
     };
     return res.status(200).json(resPayload);
   } catch (err) {
@@ -32,7 +37,7 @@ v1CoursesRouter.get("/:course_id/reviews", async (req, res, next) => {
     const resPayload: ServerPayloadType<typeof resReviews> = {
       payload: resReviews,
       message: null,
-      ...(() => (user ? { user }  as Express.User : null))(),
+      ...(() => (user ? ({ user } as Express.User) : null))(),
     };
     return res.status(200).json(resPayload);
   } catch (err) {
@@ -48,7 +53,7 @@ v1CoursesRouter.get("/:course_id/creator/summary", async (req, res, next) => {
     const resPayload: ServerPayloadType<typeof resCreator> = {
       payload: resCreator,
       message: null,
-      ...(() => (user ? { user }  as Express.User : null))(),
+      ...(() => (user ? ({ user } as Express.User) : null))(),
     };
     return res.status(200).json(resPayload);
   } catch (err) {
@@ -64,7 +69,7 @@ v1CoursesRouter.get("/:course_id/lessons", async (req, res, next) => {
     const resPayload: ServerPayloadType<typeof resLessons> = {
       payload: resLessons,
       message: null,
-      ...(() => (user ? { user }  as Express.User : null))(),
+      ...(() => (user ? ({ user } as Express.User) : null))(),
     };
     return res.status(200).json(resPayload);
   } catch (err) {
@@ -80,7 +85,7 @@ v1CoursesRouter.get("/:course_id", async (req, res, next) => {
     const resPayload: ServerPayloadType<(typeof resCoursePayload)["detail"]> = {
       payload: resCoursePayload.detail,
       message: null,
-      ...(() => (user ? { user }  as Express.User : null))(),
+      ...(() => (user ? ({ user } as Express.User) : null))(),
     };
     return res.status(200).json(resPayload);
   } catch (err) {
@@ -96,7 +101,7 @@ v1CoursesRouter.get("/:course_id/exams/:exam_id", async (req, res, next) => {
     const resPayload: ServerPayloadType<typeof resultAssessment> = {
       payload: resultAssessment,
       message: null,
-      ...(() => (user ? { user }  as Express.User : null))(),
+      ...(() => (user ? ({ user } as Express.User) : null))(),
     };
     return res.status(200).json(resPayload);
   } catch (err) {
@@ -114,7 +119,7 @@ v1CoursesRouter.get(
       const resPayload: ServerPayloadType<typeof resultAssessment> = {
         payload: resultAssessment,
         message: null,
-        ...(() => (user ? { user }  as Express.User : null))(),
+        ...(() => (user ? ({ user } as Express.User) : null))(),
       };
       return res.status(200).json(resPayload);
     } catch (err) {
@@ -133,7 +138,7 @@ v1CoursesRouter.get(
       const resPayload: ServerPayloadType<typeof resultContents> = {
         payload: resultContents,
         message: null,
-        ...(() => (user ? { user }  as Express.User : null))(),
+        ...(() => (user ? ({ user } as Express.User) : null))(),
       };
       return res.status(200).json(resPayload);
     } catch (err) {
@@ -145,7 +150,7 @@ v1CoursesRouter.get(
 v1CoursesRouter.post("/:course_id/reviews", async (req, res, next) => {
   try {
     const { course_id: courseID } = req.params;
-    const {user} = req;
+    const { user } = req;
     const reviewPayload: StudentReviewPayloadType =
       req.body as StudentReviewPayloadType;
     const { rating, reviewText, studentID } = reviewPayload;
@@ -159,7 +164,7 @@ v1CoursesRouter.post("/:course_id/reviews", async (req, res, next) => {
     const resPayload: ServerPayloadType<null> = {
       payload: null,
       message: "course reviewed successfully!",
-      ...(() => (user ? { user }  as Express.User : null))(),
+      ...(() => (user ? ({ user } as Express.User) : null))(),
     };
     return res.status(201).json(resPayload);
   } catch (err) {
@@ -170,7 +175,7 @@ v1CoursesRouter.post("/:course_id/reviews", async (req, res, next) => {
 v1CoursesRouter.post("/:course_id/enroll", async (req, res, next) => {
   try {
     const { course_id: courseID } = req.params;
-    const {user} = req;
+    const { user } = req;
     const reviewPayload: StudentReviewPayloadType =
       req.body as StudentReviewPayloadType;
     const { rating, reviewText, studentID } = reviewPayload;
@@ -179,7 +184,7 @@ v1CoursesRouter.post("/:course_id/enroll", async (req, res, next) => {
     const resPayload: ServerPayloadType<null> = {
       payload: null,
       message: "student enrolled successfully!",
-      ...(() => (user ? { user }  as Express.User : null))(),
+      ...(() => (user ? ({ user } as Express.User) : null))(),
     };
     return res.status(201).json(resPayload);
   } catch (err) {
