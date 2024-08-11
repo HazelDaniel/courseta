@@ -5,13 +5,14 @@ BEGIN
 
   CREATE OR REPLACE FUNCTION set_new_admin (
     email_ VARCHAR,
-    password_ TEXT
-  ) RETURNS
-  TABLE (admin_id UUID) AS
+    password_ TEXT,
+    salt_ TEXT
+  ) RETURNS TABLE (admin_id UUID)
+  AS
   $block1$
   BEGIN
-    RETURN QUERY INSERT INTO courseta.admins (email, password)
-    VALUES (email_, password_)
+    RETURN QUERY INSERT INTO courseta.admins (email, password, salt)
+    VALUES (email_, password_, salt_)
     RETURNING admins.admin_id;
   END;
   $block1$ LANGUAGE PLPGSQL;
