@@ -1,6 +1,14 @@
-**/**/node-modules
+**/**/node_modules
 **/**/.environment.zshrc
 **/**/.*.zshrc
 **/**/logics.txt
 **/**/logic*.txt
 PLANS.txt
+**/**/backup
+**/**/backup_test
+client/v3
+UI
+progress
+server-gen
+tmp
+TODO.txt
