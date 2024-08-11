@@ -3,7 +3,7 @@ $block$
 BEGIN
   RAISE NOTICE '[SETUP]   (SET) FUNCTION: setting up the SET function to create a course with its lessons';
 
-  CREATE OR REPLACE FUNCTION create_course_for_creator(p_creator_id UUID, course_data JSONB, lessons_data JSONB,
+  CREATE OR REPLACE FUNCTION create_course_for_creator(p_creator_id UUID, course_data JSONB, course_avatar TEXT, lessons_data JSONB,
   quizzes_data JSONB, contents_data JSONB)
   -- +1 overloads
   RETURNS BIGINT
@@ -20,18 +20,21 @@ BEGIN
   BEGIN
     -- unit of work: course creation
 
+
     avatar_json := json_build_object(
-    'url', course_data->>'thumbnail',
+    'id', course_data->>'avatarID',
+    'mime_type', course_data->>'mimeType',
     'created_at', to_json(CURRENT_TIMESTAMP),
     'updated_at', to_json(CURRENT_TIMESTAMP)
     );
 
-    INSERT INTO courseta.courses(title, description, avatar, creator_id, tags)
+    INSERT INTO courseta.courses(title, description, avatar, creator_id, avatar_meta, tags)
     VALUES (
       course_data->>'title',
       course_data->>'description',
-      avatar_json,
+      decode(course_avatar, 'base64'),
       p_creator_id,
+      avatar_json,
       COALESCE(ARRAY (SELECT jsonb_array_elements_text(course_data->'tags')), ARRAY[]::VARCHAR[])
     )
     RETURNING course_id INTO created_course_id;
@@ -85,7 +88,7 @@ BEGIN
   END;
   $block1$ LANGUAGE PLPGSQL;
 
-  CREATE OR REPLACE FUNCTION create_course_for_creator(p_creator_id UUID, course_data JSONB)
+  CREATE OR REPLACE FUNCTION create_course_for_creator(p_creator_id UUID, course_data JSONB, course_avatar TEXT)
   RETURNS BIGINT
   AS
   $block1$
@@ -95,17 +98,18 @@ BEGIN
   BEGIN
 
     avatar_json := json_build_object(
-    'url', course_data->>'thumbnail',
+    'id', course_data->>'avatarID',
     'created_at', to_json(CURRENT_TIMESTAMP),
     'updated_at', to_json(CURRENT_TIMESTAMP)
     );
 
-    INSERT INTO courseta.courses(title, description, avatar, creator_id, tags)
+    INSERT INTO courseta.courses(title, description, avatar, creator_id, avatar_meta, tags)
     VALUES (
       course_data->>'title',
       course_data->>'description',
-      avatar_json,
+      decode(course_avatar, 'base64'),
       p_creator_id,
+      avatar_json,
       COALESCE(ARRAY (SELECT jsonb_array_elements_text(course_data->'tags')), ARRAY[]::VARCHAR[])
     )
     RETURNING course_id INTO created_course_id;
