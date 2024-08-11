@@ -9,11 +9,36 @@ BEGIN
   AS
   $block1$
   DECLARE
-  question_id_             INT;
-  p_answer               JSONB;
-  p_answer_count INT DEFAULT 0;
-  p_answer_time_computed   INT;
+  question_id_                INT;
+  p_answer                  JSONB;
+  p_answer_count INT    DEFAULT 0;
+  p_answer_time_computed      INT;
+  student_enroll_occurrence   INT;
+  corresponding_course_id    UUID;
   BEGIN
+    -- first, assume that this is a quiz submission
+    SELECT INTO corresponding_course_id courses.course_id
+    FROM courseta.quizzes
+    JOIN courseta.lessons USING (lesson_id)
+    JOIN courseta.courses USING (course_id)
+    WHERE quizzes.quiz_id = p_assessment_id;
+
+    -- then, assume that this is an exam submission
+    IF corresponding_course_id IS NULL THEN
+      SELECT INTO corresponding_course_id courses.course_id
+      FROM courseta.exams
+      JOIN courseta.lessons USING (course_id)
+      WHERE exams.exam_id = p_assessment_id;
+    END IF;
+
+    SELECT INTO student_enroll_occurrence COUNT(*) FROM courseta.students__courses
+    WHERE students__courses.student_id = p_student_id
+    AND students__courses.course_id = corresponding_course_id;
+
+    IF student_enroll_occurrence <= 1 THEN
+      RAISE EXCEPTION 'only enrolled users can attempt an assessment.';
+    END IF;
+
     --unit of work: assessment submission
     INSERT INTO courseta.students__assessments(student_id, assessment_id, submitted_at)
     VALUES (p_student_id, p_assessment_id, p_submission_time);
