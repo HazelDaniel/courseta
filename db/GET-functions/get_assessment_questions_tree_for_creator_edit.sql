@@ -6,16 +6,22 @@ BEGIN
   CREATE OR REPLACE FUNCTION get_assessment_questions_tree_for_creator_edit (assessment_id_ UUID) RETURNS
   TABLE (
     question_text TEXT,
+    question_id BIGINT,
     points SMALLINT,
-    answer_text TEXT,
-    is_correct BOOLEAN
+    answers JSONB
   ) AS
   $block1$
   BEGIN
-    RETURN QUERY SELECT questions.question_text, questions.points, answers.answer_text, answers.is_correct
+    RETURN QUERY SELECT questions.question_text, questions.question_id, questions.points,
+    json_agg(json_build_object(
+      'text', ans.answer_text,
+      'correct', ans.is_correct,
+      'id', ans.answer_id
+    ))::JSONB answers
     FROM courseta.questions
-    LEFT JOIN courseta.answers USING (question_id)
-    WHERE questions.assessment_id = assessment_id_;
+    LEFT JOIN courseta.answers ans USING (question_id)
+    WHERE questions.assessment_id = assessment_id_
+    GROUP BY questions.question_id, questions.question_text, questions.points;
   END;
   $block1$ LANGUAGE PLPGSQL;
 
