@@ -11,12 +11,14 @@ BEGIN
     course_id BIGINT,
     created_at TIMESTAMPTZ,
     updated_at TIMESTAMPTZ,
+    student_count INT,
+    archived BOOLEAN,
     tags VARCHAR[]
   ) AS
   $block1$
   BEGIN
     RETURN QUERY SELECT courses.title, translate(encode(courses.avatar, 'base64'), E' \t\n\r', ''), courses.avatar_meta, courses.course_id,
-    courses.created_at, courses.updated_at, courses.tags
+    courses.created_at, courses.updated_at, courses.student_count, courses.archived, courses.tags
     FROM courseta.courses WHERE courses.creator_id = creator_id_;
   END;
   $block1$ LANGUAGE PLPGSQL;
@@ -24,4 +26,3 @@ BEGIN
   RAISE NOTICE '[SETUP]   (GET) FUNCTION: DONE setting up the get_course_summaries_for_creator function.';
 END
 $block$ LANGUAGE PLPGSQL;
-
