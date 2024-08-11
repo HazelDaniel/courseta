@@ -9,12 +9,16 @@ BEGIN
     rating NUMERIC,
     student_id UUID,
     created_at TIMESTAMPTZ,
-    email VARCHAR
+    email VARCHAR,
+    avatar TEXT,
+    avatar_meta JSONB
   ) AS
   $block1$
   BEGIN
     RETURN QUERY SELECT reviews.review_text, reviews.rating, reviews.student_id,
-    reviews.created_at, students.email
+    reviews.created_at, students.email,
+    translate(encode(students.avatar, 'base64'), E' \t\n\r', '') avatar,
+    students.avatar_meta
     FROM courseta.reviews
     JOIN courseta.students USING (student_id)
     WHERE reviews.course_id = course_id_

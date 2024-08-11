@@ -2,8 +2,9 @@
 -- $block$
 -- BEGIN
 --   RAISE NOTICE '[SETUP]   (SET) FUNCTION: setting up the SET function to upsert a course with its other dependent entities';
---   -- NOTE: might not need this function since the client is not built to handle all these operation on a course update
---   -- TODO: if you'll need it then, fix the code.
+--   -- NOTE: the other course_data attributes (apart from courseID) shouldn't be checked in this case.
+--   -- NOTE: this is a way of adding multiple lessons to a course that may (or not) have 'children'
+--   -- NOTE: COMMMENTED OUT. KEEPING THIS AROUND JUST IN CASE I NEEED IT
 
 --   CREATE OR REPLACE FUNCTION upsert_course_for_creator(p_creator_id UUID, course_data JSONB, lessons_data JSONB,
 --   quizzes_data JSONB, contents_data JSONB)
@@ -20,22 +21,11 @@
 --     avatar_json                JSONB;
 --   BEGIN
 --     -- unit of work: course creation
+--     IF NOT (course_data ? 'courseID') THEN
+--       RAISE EXCEPTION 'the course data for this update does not exist.';
+--     END IF;
 
---     avatar_json := json_build_object(
---     'url', course_data->>'thumbnail',
---     'created_at', to_json(CURRENT_TIMESTAMP),
---     'updated_at', to_json(CURRENT_TIMESTAMP)
---     );
-
---     INSERT INTO courseta.courses(title, description, avatar, creator_id, tags)
---     VALUES (
---       course_data->>'title',
---       course_data->>'description',
---       avatar_json,
---       p_creator_id,
---       COALESCE(ARRAY (SELECT jsonb_array_elements_text(course_data->'tags')), ARRAY[]::VARCHAR[])
---     ) ON CONFLICT DO UPDATE SET courses.updated_at = CURRENT_TIMESTAMP::TIMESTAMPTZ
---     RETURNING course_id INTO created_course_id;
+--     created_course_id := course_data->>'courseID';
 
 --     -- process lessons
 --     FOR lesson_entry IN SELECT * FROM jsonb_array_elements(lessons_data) LOOP

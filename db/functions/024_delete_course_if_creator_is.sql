@@ -7,14 +7,18 @@ BEGIN
   VOID AS
   $block1$
   DECLARE
-    equiv_creator_id_       UUID;
+    students_enrolled    BOOLEAN;
+    equiv_course          RECORD;
   BEGIN
-    SELECT INTO equiv_creator_id_ creator_id FROM courseta.courses
-    WHERE course_id = course_id_;
+    SELECT INTO equiv_course courses.creator_id, courses.student_count FROM courseta.courses
+    WHERE courses.course_id = course_id_;
 
-    IF equiv_creator_id_ <> creator_id_ THEN
+    IF equiv_course.creator_id <> creator_id_ THEN
       RAISE EXCEPTION 'you cannot delete a course you didn''t create!';
-      RETURN;
+    END IF;
+
+    IF equiv_course.student_count > 0 THEN
+      RAISE EXCEPTION 'cannot delete course since it has enrolled students, archive instead';
     END IF;
 
     DELETE FROM courseta.courses
@@ -26,4 +30,3 @@ BEGIN
   RAISE NOTICE '[SETUP]   (SET) FUNCTION: DONE setting up the delete_course_if_creator_is function.';
 END;
 $block$ LANGUAGE PLPGSQL;
-

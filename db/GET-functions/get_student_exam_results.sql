@@ -21,8 +21,8 @@ BEGIN
         JOIN exams USING (assessment_id)
         WHERE assessments_results.student_id = student_id_
       )
-      SELECT rwnt.exam_id, rwnt.date_completed, rwnt.score
-      FROM results_with_no_retake rwnt WHERE r_number = 1
+      SELECT rwnr.exam_id, rwnr.date_completed, rwnr.score
+      FROM results_with_no_retake rwnr WHERE r_number = 1
     );
   END;
   $block1$ LANGUAGE PLPGSQL;

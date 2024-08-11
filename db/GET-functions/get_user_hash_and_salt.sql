@@ -1,7 +1,7 @@
 DO
 $block$
 BEGIN
-  RAISE NOTICE '[SETUP]   (SET) FUNCTION: setting up functions that retrieves user password.';
+  RAISE NOTICE '[SETUP]   (GET) FUNCTION: setting up functions that retrieves user password.';
 
   CREATE OR REPLACE FUNCTION get_user_hash_and_salt (
     user_id_ UUID,
@@ -20,7 +20,7 @@ BEGIN
   END;
   $block1$ LANGUAGE PLPGSQL;
 
-  RAISE NOTICE '[SETUP]   (SET) FUNCTION: DONE setting up functions that retrieves user password.';
+  RAISE NOTICE '[SETUP]   (GET) FUNCTION: DONE setting up functions that retrieves user password.';
 
 END;
 $block$ LANGUAGE PLPGSQL;

@@ -8,12 +8,13 @@ BEGIN
     title TEXT,
     description TEXT,
     avatar_url TEXT,
+    avatar_meta JSONB,
     tags VARCHAR[]
   ) AS
   $block1$
   BEGIN
     RETURN QUERY SELECT courses.title, courses.description,
-    courses.avatar->>'url', courses.tags
+    translate(encode(courses.avatar, 'base64'), E' \t\n\r', '') avatar_url, courses.avatar_meta, courses.tags
     FROM courseta.courses
     WHERE courses.course_id = course_id_;
   END;
@@ -22,4 +23,3 @@ BEGIN
   RAISE NOTICE '[SETUP]   (GET) FUNCTION: DONE setting up the get_course_for_creator_edit function.';
 END
 $block$ LANGUAGE PLPGSQL;
-

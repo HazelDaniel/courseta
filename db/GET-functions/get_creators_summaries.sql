@@ -10,6 +10,7 @@ BEGIN
     first_name VARCHAR,
     last_name VARCHAR,
     avatar_url TEXT,
+    avatar_meta JSONB,
     average_course_rating  NUMERIC,
     course_count INT,
     student_count INT,
@@ -18,7 +19,7 @@ BEGIN
   $block1$
   BEGIN
     RETURN QUERY SELECT creators.creator_id, creators.email, creators.first_name, creators.last_name,
-    creators.avatar->>'url' avatar_url , creators.average_course_rating, creators.course_count,
+    translate(encode(creators.avatar, 'base64'), E' \t\n\r', '') avatar_url, creators.avatar_meta, creators.average_course_rating, creators.course_count,
     creators.student_count, creators.course_review_count
     FROM creators;
   END;

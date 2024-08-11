@@ -11,7 +11,8 @@ BEGIN
    points INT,
    email VARCHAR,
    role courseta.USER_ROLE_TYPE,
-   avatar_url TEXT,
+   avatar TEXT,
+   avatar_meta JSONB,
    first_name VARCHAR,
    last_name VARCHAR,
    created_at TIMESTAMPTZ
@@ -19,7 +20,7 @@ BEGIN
   AS
   $block1$
   BEGIN
-    RETURN QUERY SELECT students.student_id, students.rank, students.points, students.email, students.role, students.avatar->>'url' avatar_url,
+    RETURN QUERY SELECT students.student_id, students.rank, students.points, students.email, students.role, translate(encode(students.avatar, 'base64'), E' \t\n\r', ''), students.avatar_meta,
     students.first_name, students.last_name, students.created_at
     FROM courseta.students
     WHERE students.email = email_;
@@ -30,12 +31,13 @@ BEGIN
   TABLE
   (
    student_id UUID,
-   password TEXT
+   password TEXT,
+   salt TEXT
   )
   AS
   $block1$
   BEGIN
-    RETURN QUERY SELECT students.student_id, students.password
+    RETURN QUERY SELECT students.student_id, students.password, students.salt
     FROM courseta.students
     WHERE students.email = email_;
   END;

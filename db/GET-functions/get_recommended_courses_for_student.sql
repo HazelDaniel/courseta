@@ -7,7 +7,8 @@ BEGIN
   TABLE (
     title TEXT,
     lesson_count SMALLINT,
-    avatar JSONB,
+    avatar TEXT,
+    avatar_meta JSONB,
     course_id BIGINT
   ) AS
   $block1$
@@ -19,7 +20,7 @@ BEGIN
     RETURN QUERY
     (WITH recommended_courses AS
     (SELECT
-    DISTINCT ON (courses.course_id) courses.title, courses.lesson_count, courses.avatar, courses.course_id, students__courses.enrolled_at created_at
+    DISTINCT ON (courses.course_id) courses.title, courses.lesson_count, translate(encode(courses.avatar, 'base64'), E' \t\n\r', '') avatar, courses.avatar_meta, courses.course_id, students__courses.enrolled_at created_at
     FROM courseta.students__courses
     JOIN courseta.courses USING (course_id)
     WHERE students__courses.student_id <> student_id_
@@ -34,7 +35,7 @@ BEGIN
     WHERE students__courses.student_id = student_id_
     )
     SELECT
-      rc.title, rc.lesson_count, rc.avatar, rc.course_id
+      rc.title, rc.lesson_count, rc.avatar, rc.avatar_meta, rc.course_id
     FROM recommended_courses rc
     LEFT JOIN student_enrolled_courses sec USING (course_id)
     WHERE sec.course_id IS NULL

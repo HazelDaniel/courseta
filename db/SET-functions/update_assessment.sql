@@ -44,7 +44,6 @@ BEGIN
       DELETE FROM courseta.questions WHERE question_id = question_id_entry;
     END LOOP;
 
-
     RETURN assessment_id_;
     -- save unit of work
 

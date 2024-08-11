@@ -9,7 +9,8 @@ BEGIN
     lesson_count SMALLINT,
     description TEXT,
     review_count INT,
-    avatar JSONB,
+    avatar TEXT,
+    avatar_meta JSONB,
     creator_id UUID,
     student_count INT,
     updated_at TIMESTAMPTZ,
@@ -19,7 +20,7 @@ BEGIN
   $block1$
   BEGIN
     RETURN QUERY SELECT courses.title, courses.lesson_count, courses.description, courses.review_count,
-    courses.avatar, courses.creator_id, courses.student_count, courses.updated_at, courses.course_length, courses.average_rating
+    translate(encode(courses.avatar, 'base64'), E' \t\n\r', ''), courses.avatar_meta, courses.creator_id, courses.student_count, courses.updated_at, courses.course_length, courses.average_rating
     FROM courseta.courses
     WHERE courses.course_id = course_id_;
   END;

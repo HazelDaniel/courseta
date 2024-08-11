@@ -7,6 +7,8 @@ BEGIN
     title_ TEXT,
     description_ TEXT,
     thumbnail_ TEXT,
+		avatar_id UUID,
+    mime_type TEXT,
     creator_id_ UUID,
     tags_ VARCHAR[]
   ) RETURNS
@@ -14,8 +16,8 @@ BEGIN
   $block1$
   BEGIN
     RETURN QUERY
-    INSERT INTO courseta.courses (title, description, avatar, creator_id, tags)
-    VALUES (title_, description_, '{}' || ('{"url": "' || thumbnail_ || '", "created_at": "' ||  CURRENT_TIMESTAMP::TEXT || '", "updated_at": "' || CURRENT_TIMESTAMP::TEXT || '"}')::JSONB , creator_id_, tags_)
+    INSERT INTO courseta.courses (title, description, avatar, avatar_meta, creator_id, tags)
+    VALUES (title_, description_, decode(thumbnail_, 'base64')::BYTEA, '{}' || ('{"created_at": "' ||  CURRENT_TIMESTAMP::TEXT || '", "updated_at": "' || CURRENT_TIMESTAMP::TEXT || '", "id": "' || avatar_id || '", "mime_type": "' || mime_type::TEXT ||'"}')::JSONB , creator_id_, tags_)
     RETURNING courses.course_id;
   END;
   $block1$ LANGUAGE PLPGSQL;

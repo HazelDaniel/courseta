@@ -22,5 +22,3 @@ BEGIN
   RAISE NOTICE '[SETUP]   (GET) FUNCTION: DONE setting up the get_course_exam_for_creator_edit function.';
 END
 $block$ LANGUAGE PLPGSQL;
-
-

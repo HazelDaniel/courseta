@@ -7,12 +7,13 @@ BEGIN
   TABLE (
     title TEXT,
     lesson_count SMALLINT,
-    avatar JSONB,
+    avatar TEXT,
+    avatar_meta JSONB,
     course_id BIGINT
   ) AS
   $block1$
   BEGIN
-    RETURN QUERY SELECT courses.title, courses.lesson_count, courses.avatar, courses.course_id
+    RETURN QUERY SELECT courses.title, courses.lesson_count, translate(encode(courses.avatar, 'base64'), E' \t\n\r', ''), courses.avatar_meta, courses.course_id
     FROM courseta.courses;
   END;
   $block1$ LANGUAGE PLPGSQL;

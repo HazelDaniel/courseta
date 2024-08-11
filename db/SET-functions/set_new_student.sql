@@ -9,17 +9,21 @@ BEGIN
     first_name_ VARCHAR,
     last_name_ VARCHAR,
     password_ TEXT,
-    avatar_url TEXT
+    -- avatar_url TEXT,
+		-- avatar_id UUID,
+    -- mime_type TEXT,
+    salt_ TEXT
   )
-  RETURNS TABLE (student_id UUID, rank courseta.RANK_TYPE, points INT, email VARCHAR, avatar JSONB) AS
+  RETURNS VOID AS
   $block1$
   BEGIN
-    RETURN QUERY 
-    INSERT INTO students (email, first_name, last_name, password, avatar, created_at)
-    VALUES (email_, first_name_, last_name_, password_,
-    ('{"url": "' || avatar_url || '", "created_at": "' ||  CURRENT_TIMESTAMP::TEXT || '", "updated_at" : "' || CURRENT_TIMESTAMP::TEXT || '"}')::JSONB,
-    CURRENT_TIMESTAMP)
-    RETURNING students.student_id, students.rank, students.points, students.email, students.avatar;
+    -- RETURN QUERY 
+    INSERT INTO students (email, first_name, last_name, password, salt, created_at)
+    VALUES (email_, first_name_, last_name_, password_, salt_,
+    -- decode(avatar_url, 'base64'),
+    -- ('{"created_at": "' ||  CURRENT_TIMESTAMP::TEXT || '", "updated_at" : "' || CURRENT_TIMESTAMP::TEXT || '", "id": "' || avatar_id ||  '", "mime_type": "' || mime_type::TEXT || '"}')::JSONB,
+    CURRENT_TIMESTAMP);
+    -- RETURNING students.student_id, students.rank, students.points, students.email, translate(encode(students.avatar, 'base64'), E' \t\n\r', ''), students.avatar_meta;
   END;
   $block1$ LANGUAGE PLPGSQL;
 
@@ -30,18 +34,21 @@ BEGIN
     first_name_ VARCHAR,
     last_name_ VARCHAR,
     password_ TEXT,
-    avatar_url TEXT,
-    student_id_ UUID
+    -- avatar_url TEXT,
+		-- avatar_id UUID,
+    -- mime_type TEXT,
+    student_id_ UUID,
+    salt_ TEXT
   )
-  RETURNS TABLE (student_id UUID, rank courseta.RANK_TYPE, points INT, email VARCHAR, avatar JSONB) AS
+  -- RETURNS TABLE (student_id UUID, rank courseta.RANK_TYPE, points INT, email VARCHAR, avatar TEXT, avatar_meta JSONB) AS
+  RETURNS VOID AS
   $block1$
   BEGIN
-    RETURN QUERY
-    INSERT INTO students (email, first_name, last_name, password, avatar, created_at, student_id)
-    VALUES (email_, first_name_, last_name_, password_,
-    ('{"url": "' || avatar_url || '", "created_at": "' ||  CURRENT_TIMESTAMP::TEXT || '", "updated_at" : "' || CURRENT_TIMESTAMP::TEXT || '"}')::JSONB,
-    CURRENT_TIMESTAMP, student_id_)
-    RETURNING students.student_id, students.rank, students.points, students.email, students.avatar;
+    -- RETURN QUERY
+    INSERT INTO students (email, first_name, last_name, password, salt, created_at, student_id)
+    VALUES (email_, first_name_, last_name_, password_, salt_,
+    CURRENT_TIMESTAMP, student_id_);
+    -- RETURNING students.student_id, students.rank, students.points, students.email, translate(encode(students.avatar, 'base64'), E' \t\n\r', ''), students.avatar_meta;
   END;
   $block1$ LANGUAGE PLPGSQL;
 
