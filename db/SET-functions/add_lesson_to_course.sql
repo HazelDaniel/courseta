@@ -29,14 +29,12 @@ BEGIN
       FOR quiz_entry IN SELECT * FROM jsonb_array_elements(quizzes_data) LOOP
         IF quiz_entry->>'lessonPositionID' = lesson_entry->>'positionID' THEN
           created_quiz_id := gen_random_uuid();
-          INSERT INTO courseta.quizzes(lesson_id, quiz_title, description, pass_score, total_points, assessment_id, quiz_id)
+          INSERT INTO courseta.quizzes(lesson_id, quiz_title, description, pass_score, quiz_id)
           VALUES (
             created_lesson_id,
             quiz_entry->>'quizTitle',
             quiz_entry->>'description',
             (quiz_entry->>'passScore')::INT,
-            (quiz_entry->>'totalPoints')::INT,
-            created_quiz_id,
             created_quiz_id
           );
         END IF;
