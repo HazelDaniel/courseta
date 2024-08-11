@@ -10,9 +10,9 @@ BEGIN
   LANGUAGE PLPGSQL AS
   $block2$
   DECLARE
-    acc_points SMALLINT;
-    tot_points      INT;
-    res             INT;
+    acc_points      SMALLINT;
+    res                  INT;
+    equiv_assessment  RECORD;
   BEGIN
     SELECT INTO acc_points total_points_accumulated
     FROM students__assessments
@@ -20,14 +20,21 @@ BEGIN
     AND students__assessments.student_id = student_id_
 		AND students__assessments.assessment_id = assessment_id_;
 
-    SELECT INTO tot_points total_points
-    FROM ONLY assessments WHERE assessments.assessment_id = assessment_id_;
+		SELECT INTO equiv_assessment quizzes.pass_score, quizzes.total_points FROM courseta.quizzes
+    WHERE quiz_id = assessment_id_;
+
+    IF equiv_assessment IS NULL THEN
+      SELECT INTO equiv_assessment exams.pass_score, exams.total_points FROM courseta.exams
+      WHERE exam_id = assessment_id_;
+    END IF;
 
     -- RAISE NOTICE '[debug]: accumulated points / total points = % / %', acc_points::NUMERIC , tot_points::NUMERIC;
 
-    res := ((acc_points::NUMERIC / tot_points::NUMERIC) * 100);
+    res := ((acc_points::NUMERIC / equiv_assessment.total_points::NUMERIC) * 100);
 
-    UPDATE assessments_results SET score = res
+    UPDATE assessments_results
+    SET score = res,
+    status = (CASE WHEN res < equiv_assessment.pass_score THEN 'failed' ELSE 'passed' END)
 		WHERE attempted_at = time_attempted
     AND assessments_results.student_id = student_id_ AND assessments_results.assessment_id = assessment_id_;
   END;
@@ -43,7 +50,8 @@ BEGIN
   AS
   $block2$
   DECLARE
-    res           UUID;
+    res               UUID;
+    equiv_pass_score   INT;
   BEGIN
     INSERT INTO assessments_results (student_id, assessment_id, attempted_at, score)
     VALUES (student_id_, assessment_id_, time_attempted, 0)
