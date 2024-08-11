@@ -5,19 +5,23 @@ BEGIN
 
   CREATE OR REPLACE FUNCTION get_assessment_questions (assessment_id_ UUID) RETURNS
   TABLE (
-    question_id BIGINT,
     question_text TEXT,
-    answer_id BIGINT,
-    answer_text TEXT,
-    is_correct BOOLEAN
+    question_id BIGINT,
+    points SMALLINT,
+    answers JSONB
   ) AS
   $block1$
   BEGIN
-    RETURN QUERY SELECT questions.question_id, questions.question_text,
-    answers.answer_id, answers.answer_text, answers.is_correct
+    RETURN QUERY SELECT questions.question_text, questions.question_id, questions.points,
+    json_agg(json_build_object(
+      'text', ans.answer_text,
+      'correct', ans.is_correct,
+      'id', ans.answer_id
+    ))::JSONB answers
     FROM courseta.questions
-    JOIN courseta.answers USING (question_id)
-    WHERE questions.assessment_id = assessment_id_;
+    LEFT JOIN courseta.answers ans USING (question_id)
+    WHERE questions.assessment_id = assessment_id_
+    GROUP BY questions.question_id, questions.question_text, questions.points;
   END;
   $block1$ LANGUAGE PLPGSQL;
 
