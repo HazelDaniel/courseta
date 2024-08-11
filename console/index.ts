@@ -4,8 +4,7 @@ config({ path: [".env", ".env.dev"] });
 import { AuthStateType } from "./../server/types.d";
 import inquirer from "inquirer";
 import { Command } from "commander";
-import { AdminModel } from "./models/admin.model.js";
-
+import { AdminModel } from "./models/v1/admin.model.js";
 
 import chalk from "chalk";
 import figlet from "figlet";

@@ -1,4 +1,20 @@
 import type { PoolClient } from "pg";
+import { CourseLessonType2 } from "./client.types";
+
+export type ServerInternalErrorCodeType = "ERR_NO_MATCH" | "ERR_";
+export interface ConfigOption {
+  hashingOptions: {
+    iterations: number;
+    keyLength: number;
+    digest: string;
+    saltByteCount: number;
+    encoding: BufferEncoding;
+  };
+  serverOptions: {
+    imageServerBaseUrl: string;
+  };
+}
+
 export interface DBSessionFunctionType {
   (client: PoolClient): void;
 }
@@ -8,6 +24,15 @@ export interface ConsoleRootOptionType {
   shortcut: string;
   description: string;
 }
+
+interface SessionUserType extends Express.User {
+  email: string;
+  id: string;
+  role: "student" | "creator";
+}
+export interface CreatorSessionUserType extends SessionUserType {}
+
+export interface StudentSessionUserType extends SessionUserType {}
 
 export type UserRoleType = "student" | "creator";
 export type StudentRankType =
@@ -20,6 +45,19 @@ export type StudentRankType =
 
 export type AssessmentVariantType = "exam" | "quiz";
 export type lessonVariantType = "text" | "video";
+
+export interface ImageMetaType {
+  updated_at: string;
+  created_at: string;
+  id?: string;
+  mime_type?: string;
+}
+
+export interface StoreImageType {
+  imageID: string;
+  imageUrl: string;
+  createdAt: string;
+}
 
 export interface StudentViewType {
   studentID: string;
@@ -56,11 +94,12 @@ export interface AdminViewType {
 export interface CourseViewType {
   title: string;
   lessonCount: number;
-  thumbnail: string;
+  avatar: string;
+  avatarMeta: ImageMetaType;
   courseID: number;
 }
 
-export interface CourseSummaryViewType extends CourseViewType {
+export interface StudentCourseViewType extends CourseViewType {
   progress: number;
 }
 
@@ -74,21 +113,29 @@ export interface CourseDetailViewType extends CourseViewType {
   averageRating: number;
 }
 
-export interface CourseOutlineViewType {
-  detail: CourseDetailViewType;
-  outline: CourseOutlineType;
+export interface CreatorCourseViewType
+  extends Omit<CourseViewType, "lessonCount"> {
+  avatar: string;
+  avatarMeta: ImageMetaType;
+  createdAt: string;
+  updatedAt: string;
+  studentCount: number;
+  archived: boolean;
+  tags: string[];
 }
 
-export type CourseOutlineType = {
-  lessonID: string;
-  title: string;
-  courseID: number;
-  contentCount: number;
-  totalDuration: number;
-  quizID: string;
-  totalPoints: number;
-  quizTitle: string;
-}[];
+export interface CreatorCourseEditViewType
+  extends Omit<CourseViewType, "lessonCount" | "courseID"> {
+  description: string;
+  tags: string[];
+}
+
+export interface CourseOutlineViewType {
+  detail: CourseDetailViewType;
+  lessons: CourseOutlineType;
+}
+
+export type CourseOutlineType = CourseLessonType2[];
 export interface AuthStateType {
   subject: string | null;
   adminSubject: string | null;
@@ -136,49 +183,50 @@ export interface UserContractType {
   ): Promise<void>;
 }
 
-export interface LessonInputType {
-  title: string;
-  contentCount: number;
-  quizCount: number;
-}
-
-export interface LessonsLessonContentInputType {
-  title: string;
-  href: string;
-  contentType: string;
-  duration: number;
-}
-
-export interface LessonsQuizInputType {
-  quizTitle: string;
-  description: string;
-  passScore: number;
-  totalPoints: number;
-}
-
-export interface AssessmentInputType {
-  parentEntityID?: number;
-  passScore: number;
-  description: string;
-  quizTitle?: string;
-  duration?: number;
-  startDate?: string;
-  endDate?: string;
-}
-
-export interface QuestionInputType {
-  questionText: string;
-  points: number;
-  positionID?: number;
-  answerCount: number;
-}
-
-export interface AnswerInputType {
-  answerText: string;
-  isCorrect: string;
-}
 
 export interface BufferLike {
   type: "Buffer";
   data: number[];
+}
+
+export interface ServerPayloadType<T> {
+  payload?: T;
+  message: string | null;
+  user?: {
+    role: UserRoleType;
+    email: string;
+    id: string;
+  }
+}
+
+export interface CreatorAuthResponseType {
+  id: string;
+  creatorPass: string;
+  password: string;
+  salt: string;
+  role: UserRoleType;
+}
+
+export interface StudentAuthResponseType {
+  id: string;
+  password: string;
+  salt: string;
+  role: UserRoleType;
+}
+
+interface UserAttributeUpdateType {
+  userID: string;
+  newAvatar?: string;
+  oldPassword?: string;
+  newPassword?: string;
+  firstName?: string;
+  lastName?: string;
+}
+
+export interface CreatorAttributeUpdateType extends UserAttributeUpdateType {
+  avatarMeta?: ImageMetaType;
+}
+
+export interface StudentAttributeUpdateType extends UserAttributeUpdateType {
+  avatarMeta?: ImageMetaType;
 }

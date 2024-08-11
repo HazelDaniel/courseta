@@ -1,13 +1,13 @@
-import { AssessmentModel } from "../models/assessment.model.js";
-import { QuizModel } from "../models/quiz.model.js";
-import { ExamModel } from "../models/exam.model.js";
-import { QuestionModel } from "../models/question.model.js";
-import { AnswerModel } from "../models/answer.model.js";
+import { AssessmentModel } from "../models/v1/assessment.model.js";
+import { QuizModel } from "../models/v1/quiz.model.js";
+import { ExamModel } from "../models/v1/exam.model.js";
+import { QuestionModel } from "../models/v1/question.model.js";
+import { AnswerModel } from "../models/v1/answer.model.js";
 import { pool } from "../db";
 import type { AssessmentVariantType, lessonVariantType } from "../types";
-import { CourseModel } from "../models/course.model.js";
-import { LessonModel } from "../models/lesson.model.js";
-import { LessonContentModel } from "../models/lesson-content.model.js";
+import { CourseModel } from "../models/v1/course.model.js";
+import { LessonModel } from "../models/v1/lesson.model.js";
+import { LessonContentModel } from "../models/v1/lesson-content.model.js";
 
 let creatorID: string | undefined;
 let course1ID: number;

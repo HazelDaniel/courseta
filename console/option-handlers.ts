@@ -14,21 +14,22 @@ import type {
   AnswerInputType,
 } from "./types";
 import { ConsoleLogger } from "./utils.js";
-import { StudentModel } from "./models/student.model.js";
-import { CreatorModel } from "./models/creator.model.js";
-import { CourseModel } from "./models/course.model.js";
-import { AdminModel } from "./models/admin.model.js";
-import { ReviewModel } from "./models/review.model.js";
-import { EnrollmentModel } from "./models/enrollment.model.js";
-import { UserModel } from "./models/user.model.js";
-import { BaseModel } from "./models/base-model.js";
-import { LessonModel } from "./models/lesson.model.js";
-import { QuizModel } from "./models/quiz.model.js";
-import { LessonContentModel } from "./models/lesson-content.model.js";
-import { AssessmentModel } from "./models/assessment.model.js";
-import { QuestionModel } from "./models/question.model.js";
-import { AnswerModel } from "./models/answer.model.js";
-import { ExamModel } from "./models/exam.model.js";
+import { StudentModel } from "./models/v1/student.model.js";
+import { CreatorModel } from "./models/v1/creator.model.js";
+import { CourseModel } from "./models/v1/course.model.js";
+import { AdminModel } from "./models/v1/admin.model.js";
+import { ReviewModel } from "./models/v1/review.model.js";
+import { EnrollmentModel } from "./models/v1/enrollment.model.js";
+import { UserModel } from "./models/v1/user.model.js";
+import { BaseModel } from "./models/v1/base-model.js";
+import { LessonModel } from "./models/v1/lesson.model.js";
+import { QuizModel } from "./models/v1/quiz.model.js";
+import { LessonContentModel } from "./models/v1/lesson-content.model.js";
+import { AssessmentModel } from "./models/v1/assessment.model.js";
+import { QuestionModel } from "./models/v1/question.model.js";
+import { AnswerModel } from "./models/v1/answer.model.js";
+import { ExamModel } from "./models/v1/exam.model.js";
+import { randomUUID } from "crypto";
 
 export enum AuthPosition {
   ADMIN_AUTH,
@@ -225,7 +226,8 @@ export const handleCreateStudent: HandlerFunctionType = async (
       password,
       firstName,
       lastName,
-      avatarUrl
+      avatarUrl,
+      randomUUID()
     );
     await pendingStudent.save();
     new ConsoleLogger(
@@ -283,7 +285,8 @@ export const handleCreateCreator: HandlerFunctionType = async (
       password,
       firstName,
       lastName,
-      avatarUrl
+      avatarUrl,
+      randomUUID()
     );
     await pendingCreator.save();
     new ConsoleLogger(
@@ -499,7 +502,8 @@ export const handleCreateCourse: HandlerFunctionType = async (
     tags,
     lessonsList,
     contentsList,
-    quizzesList
+    quizzesList,
+    randomUUID()
   );
 
   try {
@@ -682,7 +686,8 @@ export const handleChangeCourseDetail: (
         courseID,
         thumbnail,
         description,
-        keywords
+        keywords,
+        randomUUID()
       );
       resolve();
     } catch (err) {
@@ -787,6 +792,10 @@ export const handleViewCourse: HandlerFunctionType = async (authState, ac) => {
 
   try {
     const resCourse = await CourseModel.search(+courseID);
+    if (!resCourse.detail) {
+      new ConsoleLogger("fail", "course not found!");
+      return;
+    }
     CourseModel.display(resCourse);
 
     return;
@@ -1567,19 +1576,21 @@ export const handleUpdateAssessment: HandlerFunctionType = async (
         return;
     }
 
-    const assessmentActionTypePrompt: { action: string } = await inquirer.prompt([
-      {
-        type: "input",
-        name: "action",
-        message: "ACTION TO PERFORM?\n\
+    const assessmentActionTypePrompt: { action: string } =
+      await inquirer.prompt([
+        {
+          type: "input",
+          name: "action",
+          message:
+            "ACTION TO PERFORM?\n\
           1. => delete question(s)\n\
           2. => add question(s)\n\
           3.  => go back [<-]\n\
           \ninput your choice:",
-      },
-    ]);
+        },
+      ]);
 
-    const {action} = assessmentActionTypePrompt;
+    const { action } = assessmentActionTypePrompt;
 
     switch (action) {
       case "1":
@@ -1595,10 +1606,7 @@ export const handleUpdateAssessment: HandlerFunctionType = async (
         return;
     }
 
-    new ConsoleLogger(
-      "success",
-      `assessment updated successfully!`
-    );
+    new ConsoleLogger("success", `assessment updated successfully!`);
   } catch (err) {
     new ConsoleLogger(
       "fail",

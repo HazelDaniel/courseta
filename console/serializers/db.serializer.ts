@@ -1,8 +1,4 @@
-import { BufferLike } from "../types.js";
 import {
-  base64ToBuffer,
-  base64toDataURL,
-  bufferToBase64,
   parseBase64Data,
 } from "../utils.js";
 

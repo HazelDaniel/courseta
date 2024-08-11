@@ -26,7 +26,7 @@
 
     /* Modules */
     "module": "ESNext" /* Specify what module code is generated. */,
-    "rootDir": "./",                                  /* Specify the root folder within your source files. */
+    "rootDir": "./" /* Specify the root folder within your source files. */,
     "moduleResolution": "node10" /* Specify how TypeScript looks up a file from a given module specifier. */,
     // "baseUrl": "./",                                  /* Specify the base directory to resolve non-relative module names. */
     // "paths": {},                                      /* Specify a set of entries that re-map imports to additional lookup locations. */
@@ -83,7 +83,7 @@
 
     /* Type Checking */
     "strict": true /* Enable all strict type-checking options. */,
-    "noImplicitAny": false,                            /* Enable error reporting for expressions and declarations with an implied 'any' type. */
+    "noImplicitAny": false /* Enable error reporting for expressions and declarations with an implied 'any' type. */,
     // "strictNullChecks": true,                         /* When type checking, take into account 'null' and 'undefined'. */
     // "strictFunctionTypes": true,                      /* When assigning functions, check to ensure parameters and the return values are subtype-compatible. */
     // "strictBindCallApply": true,                      /* Check that the arguments for 'bind', 'call', and 'apply' methods match the original function. */
@@ -107,5 +107,31 @@
     "skipLibCheck": true /* Skip type checking all .d.ts files. */
   },
   "exclude": ["node_modules"],
-  "include": ["./*.ts", "./models/*.ts", "./tests/*.ts", "./tests/**/*.ts", "./serializers/*.ts", "./deserializers/*.ts"]
+  "include": [
+    "./*.ts",
+    "./models/*.ts",
+    "./tests/*.ts",
+    "./tests/**/*.ts",
+    "./serializers/*.ts",
+    "./deserializers/*.ts",
+    "models/v1/admin.model.ts",
+    "models/v1/answer-selection.model.ts",
+    "models/v1/answer.model.ts",
+    "models/v1/assessment.model.ts",
+    "models/v1/base-model.ts",
+    "models/v1/course.model.ts",
+    "models/v1/creator.model.ts",
+    "models/v1/enrollment.model.ts",
+    "models/v1/exam.model.ts",
+    "models/v1/lesson-content.model.ts",
+    "models/v1/lesson.model.ts",
+    "models/v1/notification.model.ts",
+    "models/v1/question-attempt.model.ts",
+    "models/v1/question.model.ts",
+    "models/v1/quiz.model.ts",
+    "models/v1/review.model.ts",
+    "models/v1/student.model.ts",
+    "models/v1/submission.model.ts",
+    "models/v1/user.model.ts"
+  ]
 }

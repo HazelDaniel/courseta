@@ -1,9 +1,9 @@
 import { config } from "dotenv";
 config({ path: [".env", ".env.test"] });
-import { CourseModel } from "../models/course.model.js";
-import { LessonModel } from "../models/lesson.model.js";
-import { LessonContentModel } from "../models/lesson-content.model.js";
-import { QuizModel } from "../models/quiz.model.js";
+import { CourseModel } from "../models/v1/course.model.js";
+import { LessonModel } from "../models/v1/lesson.model.js";
+import { LessonContentModel } from "../models/v1/lesson-content.model.js";
+import { QuizModel } from "../models/v1/quiz.model.js";
 import { pool } from "../db";
 import { v4 as uuid } from "uuid";
 import { randomUUID } from "crypto";

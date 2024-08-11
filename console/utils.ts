@@ -1,5 +1,13 @@
+import { v1Config } from "./api/v1/config.js";
 import chalk from "chalk";
-import { BufferLike } from "./types";
+import crypto from "crypto";
+import { BufferLike, ConfigOption } from "./types";
+
+export class ServerError extends Error {
+  constructor(public readonly message: string, public readonly code: number) {
+    super(message);
+  }
+}
 
 export class ConsoleLogger {
   tileWidth = process.stdout.columns;
@@ -77,10 +85,61 @@ export const bufferToBase64: (inputBufferBuffer, mimeType: string) => string = (
   return `data:${mimeType};base64,${inputBuffer.toString("base64")}`;
 };
 
-export const base64toDataURL: (dataUrl: string, mimeType: string) => string | null = (
-  dataUrl,
-  mimeType
-) => {
+export const base64toDataURL: (
+  dataUrl: string,
+  mimeType: string
+) => string | null = (dataUrl, mimeType) => {
   if (!dataUrl) return null;
   return `data:${mimeType};base64,${dataUrl}`;
+};
+
+export const hashPassword: (
+  password: string,
+  existingSalt?: string,
+  hashOptions?: ConfigOption["hashingOptions"]
+) => Promise<string> = (
+  password,
+  existingSalt,
+  hashOptions = v1Config.hashingOptions
+) => {
+  return new Promise((resolve, reject) => {
+    const { iterations, digest, encoding, keyLength, saltByteCount } =
+      hashOptions;
+
+    let salt: string;
+    if (existingSalt) salt = existingSalt;
+    else salt = crypto.randomBytes(saltByteCount).toString(encoding);
+
+    try {
+      crypto.pbkdf2(
+        password,
+        salt,
+        iterations,
+        keyLength,
+        digest,
+        (err, derivedKey) => {
+          if (err) reject(err);
+          const hashedPassword = derivedKey.toString(encoding);
+          resolve(hashedPassword);
+        }
+      );
+    } catch (err) {
+      reject(err);
+    }
+  });
+};
+
+export const checkPasswordAgainstHash: (
+  password: string,
+  existingHash: string,
+  existingSalt: string
+) => Promise<boolean> = (password, existingHash, existingSalt) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const hashedPassword = await hashPassword(password, existingSalt);
+      resolve(hashedPassword === existingHash);
+    } catch (err) {
+      reject(err);
+    }
+  });
 };
