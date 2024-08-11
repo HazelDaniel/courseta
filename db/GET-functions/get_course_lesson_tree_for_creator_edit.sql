@@ -9,23 +9,30 @@ BEGIN
     title VARCHAR,
     content_count SMALLINT,
     total_duration SMALLINT,
-    quiz_id UUID,
-    total_points INT,
-    quiz_title TEXT,
-    content_title TEXT,
-    content_type courseta.LESSON_CONTENT_TYPE
+    contents JSONB,
+    quizzes JSONB
   ) AS
   $block1$
   BEGIN
+
     RETURN QUERY SELECT lessons.lesson_id, lessons.title,
-    lessons.content_count, lessons.total_duration, quizzes.quiz_id,
-    quizzes.total_points, quizzes.quiz_title,
-    lesson_contents.title content_title,
-    lesson_contents.content_type
+    lessons.content_count, lessons.total_duration,
+    json_agg(json_build_object(
+      'title', q.quiz_title,
+      'totalPoints', q.total_points,
+      'id', q.quiz_id
+    ))::JSONB quizzes,
+    json_agg(json_build_object(
+      'title', lc.title,
+      'contentType', lc.content_type,
+      'id', lc.lesson_content_id
+    ))::JSONB contents
     FROM courseta.lessons
-    LEFT JOIN courseta.quizzes USING (lesson_id)
-    LEFT JOIN courseta.lesson_contents USING (lesson_id)
-    WHERE lessons.course_id = course_id_;
+    LEFT JOIN courseta.quizzes q USING (lesson_id)
+    LEFT JOIN courseta.lesson_contents lc USING (lesson_id)
+    WHERE lessons.course_id = course_id_
+    GROUP BY lessons.lesson_id, lessons.title,
+    lessons.content_count, lessons.total_duration;
   END;
   $block1$ LANGUAGE PLPGSQL;
 
