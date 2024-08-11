@@ -5,7 +5,8 @@ import {
   CreatorSessionUserType,
   StudentAuthResponseType,
   StudentSessionUserType,
-} from "../../../types.d";
+} from "../../../types.js";
+// import { StudentSessionUserType } from "../../../types.js";
 import passport from "passport";
 
 export const creatorsLocalProtected = (

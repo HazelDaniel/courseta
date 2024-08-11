@@ -1,6 +1,6 @@
 import { CourseModel } from "../../../models/v1/course.model.js";
 import express from "express";
-import { ServerPayloadType } from "../../../types.js";
+import type { ServerPayloadType } from "../../../types";
 import { ReviewModel } from "../../../models/v1/review.model.js";
 import { StudentReviewPayloadType } from "../../../client.types.js";
 import { EnrollmentModel } from "../../../models/v1/enrollment.model.js";

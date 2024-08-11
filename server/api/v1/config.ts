@@ -1,7 +1,6 @@
 import { ConfigOption } from "../../types";
 import { config } from "dotenv";
-config({path: [".env"]});
-
+config({ path: [".env"] });
 
 export const v1Config: ConfigOption = {
   hashingOptions: {
@@ -12,8 +11,8 @@ export const v1Config: ConfigOption = {
     saltByteCount: 10,
   },
   serverOptions: {
-    imageServerBaseUrl: `http://localhost:${process.env.IMAGE_SERVER_PORT}/api/v1/images`
-  }
+    imageServerBaseUrl: `http://localhost:${process.env.IMAGE_SERVER_PORT}/api/v1/images`,
+  },
 };
 
 export default v1Config;

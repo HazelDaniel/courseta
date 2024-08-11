@@ -22,7 +22,7 @@ import type {
   CreatorAttributeUpdateType,
   CreatorSessionUserType,
   ServerPayloadType,
-} from "../../../types";
+} from "../../../types.d.ts";
 import { ServerError } from "../../../utils.js";
 import { CourseModel } from "../../../models/v1/course.model.js";
 import { LessonModel } from "../../../models/v1/lesson.model.js";

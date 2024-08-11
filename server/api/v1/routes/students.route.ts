@@ -9,7 +9,7 @@ import type {
   StudentAttributeUpdateType,
   StudentAuthResponseType,
   StudentSessionUserType,
-} from "../../../types";
+} from "../../../types.d";
 import { CourseModel } from "../../../models/v1/course.model.js";
 import { UserModel } from "../../../models/v1/user.model.js";
 import { AssessmentModel } from "../../../models/v1/assessment.model.js";
