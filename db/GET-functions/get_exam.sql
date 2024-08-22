@@ -14,7 +14,14 @@ BEGIN
     total_points INT
   ) AS
   $block1$
+  DECLARE
+    is_course_archived        BOOLEAN;
   BEGIN
+    SELECT INTO is_course_archived courses.archived FROM courseta.courses
+    WHERE courses.exam_id = exam_id_;
+    IF is_course_archived = 'true' THEN
+    RETURN;
+    END IF;
     RETURN QUERY SELECT exams.start_date, exams.end_date,
     exams.pass_score, exams.duration, exams.description, exams.question_count, exams.total_points
     FROM courseta.exams
