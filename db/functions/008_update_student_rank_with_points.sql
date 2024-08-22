@@ -7,6 +7,9 @@ BEGIN
   (student_points INT, student_id_ UUID) LANGUAGE PLPGSQL AS
   $block2$
   BEGIN
+    IF student_points < 0 THEN
+      RETURN;
+    END IF;
     UPDATE students SET rank =
     (CASE
     WHEN student_points >= 0 AND student_points < 200 THEN 'novice'::courseta.RANK_TYPE
