@@ -20,11 +20,10 @@ BEGIN
     JOIN courseta.courses USING (course_id) WHERE students__courses.student_id = student_id_
     AND courseta.students__courses.progress < 100
     ORDER BY courseta.students__courses.enrolled_at AT TIME ZONE ('UTC') DESC
-    LIMIT 1;
+    LIMIT 5;
   END;
   $block1$ LANGUAGE PLPGSQL;
 
   RAISE NOTICE '[SETUP]   (GET) FUNCTION: DONE setting up the get_student_recent_unfinished_course function.';
 END
 $block$ LANGUAGE PLPGSQL;
-
