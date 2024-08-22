@@ -5,6 +5,7 @@ BEGIN
 
   CREATE OR REPLACE FUNCTION get_course_exam_for_creator_edit (course_id_ BIGINT) RETURNS
   TABLE (
+    exam_id UUID,
     start_date TIMESTAMPTZ,
     end_date TIMESTAMPTZ,
     pass_score SMALLINT,
@@ -12,7 +13,7 @@ BEGIN
   ) AS
   $block1$
   BEGIN
-    RETURN QUERY SELECT exams.start_date, exams.end_date,
+    RETURN QUERY SELECT exams.exam_id, exams.start_date, exams.end_date,
     exams.pass_score, exams.duration
     FROM courseta.exams
     WHERE exams.course_id = course_id_;
