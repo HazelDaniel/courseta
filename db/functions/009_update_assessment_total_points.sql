@@ -63,7 +63,7 @@ BEGIN
   CREATE OR REPLACE FUNCTION p_02_remove_points_and_question_count_from_assessment () RETURNS TRIGGER AS
   $block1$
   BEGIN
-    CALL p_01_subtract_question_equiv_assessment_points_and_count(OLD.assessment_id, OLD.points, NEW.assessment_type);
+    CALL p_01_subtract_question_equiv_assessment_points_and_count(OLD.assessment_id, OLD.points, OLD.assessment_type);
 		RETURN OLD;
   END;
   $block1$ LANGUAGE PLPGSQL;
@@ -85,7 +85,15 @@ BEGIN
   END;
   $block2$;
 
+
   -- RAISE NOTICE '<[SETUP]  PROCEDURE/FUNCTION: DONE setting up procedures/functions for subtraction from the assessment.total_points.';
+
+  ------------------------------------ DEBUGGING---------------------------------------------
+  CREATE OR REPLACE VIEW debug_recent_question_attempt_points as (
+  SELECT ROW_NUMBER () OVER (PARTITION BY students__questions.assessment_id ORDER BY answered_at DESC), points_accumulated, question_id, answered_at, quizzes.assessment_id FROM students__questions
+  JOIN courseta.questions USING (question_id)
+  JOIN courseta.quizzes ON (quizzes.assessment_id = questions.assessment_id)
+  );
 
   -- RAISE NOTICE '[SETUP]  PROCEDURE/FUNCTION: DONE setting up procedures/functions for update of the assessment.total_points.';
 END
