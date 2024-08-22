@@ -31,6 +31,7 @@ BEGIN
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     password TEXT NOT NULL,
     salt TEXT NOT NULL,
+    validated BOOLEAN DEFAULT 'false',
     UNIQUE(email),
     role courseta.USER_ROLE_TYPE NOT NULL DEFAULT 'student' CHECK (role = 'student')
   );
@@ -42,6 +43,7 @@ BEGIN
     last_name VARCHAR(100) NOT NULL,
     password TEXT NOT NULL,
     salt TEXT NOT NULL,
+    validated BOOLEAN DEFAULT 'false',
     creator_pass TEXT NOT NULL DEFAULT gen_random_uuid()::TEXT,
     average_course_rating NUMERIC(2, 1) NOT NULL DEFAULT 5.0,
     course_review_count INT NOT NULL DEFAULT 0,
@@ -169,7 +171,7 @@ BEGIN
     points SMALLINT NOT NULL,
     assessment_id UUID NOT NULL,
     assessment_type courseta.ASSESSMENT_TYPE NOT NULL,
-    FOREIGN KEY (assessment_id) REFERENCES courseta.quizzes(assessment_id) ON DELETE CASCADE
+    FOREIGN KEY (assessment_id) REFERENCES courseta.assessments(assessment_id) ON DELETE CASCADE
   );
 
   CREATE TABLE IF NOT EXISTS courseta.answers (
