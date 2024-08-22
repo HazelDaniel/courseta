@@ -2,6 +2,10 @@
 	: will worry about this later, courses can't be deleted if the student count is greater than 0 anyway
 > not fully certain but the lesson counts > quiz count > content count > may not be aggregated correctly . test them
 
+> fix the ordering of the result set to avoid inconsistency on the client side (useful for pagination)
+
+> the progress of a student on the courses (even points) are not being updated with the assessments added or removed from the courses/lessons
+> whenever students unenroll from a course, their points from the related assessments (quizzes) should be removed
 
 
 MAKE SURE THAT EACH OF THESE CRUD OPERATIONS HAVE ACCESS CONTROLS BASED ON THEIR CREATORS (creator a can't be seen updating the course of creator b)
@@ -30,3 +34,4 @@ EXTENDED FEATURES:
 	>> change link
 	>> change duration
 	>> change content type
+> categories (probably self-referential tables)
