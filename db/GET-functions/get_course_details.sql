@@ -15,14 +15,17 @@ BEGIN
     student_count INT,
     updated_at TIMESTAMPTZ,
     course_length INT,
-    average_rating NUMERIC
+    average_rating NUMERIC,
+    exam_id UUID
   ) AS
   $block1$
   BEGIN
     RETURN QUERY SELECT courses.title, courses.lesson_count, courses.description, courses.review_count,
-    translate(encode(courses.avatar, 'base64'), E' \t\n\r', ''), courses.avatar_meta, courses.creator_id, courses.student_count, courses.updated_at, courses.course_length, courses.average_rating
+    translate(encode(courses.avatar, 'base64'), E' \t\n\r', ''), courses.avatar_meta, courses.creator_id,
+    courses.student_count, courses.updated_at, courses.course_length, courses.average_rating, courses.exam_id
     FROM courseta.courses
-    WHERE courses.course_id = course_id_;
+    WHERE courses.course_id = course_id_
+    AND courses.archived = 'false';
   END;
   $block1$ LANGUAGE PLPGSQL;
 
