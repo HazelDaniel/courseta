@@ -14,7 +14,8 @@ BEGIN
   $block1$
   BEGIN
     RETURN QUERY SELECT courses.title, courses.lesson_count, translate(encode(courses.avatar, 'base64'), E' \t\n\r', ''), courses.avatar_meta, courses.course_id
-    FROM courseta.courses;
+    FROM courseta.courses
+    WHERE courses.archived = 'false';
   END;
   $block1$ LANGUAGE PLPGSQL;
 
