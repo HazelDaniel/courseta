@@ -4,16 +4,17 @@
 if [[ $1 == 'test' ]]; then
 	BACKUP_DIR_PATH='./backup_test';
 	SEED_DB='courseta_test';
-	source ./.environment.zshrc
 else
 	BACKUP_DIR_PATH='./backup';
 	SEED_DB='courseta';
-	source ./.environment.zshrc
 fi
 
 source ./.environment.zshrc
 echo "populating schema..."
-psql -Utoughware -hlocalhost -d$SEED_DB -f "$(find $BACKUP_DIR_PATH/schema -type f | sort -n | tail -n 1)" &&\
+
+if [[ $1 != 'test' ]]; then
+	psql -Utoughware -hlocalhost -d$SEED_DB -f "$(find $BACKUP_DIR_PATH/schema -type f | sort -n | tail -n 1)"
+fi &&\
 echo "done" &&\
 
 echo "disabling triggers...";
