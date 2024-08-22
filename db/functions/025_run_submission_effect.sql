@@ -27,7 +27,6 @@ BEGIN
     -- EFFECT 2b: result generation and score update on assessment_results
     PERFORM p_02_deduct_student_existing_points(NEW.student_id, NEW.assessment_id, NEW.submitted_at);
 
-
     UPDATE students SET points = points + tot_points_agg
 		WHERE students.student_id = NEW.student_id;
 
@@ -36,7 +35,7 @@ BEGIN
     CALL p_01_update_score_on_assessment_result(NEW.student_id, NEW.assessment_id, NEW.submitted_at, gen_result_id);
 
     -- EFFECT 3: progress field update on students__courses
-    CALL p_01_update_progress_for_course(NEW.assessment_id, NEW.student_id, NEW.submitted_at);
+    CALL p_01_update_course_progress_from_assessment (NEW.assessment_id, NEW.student_id, NEW.submitted_at);
 
     tot_points_agg := 0;
     gen_result_id := NULL;
