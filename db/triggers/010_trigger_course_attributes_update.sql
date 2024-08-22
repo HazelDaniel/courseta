@@ -84,12 +84,6 @@ BEGIN
 
   -- RAISE NOTICE '<[SETUP]   TRIGGER: updating course.progress update triggers ...';
 
-  CREATE OR REPLACE TRIGGER trigger_02_course_progress_update
-  AFTER UPDATE
-  ON students__assessments
-  FOR EACH ROW
-  EXECUTE FUNCTION p_02_update_equiv_course_progress();
-
   -- RAISE NOTICE '<[SETUP]   TRIGGER: DONE updating course.progress update triggers ...';
 
 
