@@ -19,6 +19,7 @@ BEGIN
     FROM courseta.students__courses
     JOIN courseta.courses USING (course_id) WHERE students__courses.student_id = student_id_
     AND courseta.students__courses.progress < 100
+    AND courseta.courses.archived = 'false'
     ORDER BY courseta.students__courses.enrolled_at AT TIME ZONE ('UTC') DESC
     LIMIT 5;
   END;
