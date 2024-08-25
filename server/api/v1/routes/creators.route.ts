@@ -3,7 +3,6 @@ import express, { Request } from "express";
 import passport from "passport";
 import {
   creatorIDProtected,
-  serializeDeserializeUser,
   creatorsLocalProtected,
 } from "../middlewares/auth.middleware.js";
 
@@ -33,16 +32,16 @@ import { UserModel } from "../../../models/v1/user.model.js";
 import { ExamModel } from "../../../models/v1/exam.model.js";
 import { QuestionModel } from "../../../models/v1/question.model.js";
 import { AnswerModel } from "../../../models/v1/answer.model.js";
-import { pgPool } from "../../../db.utils.js";
 import fetch from "node-fetch";
 import v1Config from "../config.js";
+import { AssessmentModel } from "../../../models/v1/assessment.model.js";
 
 export const v1CreatorsRouter = express.Router();
 
 // ROUTER MIDDLEWARES
 
 v1CreatorsRouter.use(passport.initialize());
-v1CreatorsRouter.use(serializeDeserializeUser);
+// v1CreatorsRouter.use(serializeDeserializeUser);
 
 // ROUTE HANDLERS (AUTH)
 
@@ -114,6 +113,27 @@ v1CreatorsRouter.get(
 );
 
 v1CreatorsRouter.get(
+  "/:creator_id/courses/top",
+  creatorIDProtected,
+  async (req, res, next) => {
+    try {
+      const { user } = req;
+      const { creator_id: creatorID } = req.params;
+      const resCourses = await CourseModel.getTopCoursesFor(creatorID);
+      const resPayload: ServerPayloadType<typeof resCourses> = {
+        payload: resCourses,
+        message: null,
+        ...(() => (user ? ({ user } as Express.User) : null))(),
+      };
+      return res.status(200).json(resPayload);
+    }
+    catch (err) {
+      next(err);
+    }
+  }
+);
+
+v1CreatorsRouter.get(
   "/:creator_id/courses/:course_id/edit",
   creatorIDProtected,
   async (req, res, next) => {
@@ -160,7 +180,7 @@ v1CreatorsRouter.get(
     try {
       const { assessment_id: assessmentID } = req.params;
       const { user } = req;
-      const resData = await QuestionModel.fetchForAssessmentEdit(assessmentID);
+      const resData = await AssessmentModel.fetchForCourseEdit(assessmentID);
       const resPayload: ServerPayloadType<typeof resData> = {
         message: null,
         payload: resData,
@@ -291,7 +311,6 @@ v1CreatorsRouter.put(
         trashQuestionIDList,
         parentEntityID,
       } = assessmentUpdatePayload;
-      let ranOnce: boolean = false;
       for (let i = 0; i < questionDataList.length; i++) {
         const entryQuestion = questionDataList[i];
         const { points, positionID, questionText } = entryQuestion;
@@ -316,12 +335,10 @@ v1CreatorsRouter.put(
             pendingQuestion.answersData = pendingAnswer;
           }
         }
-        if (!ranOnce)
-          for (let k = 0; k < trashQuestionIDList.length; k++) {
-            pendingQuestion.trashData = trashQuestionIDList[k];
-            ranOnce = true;
-          }
         pendingQuestion.save();
+      }
+      for (let k = 0; k < trashQuestionIDList.length; k++) {
+        QuestionModel.trashData(trashQuestionIDList[k]);
       }
 
       await QuestionModel.saveAll();
@@ -527,22 +544,28 @@ v1CreatorsRouter.post(
         undefined,
         generatedImageID
       );
+      let imageUploadRequest: any = null;
       const imageUploadpayload: ImageCreationPayloadType = {
         id: generatedImageID,
         imageUrl: courseImage,
       };
-      const imageUploadRequest = await fetch(
-        v1Config.serverOptions.imageServerBaseUrl,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          method: "post",
-          body: JSON.stringify(imageUploadpayload),
-        }
-      );
+      if (!!courseImage)
+        imageUploadRequest = await fetch(
+          v1Config.serverOptions.imageServerBaseUrl,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Cookie: "",
+            },
+            method: "post",
+            body: JSON.stringify(imageUploadpayload),
+          }
+        );
 
-      if (imageUploadRequest.ok) {
+      if (
+        !imageUploadRequest ||
+        (imageUploadRequest && imageUploadRequest.ok)
+      ) {
         const courseID = await pendingCourse.save(creatorID);
         const resPayload: ServerPayloadType<number> = {
           payload: courseID,
@@ -610,10 +633,28 @@ v1CreatorsRouter.post(
       const { creator_id: creatorID, course_id: courseID } = req.params;
       await CourseModel.archive(+courseID, creatorID);
       const resPayload: ServerPayloadType<string> = {
-        message: "course archive successfully!",
+        message: "course archived successfully!",
         ...(() => (req.user ? ({ user: req.user } as Express.User) : null))(),
       };
       return res.status(204).json(resPayload);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+v1CreatorsRouter.post(
+  "/:creator_id/courses/:course_id/unarchive",
+  creatorIDProtected,
+  async (req, res, next) => {
+    try {
+      const { creator_id: creatorID, course_id: courseID } = req.params;
+      await CourseModel.unarchive(+courseID, creatorID);
+      const resPayload: ServerPayloadType<string> = {
+        message: "course unarchived successfully!",
+        ...(() => (req.user ? ({ user: req.user } as Express.User) : null))(),
+      };
+      return res.status(200).json(resPayload);
     } catch (err) {
       next(err);
     }
@@ -683,6 +724,24 @@ v1CreatorsRouter.delete(
       await CourseModel.delete(+courseID, creatorID);
       const resPayload: ServerPayloadType<string> = {
         message: "course deleted successfully!",
+        ...(() => (req.user ? ({ user: req.user } as Express.User) : null))(),
+      };
+      return res.status(204).json(resPayload);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+v1CreatorsRouter.delete(
+  "/:creator_id/courses/:course_id/lessons/:lesson_id",
+  creatorIDProtected,
+  async (req, res, next) => {
+    try {
+      const { lesson_id: lessonID } = req.params;
+      await LessonModel.delete(+lessonID);
+      const resPayload: ServerPayloadType<string> = {
+        message: "lesson deleted successfully!",
         ...(() => (req.user ? ({ user: req.user } as Express.User) : null))(),
       };
       return res.status(204).json(resPayload);
