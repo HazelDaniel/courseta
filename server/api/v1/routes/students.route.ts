@@ -2,7 +2,7 @@ import express, { Request } from "express";
 import passport from "passport";
 import { UserAuthPayloadType } from "../../../client.types";
 import { StudentModel } from "../../../models/v1/student.model.js";
-import { ServerError } from "../../../utils.js";
+import { ServerError, log } from "../../../utils.js";
 import type {
   CourseViewType,
   ServerPayloadType,
@@ -18,11 +18,13 @@ import {
   serializeDeserializeUser,
   studentsLocalProtected,
 } from "../middlewares/auth.middleware.js";
+import v1Config from "../config.js";
+
 
 export const v1StudentsRouter = express.Router();
 
 v1StudentsRouter.use(passport.initialize());
-v1StudentsRouter.use(serializeDeserializeUser);
+// v1StudentsRouter.use(serializeDeserializeUser);
 
 v1StudentsRouter.post("/auth/signup", async (req, res, next) => {
   try {
@@ -98,6 +100,7 @@ v1StudentsRouter.get(
         payload: recommendedCourses,
         ...(() => (req.user ? ({ user: req.user } as Express.User) : null))(),
       };
+
       return res.status(200).json(resPayload);
     } catch (err) {
       next(err);
@@ -188,6 +191,22 @@ v1StudentsRouter.put(
         ...(() => (req.user ? ({ user: req.user } as Express.User) : null))(),
       };
       return res.status(200).json(resPayload);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+
+v1StudentsRouter.post(
+  "/:student_id/logout",
+  studentIDProtected,
+  async (req, res, next) => {
+    try {
+      req.logOut((err) => {
+        if (err) return next(err);
+        return res.status(200).json();
+      });
     } catch (err) {
       next(err);
     }
