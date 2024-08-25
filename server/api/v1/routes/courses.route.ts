@@ -1,8 +1,8 @@
 import { CourseModel } from "../../../models/v1/course.model.js";
 import express from "express";
-import type { ServerPayloadType } from "../../../types";
+import type { CourseDetailViewType, ServerPayloadType, SessionUserType } from "../../../types";
 import { ReviewModel } from "../../../models/v1/review.model.js";
-import { StudentReviewPayloadType } from "../../../client.types.js";
+import { StudentEnrollPayloadType, StudentReviewPayloadType } from "../../../client.types.js";
 import { EnrollmentModel } from "../../../models/v1/enrollment.model.js";
 import { ExamModel } from "../../../models/v1/exam.model.js";
 import { QuizModel } from "../../../models/v1/quiz.model.js";
@@ -81,9 +81,13 @@ v1CoursesRouter.get("/:course_id", async (req, res, next) => {
   try {
     const { course_id: courseID } = req.params;
     const { user } = req;
-    const resCoursePayload = await CourseModel.search(+courseID);
-    const resPayload: ServerPayloadType<(typeof resCoursePayload)["detail"]> = {
-      payload: resCoursePayload.detail,
+    const resCoursePromise =  CourseModel.search(+courseID);
+    const studentEnrollmentStatus = EnrollmentModel.confirmEnrollment((req.user as SessionUserType)?.id || "", courseID);
+    const resPromises = await Promise.all([resCoursePromise, studentEnrollmentStatus])
+    const status: boolean = resPromises[1];
+
+    const resPayload: ServerPayloadType<(typeof resPromises[0])["detail"]> = {
+      payload: {...resPromises[0].detail, isEnrolled: status } as CourseDetailViewType,
       message: null,
       ...(() => (user ? ({ user } as Express.User) : null))(),
     };
@@ -97,7 +101,7 @@ v1CoursesRouter.get("/:course_id/exams/:exam_id", async (req, res, next) => {
   try {
     const { exam_id: assessmentID } = req.params;
     const { user } = req;
-    const resultAssessment = await ExamModel.search(assessmentID);
+    const resultAssessment = await ExamModel.search(assessmentID, "edit");
     const resPayload: ServerPayloadType<typeof resultAssessment> = {
       payload: resultAssessment,
       message: null,
@@ -176,9 +180,9 @@ v1CoursesRouter.post("/:course_id/enroll", async (req, res, next) => {
   try {
     const { course_id: courseID } = req.params;
     const { user } = req;
-    const reviewPayload: StudentReviewPayloadType =
-      req.body as StudentReviewPayloadType;
-    const { rating, reviewText, studentID } = reviewPayload;
+    const reviewPayload: StudentEnrollPayloadType =
+      req.body as StudentEnrollPayloadType;
+    const { studentID } = reviewPayload;
     const enrollment = new EnrollmentModel(studentID as string, courseID);
     await enrollment.save();
     const resPayload: ServerPayloadType<null> = {
@@ -186,7 +190,27 @@ v1CoursesRouter.post("/:course_id/enroll", async (req, res, next) => {
       message: "student enrolled successfully!",
       ...(() => (user ? ({ user } as Express.User) : null))(),
     };
-    return res.status(201).json(resPayload);
+    return res.status(200).json(resPayload);
+  } catch (err) {
+    next(err);
+  }
+});
+
+
+v1CoursesRouter.post("/:course_id/unenroll", async (req, res, next) => {
+  try {
+    const { course_id: courseID } = req.params;
+    const { user } = req;
+    const reviewPayload: StudentEnrollPayloadType =
+      req.body as StudentEnrollPayloadType;
+    const { studentID } = reviewPayload;
+    const enrollment = await EnrollmentModel.delete(studentID as string, courseID);
+    const resPayload: ServerPayloadType<null> = {
+      payload: null,
+      message: "student unenrolled successfully!",
+      ...(() => (user ? ({ user } as Express.User) : null))(),
+    };
+    return res.status(200).json(resPayload);
   } catch (err) {
     next(err);
   }
