@@ -1,9 +1,11 @@
 import { ErrorBoundary } from "../middlewares/error.middleware.js";
 import { v1AssessmentsRouter } from "./assessments.route.js";
-import { v1StudentsRouter } from "./students.route.js";
 import { v1CoursesRouter } from "./courses.route.js";
 import { v1CreatorsRouter } from "./creators.route.js";
-import express, { NextFunction, Request, Response } from "express";
+import { v1ExamsRouter } from "./exams.route.js";
+import { v1StudentsRouter } from "./students.route.js";
+import { v1QuizzesRouter } from "./quizzes.route.js";
+import express from "express";
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 
@@ -15,6 +17,7 @@ import { UserAuthPayloadType } from "../../../client.types.js";
 import { CreatorModel } from "../../../models/v1/creator.model.js";
 import { ServerError, checkPasswordAgainstHash } from "../../../utils.js";
 import { StudentModel } from "../../../models/v1/student.model.js";
+import { ServerPayloadType } from "../../../types.js";
 
 const pgSession = connectPgSimple(expressSession);
 
@@ -45,6 +48,8 @@ v1Router.use(
   })
 );
 
+v1Router.use(serializeDeserializeUser);
+
 passport.use(
   "creators_local",
   new LocalStrategy(
@@ -55,7 +60,6 @@ passport.use(
     },
     async (req, email, password, done) => {
       try {
-        console.log("hit the creators local");
         const creatorAuthPayload: UserAuthPayloadType =
           req.body as UserAuthPayloadType;
         const { creatorPass } = creatorAuthPayload;
@@ -95,7 +99,6 @@ passport.use(
       passReqToCallback: true,
     },
     async (req, email, password, done) => {
-      console.log("hit the students local");
       const resultStudent = await StudentModel.lookUp(email);
       if (!resultStudent)
         return done(new ServerError("invalid credentials!", 401));
@@ -113,21 +116,33 @@ passport.use(
 
 v1Router.use(passport.initialize());
 v1Router.use(passport.session());
-v1Router.use(serializeDeserializeUser);
+
+v1Router.use(async (req, res, next) => {
+  console.log(
+    `[${req.method}] TO: ${req.baseUrl}${
+      req.url
+    }, AT: ${new Date().toString()}, FROM: ${req.ip}`
+  );
+  next();
+});
 
 v1Router.use("/creators", v1CreatorsRouter);
 v1Router.use("/courses", v1CoursesRouter);
 v1Router.use("/students", v1StudentsRouter);
 v1Router.use("/assessments", v1AssessmentsRouter);
+v1Router.use("/exams", v1ExamsRouter);
+v1Router.use("/quizzes", v1QuizzesRouter);
 
-v1Router.use(async (req, res, next) => {
-  console.log(`[${req.method}]: ${req.baseUrl}${req.url}`);
-  next();
-});
-
-v1Router.get("/", async (req, res, next) => {
+v1Router.get("/users/current", async (req, res, next) => {
   try {
-    return res.status(200).json({ message: "welcome" });
+    const { user } = req;
+
+    const resPayload: ServerPayloadType<null> = {
+      payload: null,
+      message: "",
+      ...(() => (user ? ({ user } as Express.User) : null))(),
+    };
+    return res.status(200).json(resPayload);
   } catch (err) {
     next(err);
   }
