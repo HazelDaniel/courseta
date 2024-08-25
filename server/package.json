@@ -49,6 +49,7 @@
     "@types/express-session": "^1.18.0",
     "@types/passport": "^1.0.16",
     "@types/passport-local": "^1.0.38",
-    "@types/pg": "^8.11.6"
+    "@types/pg": "^8.11.6",
+    "typescript": "^5.5.4"
   }
 }
