@@ -228,8 +228,7 @@ BEGIN
     student_id UUID NOT NULL,
     course_id BIGINT NOT NULL,
     enrolled_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    progress SMALLINT NOT NULL DEFAULT 0 CHECK (progress <= 100 AND progress >= 0), -- remember to toggle this back on after testing
-    -- progress SMALLINT NOT NULL DEFAULT 0,
+    progress SMALLINT NOT NULL DEFAULT 0 CHECK (progress <= 100 AND progress >= 0),
     PRIMARY KEY (student_id, course_id),
     FOREIGN KEY (student_id) REFERENCES courseta.students(student_id) ON DELETE CASCADE,
     FOREIGN KEY (course_id) REFERENCES courseta.courses(course_id) ON DELETE CASCADE

@@ -26,7 +26,7 @@ BEGIN
       ON CONFLICT (student_id, course_id) DO UPDATE
       SET rating = EXCLUDED.rating, review_text = EXCLUDED.review_text, created_at = CURRENT_TIMESTAMP;
     ELSE
-      RAISE EXCEPTION 'this student [%] cannot make review! on course id : %', student_id_, course_id_;
+      RAISE EXCEPTION 'you have to enroll to make review!';
     END IF;
   END;
   $block1$ LANGUAGE PLPGSQL;
