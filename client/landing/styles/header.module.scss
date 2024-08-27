@@ -8,6 +8,8 @@ header {
   justify-content: space-between;
   align-items: center;
   padding: 0 var(--padding_XL);
+  background-color: var(--bg-color);
+  z-index: 3;
 
   .logo_parent {
     height: 80%;
@@ -33,6 +35,30 @@ header {
       height: 100%;
       font-family: Poppins;
       font-weight: 500;
+      @media screen and (max-width: 800px) {
+        position: fixed;
+        width: 100%;
+        bottom: 0;
+        left: 0;
+        display: flex;
+        align-items: center;
+        height: 10rem;
+        ul {
+          width: 100%;
+          height: 100%;
+          justify-content: space-evenly !important;
+          gap: unset;
+          backdrop-filter: blur(5px);
+          li {
+            margin-right: unset;
+            margin: 0 auto !important;
+            text-align: center;
+            a {
+              font-size: calc(var(--font_M) * 1.15);
+            }
+          }
+        }
+      }
       ul {
         list-style-type: none;
         display: flex;

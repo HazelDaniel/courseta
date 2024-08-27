@@ -10,8 +10,12 @@
   overflow: hidden;
   justify-content: space-between;
   align-items: center;
-  .hero_flare {
-    position: absolute;
+  @media screen and (max-width: 800px) {
+    height: 100vh;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: calc(var(--margin_XL) * 2.5);
+    overflow: visible;
   }
   .hero_bg {
     position: absolute;
@@ -39,6 +43,9 @@
     flex-direction: column;
     align-items: flex-start;
     justify-content: flex-start;
+    @media screen and (max-width: 800px) {
+      margin-top: calc(var(--margin_XL) * 1.5);
+    }
     gap: 5rem;
     .hero_lt {
       width: 100%;
@@ -62,6 +69,7 @@
       color: var(--primary-color);
       h2 {
         font-weight: 400;
+        text-transform: capitalize;
       }
     }
   }
@@ -70,6 +78,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
+  @media screen and (max-width: 800px) {
+    height: 50%;
+    flex-direction: column;
+    align-items: flex-start;
+  }
     img {
       height: 100%;
     }

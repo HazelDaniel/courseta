@@ -9,7 +9,7 @@ html {
     font-size: 0.5vw;
   }
   @media screen and (max-width: 800px) {
-    font-size: 7px;
+    font-size: 5px;
   }
   @media screen and (min-width: 1500px) {
     font-size: 10px;
@@ -55,6 +55,7 @@ body {
     gap: 2rem;
     background-color: var(--bg-color);
     flex-direction: column;
+    overflow-x: hidden;
     @media screen and (max-width: 800px) {
       gap: unset;
     }
@@ -107,4 +108,26 @@ section:not(:first-of-type) {
   --font_L: 3rem;
   --font_ML: 5rem;
   --font_XL: 6rem;
+}
+
+@media screen and (max-width: 800px) {
+:root {
+  // box model
+  --padding_S: .25rem;
+  --padding_M: 0.75rem;
+  --padding_L: 1.25rem;
+  --padding_XL: 2.5rem;
+
+  --margin_S: .5rem;
+  --margin_M: 1.5rem;
+  --margin_L: 2.5rem;
+  --margin_XL: 5rem;
+
+  // typography
+  --font_S: 1.5rem;
+  --font_M: 2.2rem;
+  --font_L: 3rem;
+  --font_ML: 5rem;
+  --font_XL: 6rem;
+}
 }

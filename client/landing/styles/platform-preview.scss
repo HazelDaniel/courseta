@@ -22,22 +22,37 @@
     align-items: flex-end;
     justify-content: space-between;
     margin-bottom: var(--margin_XL);
+    @media screen and (max-width: 800px) {
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-end;
+      gap: 2rem;
+    }
     h2,
     div:not(.flower_icon) {
       height: 50%;
       display: flex;
       align-items: inherit;
+      @media screen and (max-width: 800px) {
+        height: 20%;
+        align-items: flex-end;
+      }
     }
     .flower_icon {
       position: absolute;
       overflow: hidden;
       content: "";
       display: block;
-      top: 0;
       height: 25rem;
       width: 25rem;
       right: 25%;
       top: -5rem;
+      @media screen and (max-width: 800px) {
+        height: 20rem;
+        width: 20rem;
+        top: -2rem;
+        right: 0%;
+      }
       svg {
         height: 100%;
       }
@@ -73,13 +88,149 @@
       width: 60%;
       min-width: 60rem;
       border-radius: 5rem;
-      height: 60rem;
+      height: 80rem;
       background-color: #cac8c81f;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       @media screen and (max-width: 800px) {
         width: 100%;
       }
+      h3 {
+        font-size: var(--font_ML);
+        font-family: clash_display;
+        width: 80%;
+        text-wrap: balance;
+        &::first-letter {
+          text-transform: capitalize;
+        }
+      }
+
+      &:not(.slim) {
+        padding-left: calc(var(--padding_L) * 1.2);
+        .portion_left,
+        .portion_right {
+          height: 70%;
+          overflow: hidden;
+          flex: 1;
+        }
+        .portion_left {
+          width: 45%;
+          .portion_left_header {
+            width: 100%;
+            height: 3rem;
+            overflow: hidden;
+            display: flex;
+            gap: 2rem;
+            @media screen and (max-width: 800px) {
+              gap: 1rem;
+            }
+            align-items: center;
+            margin-bottom: 5%;
+            span {
+              height: 100%;
+              width: 3rem;
+              svg {
+                width: 100%;
+                height: 100%;
+                transform: scale(0.6);
+                transform-origin: center;
+              }
+            }
+            p {
+              font-size: 2rem;
+              font-family: poppins;
+              font-weight: 500;
+              color: var(--brown-color);
+            }
+          }
+          h3 {
+            margin-bottom: 30%;
+          }
+
+          button {
+            @extend ._button;
+            height: 6rem;
+            margin-left: 0.5rem;
+          }
+        }
+        .portion_right {
+          padding-top: var(--padding_L);
+          display: flex;
+          justify-content: flex-end;
+          align-items: center;
+          img {
+            height: 100%;
+            margin-left: auto;
+            right: 0;
+          }
+        }
+      }
       &.slim {
+        flex-direction: column;
         flex: 1;
+        .portion_top {
+          width: 100%;
+          height: max-content;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+          margin-bottom: var(--margin_M);
+          .creator_count_area {
+            position: absolute;
+            width: 20rem;
+            height: 20rem;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            background-color: var(--bright-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+
+            p {
+              font-size: var(--font_ML);
+              font-weight: 500;
+            }
+            span {
+              width: 70%;
+              height: 5rem;
+              border-radius: 8rem;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: var(--font_M);
+              background-color: #e9c998ec;
+            }
+          }
+          img {
+            width: 60%;
+          }
+        }
+        .portion_bottom {
+          flex: 1;
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 20%;
+          h3 {
+            text-wrap: balance;
+            text-align: center;
+            width: 90%;
+          }
+          button {
+            @extend ._button;
+            height: 6rem;
+            width: 25rem !important;
+          }
+        }
       }
     }
   }
