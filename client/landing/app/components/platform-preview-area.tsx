@@ -36,9 +36,52 @@ export const PlatformPreviewArea: React.FC = () => {
         </div>
       </div>
       <div className="platform_preview_bottom">
-        <div className="preview_portion"></div>
+        <div className="preview_portion">
+          <div className="portion_left">
+            <div className="portion_left_header">
+              <span>
+                <svg
+                  viewBox="0 0 20 21"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3.81475 21L5.45551 13.2335L0 8.01204L7.18624 7.325L10.0007 0L12.8151 7.32354L20 8.01058L14.5445 13.2321L16.1866 20.9985L10.0007 16.8763L3.81475 21Z"
+                    fill="#E1A03D"
+                  />
+                </svg>
+              </span>
+              <p>collaboarate with creators</p>
+            </div>
+            <h3>give your students the best experience</h3>
+            <button className="btn_primary btn_round">
+              explore our community
+            </button>
+          </div>
+          <div className="portion_right">
+            <img
+              src="/illustrations/platform_preview_illustration_image.png"
+              alt="an illustration image that highlights the features of the platform"
+            />
+          </div>
+        </div>
 
-        <div className="preview_portion slim"></div>
+        <div className="preview_portion slim">
+          <div className="portion_top">
+            <img
+              src="/images/linked_students.png"
+              alt="a picture containing two students emojis linked together , representing community"
+            />
+            <div className="creator_count_area">
+              <p>2.5K</p>
+              <span>students</span>
+            </div>
+          </div>
+          <div className="portion_bottom">
+            <h3>meet and connect with other active students</h3>
+            <button className="btn_primary btn_round">join us now</button>
+          </div>
+        </div>
       </div>
     </section>
   );
