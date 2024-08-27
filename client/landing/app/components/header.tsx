@@ -23,7 +23,7 @@ export const Header: React.FC = () => {
               <Link to="">vision</Link>
             </li>
             <li>
-              <Link to="">testimonials</Link>
+              <Link to="#faq">Faq</Link>
             </li>
           </ul>
         </nav>
