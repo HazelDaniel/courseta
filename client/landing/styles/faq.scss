@@ -7,6 +7,10 @@
   padding: 0 var(--padding_XL);
   display: flex;
   flex-direction: column;
+  @media screen and (max-width: 800px) {
+    margin-bottom: calc(var(--margin_XL) * 2) !important;
+  }
+
   .faq_header {
     position: relative;
     margin-bottom: calc(var(--margin_XL) * 0.8);

@@ -12,7 +12,7 @@ export const HeroCarousel: React.FC = () => {
           }
         >
           <img
-            src="/public/images/compressed/compressed_image_35.jpg"
+            src="/images/compressed/compressed_image_35.jpg"
             alt="testimonial card"
             loading="lazy"
           />
@@ -56,7 +56,7 @@ export const HeroCarousel: React.FC = () => {
           }
         >
           <img
-            src="/public/images/compressed/compressed_image_35.jpg"
+            src="/images/compressed/compressed_image_35.jpg"
             alt="testimonial card"
             loading="lazy"
           />
@@ -100,7 +100,7 @@ export const HeroCarousel: React.FC = () => {
           }
         >
           <img
-            src="/public/images/compressed/compressed_image_35.jpg"
+            src="/images/compressed/compressed_image_35.jpg"
             alt="testimonial card"
             loading="lazy"
           />
@@ -144,7 +144,7 @@ export const HeroCarousel: React.FC = () => {
           }
         >
           <img
-            src="/public/images/compressed/compressed_image_35.jpg"
+            src="/images/compressed/compressed_image_35.jpg"
             alt="testimonial card"
             loading="lazy"
           />
