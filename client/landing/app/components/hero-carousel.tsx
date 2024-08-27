@@ -14,6 +14,7 @@ export const HeroCarousel: React.FC = () => {
           <img
             src="/public/images/compressed/compressed_image_35.jpg"
             alt="testimonial card"
+            loading="lazy"
           />
         </li>
 
@@ -29,6 +30,7 @@ export const HeroCarousel: React.FC = () => {
               <img
                 src="/images/compressed/compressed_image_30.jpg"
                 alt="avatar image of a social card component"
+                loading="lazy"
               />
               <div>
                 <h3>daniel emmanuel</h3>
@@ -56,6 +58,7 @@ export const HeroCarousel: React.FC = () => {
           <img
             src="/public/images/compressed/compressed_image_35.jpg"
             alt="testimonial card"
+            loading="lazy"
           />
         </li>
 
@@ -71,6 +74,7 @@ export const HeroCarousel: React.FC = () => {
               <img
                 src="/images/compressed/compressed_image_30.jpg"
                 alt="avatar image of a social card component"
+                loading="lazy"
               />
               <div>
                 <h3>daniel emmanuel</h3>
@@ -98,6 +102,7 @@ export const HeroCarousel: React.FC = () => {
           <img
             src="/public/images/compressed/compressed_image_35.jpg"
             alt="testimonial card"
+            loading="lazy"
           />
         </li>
 
@@ -113,6 +118,7 @@ export const HeroCarousel: React.FC = () => {
               <img
                 src="/images/compressed/compressed_image_30.jpg"
                 alt="avatar image of a social card component"
+                loading="lazy"
               />
               <div>
                 <h3>daniel emmanuel</h3>
@@ -140,6 +146,7 @@ export const HeroCarousel: React.FC = () => {
           <img
             src="/public/images/compressed/compressed_image_35.jpg"
             alt="testimonial card"
+            loading="lazy"
           />
         </li>
 
@@ -155,6 +162,7 @@ export const HeroCarousel: React.FC = () => {
               <img
                 src="/images/compressed/compressed_image_30.jpg"
                 alt="avatar image of a social card component"
+                loading="lazy"
               />
               <div>
                 <h3>daniel emmanuel</h3>
