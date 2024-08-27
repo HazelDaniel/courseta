@@ -1,4 +1,5 @@
 import type { MetaFunction } from "@remix-run/node";
+import { Faq } from "~/components/faq";
 import { Header } from "~/components/header";
 import { HeroCarousel } from "~/components/hero-carousel";
 import { PlatformPreviewArea } from "~/components/platform-preview-area";
@@ -25,7 +26,6 @@ const Hero: React.FC = () => {
           <h2>transform your learning journey today</h2>
         </div>
       </div>
-      <div className={HeroStyles["hero_flare"]}></div>
       <div className={HeroStyles["hero_right"]}>
         <img
           src="/illustrations/student_illustration_hero_img.png"
@@ -48,6 +48,7 @@ export default function Index() {
       <Hero />
       <HeroCarousel />
       <PlatformPreviewArea />
+      <Faq />
     </>
   );
 }
