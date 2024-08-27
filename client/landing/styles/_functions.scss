@@ -1,0 +1,212 @@
+@mixin debug() {
+  border: 1px solid red;
+  background-color: #5e5f602b;
+}
+
+@mixin adjustTopMargin() {
+  margin-top: calc(1.5 * var(--margin_XL));
+  @media screen and (max-width: 800px) {
+    margin-top: calc(2 * var(--margin_XL)) !important;
+  }
+}
+
+@mixin makeBlinkableSkeleton() {
+  height: var(--skeleton-height-here);
+  width: var(--skeleton-width-here);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+
+  animation-name: blink;
+  animation-duration: 3s;
+  animation-iteration-count: infinite;
+  animation-play-state: running;
+  animation-fill-mode: both;
+
+  & > span {
+    display: block;
+    height: 10rem;
+    width: 100%;
+    margin-bottom: 3rem;
+    background: var(--background-end);
+  }
+
+  @keyframes blink {
+    from {
+      background: var(--background-start);
+    }
+    to {
+      background: var(--background-end);
+    }
+  }
+}
+
+@mixin courseAccordionStyle() {
+  height: max-content;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+  --uniform-padding-here: 0 var(--padding_M);
+  .accordion_head {
+    height: 8rem;
+    width: 100%;
+    cursor: pointer;
+    &.first {
+      border-radius: inherit;
+    }
+    padding: var(--uniform-padding-here);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--active-text-bg);
+    border-bottom: 1px solid var(--label-color);
+    & > p {
+      font-size: 2rem;
+      color: var(--active-text-color);
+      font-weight: 500;
+    }
+    .head_right {
+      width: max-content;
+      min-width: 20rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+
+      .duration_details {
+        width: max-content;
+        display: inherit;
+        align-items: inherit;
+        gap: 1rem;
+        margin-right: 2rem;
+        span {
+          width: 0.5rem;
+          height: 0.5rem;
+          background-color: var(--text-color);
+          border-radius: 50%;
+          display: inline-flex;
+        }
+        p {
+          display: inline-flex;
+          font-size: 1.4rem;
+          font-weight: 500;
+          color: var(--text-color);
+        }
+      }
+      .accordion_controller {
+        width: max-content;
+        height: 3rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: transform 0.2s linear;
+        &.flipped {
+          transform: rotateZ(180deg);
+        }
+        svg {
+          height: 80%;
+          transform: scale(0.6);
+        }
+      }
+    }
+  }
+
+  .accordion_content_list {
+    padding: var(--uniform-padding-here);
+    width: 100%;
+    height: max-content;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 0;
+    transition: height 0.2s linear;
+    &.visible {
+      height: max-content;
+    }
+    .accordion_content {
+      height: 8rem;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      --content-icon-color-here: var(--text-color);
+      position: relative;
+      overflow: visible;
+
+      &::before {
+        bottom: 0;
+        height: 0.1rem;
+        width: 100%;
+        content: "";
+        display: block;
+        position: absolute;
+        background-color: var(--label-color);
+        transform: scaleX(2);
+      }
+      .content_icon_wrapper {
+        height: 100%;
+        width: 8rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        svg {
+          height: 100%;
+          transform: scale(0.4);
+        }
+      }
+
+      .accordion_content_text {
+        font-size: 2rem;
+        font-weight: 500;
+        color: var(--content-icon-color-here);
+      }
+      .accordion_content_badge {
+        width: max-content;
+        padding: 0 2rem;
+        height: 3.5rem;
+        justify-self: flex-end;
+        margin-left: auto;
+        margin-right: var(--margin_S);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4rem;
+        gap: 0.5rem;
+        background-color: var(--aside-tab-bg);
+        p {
+          font-weight: 500;
+          text-transform: uppercase;
+        }
+        svg {
+          height: 1.5rem;
+        }
+      }
+    }
+  }
+}
+
+@mixin noContentStyle() {
+  .no_content {
+    width: 100%;
+    height: 8rem;
+    font-size: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--bg-color);
+    span {
+      width: 3rem;
+      height: 3rem;
+      svg {
+        width: 100%;
+        height: 100%;
+        fill: var(--label-color);
+        transform: scale(0.6);
+      }
+    }
+  }
+}
