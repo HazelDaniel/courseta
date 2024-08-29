@@ -3,6 +3,7 @@
 > not fully certain but the lesson counts > quiz count > content count > may not be aggregated correctly . test them
 
 > fix the ordering of the result set to avoid inconsistency on the client side (useful for pagination)
+> there might be a little consistency problem with the image db, once an image is updated, check if its updated on the image db side or a new one is being created
 
 > the progress of a student on the courses (even points) are not being updated with the assessments added or removed from the courses/lessons
 > whenever students unenroll from a course, their points from the related assessments (quizzes) should be removed
