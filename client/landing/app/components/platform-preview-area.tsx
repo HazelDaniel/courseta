@@ -1,11 +1,11 @@
-import "~/styles/platform-preview.css";
+import platformPreviewStyles from "~/styles/platform-preview-area.module.css";
 
 export const PlatformPreviewArea: React.FC = () => {
   return (
-    <section className="platform_preview_section">
-      <div className="platform_preview_top">
+    <section className={platformPreviewStyles["platform_preview_section"]}>
+      <div className={platformPreviewStyles["platform_preview_top"]}>
         <h2>contribute to the platform by joining us as a creator</h2>
-        <div className="flower_icon">
+        <div className={platformPreviewStyles["flower_icon"]}>
           <svg
             viewBox="0 0 88 221"
             fill="none"
@@ -32,13 +32,15 @@ export const PlatformPreviewArea: React.FC = () => {
           </svg>
         </div>
         <div>
-          <button className="btn_secondary">join now</button>
+          <button className={platformPreviewStyles["btn_secondary"]}>
+            join now
+          </button>
         </div>
       </div>
-      <div className="platform_preview_bottom">
-        <div className="preview_portion">
-          <div className="portion_left">
-            <div className="portion_left_header">
+      <div className={platformPreviewStyles["platform_preview_bottom"]}>
+        <div className={platformPreviewStyles["preview_portion"]}>
+          <div className={platformPreviewStyles["portion_left"]}>
+            <div className={platformPreviewStyles["portion_left_header"]}>
               <span>
                 <svg
                   viewBox="0 0 20 21"
@@ -54,11 +56,17 @@ export const PlatformPreviewArea: React.FC = () => {
               <p>collaboarate with creators</p>
             </div>
             <h3>give your students the best experience</h3>
-            <button className="btn_primary btn_round">
+            <button
+              className={
+                platformPreviewStyles["btn_primary"] +
+                " " +
+                platformPreviewStyles["btn_round"]
+              }
+            >
               explore our community
             </button>
           </div>
-          <div className="portion_right">
+          <div className={platformPreviewStyles["portion_right"]}>
             <img
               src="/illustrations/platform_preview_illustration_image.png"
               alt="an illustration image that highlights the features of the platform"
@@ -66,20 +74,34 @@ export const PlatformPreviewArea: React.FC = () => {
           </div>
         </div>
 
-        <div className="preview_portion slim">
-          <div className="portion_top">
+        <div
+          className={
+            platformPreviewStyles["preview_portion"] +
+            " " +
+            platformPreviewStyles["slim"]
+          }
+        >
+          <div className={platformPreviewStyles["portion_top"]}>
             <img
               src="/images/linked_students.png"
               alt="a picture containing two students emojis linked together , representing community"
             />
-            <div className="creator_count_area">
+            <div className={platformPreviewStyles["creator_count_area"]}>
               <p>2.5K</p>
               <span>students</span>
             </div>
           </div>
-          <div className="portion_bottom">
+          <div className={platformPreviewStyles["portion_bottom"]}>
             <h3>meet and connect with other active students</h3>
-            <button className="btn_primary btn_round">join us now</button>
+            <button
+              className={
+                platformPreviewStyles["btn_primary"] +
+                " " +
+                platformPreviewStyles["btn_round"]
+              }
+            >
+              join us now
+            </button>
           </div>
         </div>
       </div>

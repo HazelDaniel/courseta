@@ -1,9 +1,9 @@
-import "~/styles/faq.css";
+import faqStyles from "~/styles/faq.module.css";
 
 export const Faq: React.FC = () => {
   return (
-    <section className="faq_section" id="faq">
-      <div className="faq_header">
+    <section className={faqStyles["faq_section"]} id="faq">
+      <div className={faqStyles["faq_header"]}>
         <h3>Faq</h3>
         <span>
           <svg
@@ -20,16 +20,16 @@ export const Faq: React.FC = () => {
           </svg>
         </span>
       </div>
-      <div className="faq_accordion_area">
-        <ul className="faq_accordion">
+      <div className={faqStyles["faq_accordion_area"]}>
+        <ul className={faqStyles["faq_accordion"]}>
           <li>
-            <div className="accordion_top">
+            <div className={faqStyles["accordion_top"]}>
               <p>
                 Are there anyway to reach out to the community moderators
                 directly?
               </p>
 
-              <div className="accordion_toggle">
+              <div className={faqStyles["accordion_toggle"]}>
                 <input type="radio" name="accordion_toggle" id="toggle_1" />
                 <label htmlFor="toggle_1">
                   <span></span>
@@ -37,43 +37,43 @@ export const Faq: React.FC = () => {
               </div>
             </div>
 
-            <div className="accordion_bottom">
+            <div className={faqStyles["accordion_bottom"]}>
               yes. you can reach out to us through our official email
             </div>
           </li>
 
           <li>
-            <div className="accordion_top">
+            <div className={faqStyles["accordion_top"]}>
               <p>
                 Are there anyway to reach out to the community moderators
                 directly?
               </p>
-              <div className="accordion_toggle">
+              <div className={faqStyles["accordion_toggle"]}>
                 <input type="radio" name="accordion_toggle" id="toggle_2" />
                 <label htmlFor="toggle_2">
                   <span></span>
                 </label>
               </div>
             </div>
-            <div className="accordion_bottom">
+            <div className={faqStyles["accordion_bottom"]}>
               yes. you can reach out to us through our official email
             </div>
           </li>
 
           <li>
-            <div className="accordion_top">
+            <div className={faqStyles["accordion_top"]}>
               <p>
                 Are there anyway to reach out to the community moderators
                 directly?
               </p>
-              <div className="accordion_toggle">
+              <div className={faqStyles["accordion_toggle"]}>
                 <input type="radio" name="accordion_toggle" id="toggle_3" />
                 <label htmlFor="toggle_3">
                   <span></span>
                 </label>
               </div>
             </div>
-            <div className="accordion_bottom">
+            <div className={faqStyles["accordion_bottom"]}>
               yes. you can reach out to us through our official email
             </div>
           </li>
