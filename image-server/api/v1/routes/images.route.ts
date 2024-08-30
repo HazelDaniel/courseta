@@ -12,10 +12,10 @@ import { ServerError } from "../../../utils.js";
 v1ImagesRouter.get("/:image_id", async (req, res, next) => {
   try {
     const { image_id: imageID } = req.params;
-    const imageReqBody: ImageSearchPayloadType =
-      req.body as ImageSearchPayloadType;
-    const { mimeType } = imageReqBody;
     try {
+      const mimeType = req.headers["x-mime_type"];
+      if (!mimeType || typeof mimeType !== "string")
+        throw new ServerError("mime type not included in headers", 400);
       const resImage = await ImageModel.search(imageID, mimeType);
       const resPayload: ServerPayloadType<typeof resImage> = {
         message: null,
@@ -41,8 +41,8 @@ v1ImagesRouter.put("/:image_id", async (req, res, next) => {
     const { image_id: imageID } = req.params;
     const imageReqBody: ImageUpdatePayloadType =
       req.body as ImageUpdatePayloadType;
-    const { newImageUrl } = imageReqBody;
-    await ImageModel.replace(imageID, newImageUrl);
+    const { newAvatar } = imageReqBody;
+    await ImageModel.replace(imageID, newAvatar[0]);
     return res.status(204).json();
   } catch (err) {
     next(err);
