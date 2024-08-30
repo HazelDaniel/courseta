@@ -9,15 +9,29 @@ import express from "express";
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 
+import jwt from "jsonwebtoken";
+
 import expressSession from "express-session";
 import connectPgSimple from "connect-pg-simple";
 import { pgPool } from "../../../db.utils.js";
 import { serializeDeserializeUser } from "../middlewares/auth.middleware.js";
 import { UserAuthPayloadType } from "../../../client.types.js";
 import { CreatorModel } from "../../../models/v1/creator.model.js";
-import { ServerError, checkPasswordAgainstHash } from "../../../utils.js";
+import { ServerError, checkPasswordAgainstHash, log } from "../../../utils.js";
 import { StudentModel } from "../../../models/v1/student.model.js";
-import { ServerPayloadType } from "../../../types.js";
+import { ServerPayloadType, SessionUserType } from "../../../types.js";
+import { UserModel } from "../../../models/v1/user.model.js";
+
+import v1Config from "../config.js";
+
+// SERVICES
+import Mailer from "../services/mail.service.js";
+import Template from "../services/template.service.js";
+
+// TASKS
+import { initJob } from "../jobs/vacuum-users.job.js";
+initJob();
+
 
 const pgSession = connectPgSimple(expressSession);
 
@@ -137,12 +151,72 @@ v1Router.get("/users/current", async (req, res, next) => {
   try {
     const { user } = req;
 
-    const resPayload: ServerPayloadType<null> = {
+    let deserializedUser: Express.User & SessionUserType =
+      user as Express.User & SessionUserType;
+
+    const emptyPayload: ServerPayloadType<null> = {
       payload: null,
       message: "",
-      ...(() => (user ? ({ user } as Express.User) : null))(),
+      user: undefined,
     };
-    return res.status(200).json(resPayload);
+    if (!user) return res.status(200).json(emptyPayload);
+
+    const resInfo = await UserModel.search(
+      deserializedUser.id,
+      deserializedUser.role
+    );
+
+    const tmpPayload: ServerPayloadType<null> = {
+      payload: null,
+      message: "",
+      user: { ...deserializedUser, ...resInfo },
+    };
+    return res.status(200).json(tmpPayload);
+  } catch (err) {
+    next(err);
+  }
+});
+
+v1Router.get("/verify", async (req, res, next) => {
+  try {
+    const { query, user } = req;
+    const { verification_id, user_id } = query;
+
+    if (!verification_id || !user_id)
+      throw new ServerError("you cannot verify with this credential", 400);
+    jwt.verify(
+      verification_id as string,
+      v1Config.serverOptions.jwtSecret,
+      async (err, decoded) => {
+        if (err) throw new ServerError("invalid verification parameters", 401);
+        const { creatorPass, verificationID, email } =
+          await UserModel.getVerificationCredentials(user_id as string);
+        if (verificationID === verification_id)
+          await UserModel.validate(user_id as string);
+        if (!creatorPass) {
+          // student flow
+          const resPayload: ServerPayloadType<null> = {
+            message: "",
+            payload: null,
+            ...(() => (user ? ({ user } as Express.User) : null))(),
+          };
+          return res.status(200).json(resPayload);
+        }
+        const messageEmail = new Template({type: "creatorPass", data: { creatorPass }}).generate;
+        Mailer.sendEmail(v1Config.serviceOptions.platformEmail, {
+          html: messageEmail,
+          subject: "creator pass from courseta",
+          text: "Hi creator, below is your creator pass. you can now explore the platform :",
+          to: email,
+        });
+        const resPayload: ServerPayloadType<null> = {
+          message: "",
+          payload: null,
+          ...(() => (user ? ({ user } as Express.User) : null))(),
+        };
+        return res.status(200).json(resPayload);
+      }
+    );
   } catch (err) {
     next(err);
   }
