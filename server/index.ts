@@ -1,7 +1,7 @@
 import express from "express";
 import { createServer } from "http";
 import { config } from "dotenv";
-config();
+config({path: ['.env', '.env.dev', '.env.prod']});
 const PORT = process.env.PORT || process.env.SERVER_PORT || 3000;
 import { v1Router } from "./api/v1/routes/root.route.js";
 import cors from "cors";
