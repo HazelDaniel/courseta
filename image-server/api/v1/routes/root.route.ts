@@ -1,11 +1,15 @@
-import { v1ImagesRouter } from './images.route.js';
+import { v1ImagesRouter } from "./images.route.js";
 import { ErrorBoundary } from "../middlewares/error.middleware.js";
 import express, { NextFunction, Request, Response } from "express";
 
 export const v1Router = express.Router();
 
 v1Router.use(async (req, res, next) => {
-  console.log(`[${req.method}] TO: ${req.baseUrl}${req.url}, AT: ${new Date().toDateString()}, FROM: ${req.ip}`);
+  console.log(
+    `[${req.method}] TO: ${req.baseUrl}${
+      req.url
+    }, AT: ${new Date().toString()}, FROM: ${req.ip}`
+  );
   next();
 });
 
