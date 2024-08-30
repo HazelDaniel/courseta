@@ -32,7 +32,6 @@ import Template from "../services/template.service.js";
 import { initJob } from "../jobs/vacuum-users.job.js";
 initJob();
 
-
 const pgSession = connectPgSimple(expressSession);
 
 export const v1Router = express.Router();
@@ -41,20 +40,25 @@ v1Router.use(
   expressSession({
     store: new pgSession({
       pool: new pgPool({
-        host: process.env.CST_DB_HOST,
+        host:
+          process.env.CST_CONTEXT === "prod"
+            ? process.env.CST_PROD_DB_HOST
+            : process.env.CST_DB_HOST,
         user: process.env.CST_DB_USER,
         database:
           process.env.CST_CONTEXT === "test"
             ? process.env.CST_TEST_SESSION
             : process.env.CST_CONTEXT === "prod"
-            ? process.env.CST_PROD_SESSION
+            ? process.env.CST_PROD_DB_NAME
             : process.env.CST_SESSION,
         max: 10,
-        password: process.env.CST_DB_PASSWORD,
+        password: process.env.CST_CONTEXT === "prod"
+        ? process.env.CST_PROD_DB_PASSWORD
+        : process.env.CST_DB_PASSWORD,
         idleTimeoutMillis: 30000,
         connectionTimeoutMillis: 50000,
       }),
-      tableName: "users",
+      tableName: process.env.CST_CONTEXT === "prod" ? "sessions" : "users",
       createTableIfMissing: true,
     }),
     secret: process.env.CST_SESSION_SECRET as string,
@@ -204,7 +208,10 @@ v1Router.get("/verify", async (req, res, next) => {
           };
           return res.status(200).json(resPayload);
         }
-        const messageEmail = new Template({type: "creatorPass", data: { creatorPass }}).generate;
+        const messageEmail = new Template({
+          type: "creatorPass",
+          data: { creatorPass },
+        }).generate;
         Mailer.sendEmail(v1Config.serviceOptions.platformEmail, {
           html: messageEmail,
           subject: "creator pass from courseta",

@@ -4,3 +4,4 @@ models
 tmp
 *.js
 TODO.txt
+**/**.pem
