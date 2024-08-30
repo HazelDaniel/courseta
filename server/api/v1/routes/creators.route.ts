@@ -6,6 +6,8 @@ import {
   creatorsLocalProtected,
 } from "../middlewares/auth.middleware.js";
 
+import jwt from "jsonwebtoken";
+
 import type {
   AssessmentEditPayloadType,
   CourseCreationPayloadType,
@@ -35,6 +37,8 @@ import { AnswerModel } from "../../../models/v1/answer.model.js";
 import fetch from "node-fetch";
 import v1Config from "../config.js";
 import { AssessmentModel } from "../../../models/v1/assessment.model.js";
+import Mailer from "../services/mail.service.js";
+import Template from "../services/template.service.js";
 
 export const v1CreatorsRouter = express.Router();
 
@@ -51,13 +55,19 @@ v1CreatorsRouter.post("/auth/signup", async (req, res, next) => {
       req.body as UserAuthPayloadType;
     const { user } = req;
     const { email, firstName, lastName, password } = creatorAuthPayload;
+    const verificationID = jwt.sign({uuid: randomUUID()}, v1Config.serverOptions.jwtSecret, {expiresIn: '24h'});
     const pendingCreator = new CreatorModel(
       email,
       password,
       firstName,
-      lastName
+      lastName,
+      undefined,
+      undefined,
+      verificationID
     );
-    await pendingCreator.save();
+    const userID = await pendingCreator.save();
+    const messageEmail = new Template({type: "verificationLink", data: {verificationLink: `${v1Config.serverOptions.clientURL}/auth?verification_id=${verificationID}&user_id=${userID}`}}).generate;
+    Mailer.sendEmail(v1Config.serviceOptions.platformEmail, {html: messageEmail, subject: "verification link from courseta", text: "Hi, below is your verification link:", to: email })
     const resPayload: ServerPayloadType<string> = {
       message: "user registered successfully!",
       ...(() => (user ? ({ user } as Express.User) : null))(),
@@ -242,7 +252,7 @@ v1CreatorsRouter.put(
         req.body as CourseEditPayloadType;
       const courseTitle = courseEditPayload.info?.title;
       const courseDescription = courseEditPayload.info?.description;
-      const [courseThumbnail, courseImage] = courseEditPayload.images as [
+      const [courseImage, courseThumbnail] = courseEditPayload.images as [
         string,
         string
       ];
