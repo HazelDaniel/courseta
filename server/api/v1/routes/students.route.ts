@@ -1,8 +1,10 @@
+import { randomUUID } from 'crypto';
 import express, { Request } from "express";
 import passport from "passport";
 import { UserAuthPayloadType } from "../../../client.types";
 import { StudentModel } from "../../../models/v1/student.model.js";
 import { ServerError, log } from "../../../utils.js";
+import jwt from "jsonwebtoken";
 import type {
   CourseViewType,
   ServerPayloadType,
@@ -19,6 +21,8 @@ import {
   studentsLocalProtected,
 } from "../middlewares/auth.middleware.js";
 import v1Config from "../config.js";
+import Mailer from '../services/mail.service.js';
+import Template from '../services/template.service.js';
 
 
 export const v1StudentsRouter = express.Router();
@@ -31,13 +35,19 @@ v1StudentsRouter.post("/auth/signup", async (req, res, next) => {
     const creatorAuthPayload: UserAuthPayloadType =
       req.body as UserAuthPayloadType;
     const { email, firstName, lastName, password } = creatorAuthPayload;
+    const verificationID = jwt.sign({uuid: randomUUID()}, v1Config.serverOptions.jwtSecret, {expiresIn: '24h'});
     const pendingStudent = new StudentModel(
       email,
       password,
       firstName,
-      lastName
+      lastName,
+      undefined,
+      undefined,
+      verificationID
     );
-    await pendingStudent.save();
+    const userID = await pendingStudent.save();
+    const messageEmail = new Template({type: "verificationLink", data: {verificationLink: `${v1Config.serverOptions.clientURL}/auth?verification_id=${verificationID}&user_id=${userID}`}}).generate;
+    Mailer.sendEmail(v1Config.serviceOptions.platformEmail, {html: messageEmail, subject: "verification link from courseta", text: "Hi, below is your verification link:", to: email })
     const resPayload: ServerPayloadType<string> = {
       message: "user registered successfully!",
       ...(() => (req.user ? ({ user: req.user } as Express.User) : null))(),
