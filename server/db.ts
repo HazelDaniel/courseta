@@ -44,6 +44,9 @@ export const pool = new Pool({
     process.env.CST_CONTEXT === "prod"
       ? process.env.CST_PROD_DB_PASSWORD
       : process.env.CST_DB_PASSWORD,
+  ssl: {
+    rejectUnauthorized: false,
+  },
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 50000,
 });
@@ -53,8 +56,14 @@ let imageDBConfig: pg.PoolConfig;
 if (process.env.CST_CONTEXT === "prod") {
   const _filename = fileURLToPath(import.meta.url);
   const _dirname = dirname(_filename);
-  const key = Buffer.from(process.env.CST_PROD_IMAGE_DB_PEM || "", 'base64').toString('utf8');
-  fs.writeFileSync(path.join(_dirname, "..", "api", "v1", "keys", "image-db-crt.pem"), key);
+  const key = Buffer.from(
+    process.env.CST_PROD_IMAGE_DB_PEM || "",
+    "base64"
+  ).toString("utf8");
+  fs.writeFileSync(
+    path.join(_dirname, "..", "api", "v1", "keys", "image-db-crt.pem"),
+    key
+  );
   imageDBConfig = {
     user: process.env.CST_PROD_IMAGE_DB_USER,
     password: process.env.CST_PROD_IMAGE_DB_PASSWORD,
@@ -63,7 +72,9 @@ if (process.env.CST_CONTEXT === "prod") {
     database: process.env.CST_PROD_IMAGE_DB_NAME,
     ssl: {
       rejectUnauthorized: true,
-      ca: fs.readFileSync(path.join(_dirname, "..", "api", "v1", "keys", "image-db-crt.pem")),
+      ca: fs.readFileSync(
+        path.join(_dirname, "..", "api", "v1", "keys", "image-db-crt.pem")
+      ),
     },
   };
 } else {
