@@ -41,6 +41,7 @@
   "license": "ISC",
   "devDependencies": {
     "@types/cors": "^2.8.17",
-    "@types/pg": "^8.11.6"
+    "@types/pg": "^8.11.6",
+    "typescript": "^5.5.4"
   }
 }
