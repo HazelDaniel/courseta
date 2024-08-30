@@ -46,6 +46,8 @@ v1Router.use(
         database:
           process.env.CST_CONTEXT === "test"
             ? process.env.CST_TEST_SESSION
+            : process.env.CST_CONTEXT === "prod"
+            ? process.env.CST_PROD_SESSION
             : process.env.CST_SESSION,
         max: 10,
         password: process.env.CST_DB_PASSWORD,
