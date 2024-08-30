@@ -21,6 +21,7 @@
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
     "node-cron": "^3.0.3",
+    "node-fetch": "^3.3.2",
     "nodemailer": "^6.9.14",
     "nodemailer-mailgun-transport": "^2.1.5",
     "obuf": "^1.1.2",
