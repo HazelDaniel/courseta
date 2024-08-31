@@ -10,7 +10,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import { pool } from "../../db.js";
 import chalk from "chalk";
 import { AssessmentModel } from "./assessment.model.js";
-import { log } from "../../utils.js";
 export class ExamModel extends AssessmentModel {
     constructor(parentEntityID, passScore, description, duration, startDate, endDate, type = "exam") {
         super(passScore, description, type, parentEntityID);
@@ -163,7 +162,7 @@ export class ExamModel extends AssessmentModel {
                 if (!rows.length)
                     resolve(null);
                 const { duration, start_date, end_date, pass_score, exam_id } = rows[0];
-                log("time delta is ", new Date(start_date).getTime() - new Date().getTime());
+                console.log("time delta is ", new Date(start_date).getTime() - new Date().getTime());
                 const resExamData = {
                     duration,
                     startDate: start_date,
