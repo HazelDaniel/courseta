@@ -54,9 +54,7 @@ export class UserModel extends BaseModel {
                     body: JSON.stringify(imageServerPayload),
                     method: "put",
                 });
-                log("was the response from the image server successful?:");
                 if (request.ok) {
-                    log("yes");
                     yield client.query(query);
                 }
                 else {
