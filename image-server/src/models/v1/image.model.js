@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import { imagePool } from "../../db.js";
 import { BaseModel } from "./base-model.js";
 import { serializeImage } from "../../serializers/db.serializer.js";
-import { ServerError, parseStringifiedUUID } from "../../utils.js";
+import { ServerError, log, parseStringifiedUUID } from "../../utils.js";
 import { deserializeImage } from "../../deserializers/db.deserializer.js";
 export class ImageModel extends BaseModel {
     constructor(imageUrl, imageID) {
@@ -69,6 +69,7 @@ export class ImageModel extends BaseModel {
                 resolve();
             }
             catch (err) {
+                log(" error received is ", (typeof err === 'string' ? err : err instanceof Error ? err.message : "unknown"));
                 reject(err);
             }
             finally {
