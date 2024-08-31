@@ -37,23 +37,15 @@ const pgSession = connectPgSimple(expressSession);
 export const v1Router = express.Router();
 v1Router.use(expressSession({
     store: new pgSession({
-        pool: new pgPool({
-            host: process.env.CST_CONTEXT === "prod"
+        pool: new pgPool(Object.assign(Object.assign({ host: process.env.CST_CONTEXT === "prod"
                 ? process.env.CST_PROD_DB_HOST
-                : process.env.CST_DB_HOST,
-            user: process.env.CST_DB_USER,
-            database: process.env.CST_CONTEXT === "test"
+                : process.env.CST_DB_HOST, user: process.env.CST_DB_USER, database: process.env.CST_CONTEXT === "test"
                 ? process.env.CST_TEST_SESSION
                 : process.env.CST_CONTEXT === "prod"
                     ? process.env.CST_PROD_DB_NAME
-                    : process.env.CST_SESSION,
-            max: 10,
-            password: process.env.CST_CONTEXT === "prod"
+                    : process.env.CST_SESSION, max: 10, password: process.env.CST_CONTEXT === "prod"
                 ? process.env.CST_PROD_DB_PASSWORD
-                : process.env.CST_DB_PASSWORD,
-            idleTimeoutMillis: 30000,
-            connectionTimeoutMillis: 50000,
-        }),
+                : process.env.CST_DB_PASSWORD }, (process.env.CST_CONTEXT === "prod" ? { ssl: { rejectUnauthorized: false } } : null)), { idleTimeoutMillis: 30000, connectionTimeoutMillis: 50000 })),
         tableName: process.env.CST_CONTEXT === "prod" ? "sessions" : "users",
         createTableIfMissing: true,
     }),

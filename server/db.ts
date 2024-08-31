@@ -6,26 +6,7 @@ import { fileURLToPath } from "url";
 import { dirname, default as path } from "path";
 
 import pg from "pg";
-const { Pool, Client } = pg;
-
-export const client = Client.bind(Client, {
-  host:
-    process.env.CST_CONTEXT === "prod"
-      ? process.env.CST_PROD_DB_HOST
-      : process.env.CST_DB_HOST,
-  user: process.env.CST_DB_USER,
-  database:
-    process.env.CST_CONTEXT === "test"
-      ? process.env.CST_TEST_DB_NAME
-      : process.env.CST_CONTEXT === "prod"
-      ? process.env.CST_PROD_DB_NAME
-      : process.env.CST_DB_NAME,
-  password:
-    process.env.CST_CONTEXT === "prod"
-      ? process.env.CST_PROD_DB_PASSWORD
-      : process.env.CST_DB_PASSWORD,
-  idle_in_transaction_session_timeout: 30000,
-});
+const { Pool } = pg;
 
 export const pool = new Pool({
   host:
@@ -71,7 +52,7 @@ if (process.env.CST_CONTEXT === "prod") {
     port: 25459,
     database: process.env.CST_PROD_IMAGE_DB_NAME,
     ssl: {
-      rejectUnauthorized: true,
+      rejectUnauthorized: false,
       ca: fs.readFileSync(
         path.join(_dirname, "..", "api", "v1", "keys", "image-db-crt.pem")
       ),

@@ -55,6 +55,7 @@ v1Router.use(
         password: process.env.CST_CONTEXT === "prod"
         ? process.env.CST_PROD_DB_PASSWORD
         : process.env.CST_DB_PASSWORD,
+        ...(process.env.CST_CONTEXT === "prod" ?  {ssl: {rejectUnauthorized: false}} : null),
         idleTimeoutMillis: 30000,
         connectionTimeoutMillis: 50000,
       }),
