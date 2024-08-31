@@ -309,7 +309,7 @@ v1CreatorsRouter.post("/:creator_id/courses", creatorIDProtected, (req, res, nex
             imageUrl: courseImage,
         };
         if (!!courseImage)
-            imageUploadRequest = yield fetch(v1Config.serverOptions.imageServerBaseUrl, {
+            imageUploadRequest = yield fetch(`${v1Config.serverOptions.imageServerBaseUrl}/api/v1/images`, {
                 headers: {
                     "Content-Type": "application/json",
                     Cookie: "",
