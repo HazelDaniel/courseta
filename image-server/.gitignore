@@ -1,7 +1,8 @@
-src
+./api/v1/keys/*.pem
 .env*
 models
 **/**.zshrc
 tmp
 *.js
 TODO.txt
+**/**.pem
