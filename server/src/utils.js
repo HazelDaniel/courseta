@@ -47,7 +47,7 @@ BoardDisplay.frameChar = "<>";
 BoardDisplay.border = "|";
 BoardDisplay.marginDecoratorCount = 35;
 export const log = (...args) => {
-    if (v1Config.serverOptions.debugMode)
+    if (!v1Config.serverOptions.debugMode)
         return console.log.apply(console, ["[DEBUG]", ...args]);
     return console.log.apply(console, []);
 };
