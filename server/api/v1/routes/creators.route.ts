@@ -561,7 +561,7 @@ v1CreatorsRouter.post(
       };
       if (!!courseImage)
         imageUploadRequest = await fetch(
-          v1Config.serverOptions.imageServerBaseUrl,
+          `${v1Config.serverOptions.imageServerBaseUrl}/api/v1/images`,
           {
             headers: {
               "Content-Type": "application/json",

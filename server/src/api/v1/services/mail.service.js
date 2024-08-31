@@ -18,9 +18,9 @@ export class Mailer {
             this.transporter = transporter;
         else
             this.transporter = nodemailer.createTransport(mailgun(auth));
-        // if (process.env.CST_CONTEXT === "test") {
-        //   this.transporter = transporter1;
-        // }
+        if (process.env.CST_CONTEXT === "test") {
+            this.transporter = transporter1;
+        }
     }
     static get instance() {
         if (!this._instance)
