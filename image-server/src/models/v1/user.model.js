@@ -46,7 +46,7 @@ export class UserModel extends BaseModel {
                     newAvatar: [originalImage || "", ""], // the second argument isnt needed
                     avatarMeta,
                 };
-                const requestUrl = `${v1Config.serverOptions.imageServerBaseUrl}/${avatarMeta.id}`;
+                const requestUrl = `${v1Config.serverOptions.imageServerBaseUrl}/api/v1/images/${avatarMeta.id}`;
                 const request = yield fetch(`${requestUrl}`, {
                     headers: {
                         "Content-Type": "application/json",

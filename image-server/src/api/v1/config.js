@@ -9,13 +9,17 @@ export const v1Config = {
         saltByteCount: 10,
     },
     serverOptions: {
-        imageServerBaseUrl: `http://localhost:${process.env.IMAGE_SERVER_PORT}/api/v1/images`,
+        imageServerBaseUrl: process.env.CST_CONTEXT === "prod"
+            ? `${process.env.CST_PROD_IMAGE_SERVER_URL}`
+            : `http://localhost:${process.env.IMAGE_SERVER_PORT}`,
         debugMode: !!(process.env.CST_CONTEXT === "test"),
         jwtSecret: process.env.CST_JWT_SECRET,
-        clientURL: process.env.CST_CONTEXT === "test" ? `${process.env.CST_CLIENT_URL_DEV}` : `${process.env.CST_CLIENT_URL_PROD}`
+        clientURL: process.env.CST_CONTEXT === "test"
+            ? `${process.env.CST_CLIENT_URL_DEV}`
+            : `${process.env.CST_CLIENT_URL_PROD}`,
     },
     serviceOptions: {
-        platformEmail: `${process.env.CST_PLATFORM_EMAIL}`
-    }
+        platformEmail: `${process.env.CST_PLATFORM_EMAIL}`,
+    },
 };
 export default v1Config;

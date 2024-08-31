@@ -626,7 +626,7 @@ export class CourseModel extends BaseModel {
                         },
                         newAvatar: [originalImage || "", thumbnail || ""],
                     };
-                    const requestUrl = `${v1Config.serverOptions.imageServerBaseUrl}/${avatarID}`;
+                    const requestUrl = `${v1Config.serverOptions.imageServerBaseUrl}/api/v1/images/${avatarID}`;
                     const request = yield fetch(`${requestUrl}`, {
                         headers: {
                             "Content-Type": "application/json",
