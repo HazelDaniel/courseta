@@ -79,7 +79,7 @@ export class ExamModel extends AssessmentModel {
                             startDate: start_date,
                             questionCount: question_count,
                             totalPoints: total_points,
-                            ready: new Date(start_date).getTime() - new Date().getTime() <= 0,
+                            // ready: new Date(start_date).getTime() - new Date().getTime() <= 0,// NOTE: WE ARE DOING THIS ON THE REMIX SIDE
                         };
                     });
                     const [resultAssessment] = resAssessmentArray;
@@ -114,7 +114,7 @@ export class ExamModel extends AssessmentModel {
                         startDate: start_date,
                         questionCount: question_count,
                         totalPoints: total_points,
-                        ready: new Date(start_date).getTime() - new Date().getTime() <= 0,
+                        // ready: new Date(start_date).getTime() - new Date().getTime() <= 0,// NOTE: WE ARE DOING THIS ON THE REMIX SIDE
                     };
                 });
                 const [resultAssessment] = resAssessmentArray;
@@ -162,14 +162,13 @@ export class ExamModel extends AssessmentModel {
                 if (!rows.length)
                     resolve(null);
                 const { duration, start_date, end_date, pass_score, exam_id } = rows[0];
-                console.log("time delta is ", new Date(start_date).getTime() - new Date().getTime());
                 const resExamData = {
                     duration,
                     startDate: start_date,
                     endDate: end_date,
                     passScore: pass_score,
                     id: exam_id,
-                    ready: new Date(start_date).getTime() - new Date().getTime() <= 0,
+                    // ready: new Date(start_date).getTime() - new Date().getTime() <= 0,// NOTE: WE ARE DOING THIS ON THE REMIX SIDE
                 };
                 resolve(resExamData);
             }
