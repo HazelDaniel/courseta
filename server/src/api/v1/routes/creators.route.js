@@ -37,7 +37,7 @@ v1CreatorsRouter.post("/auth/signup", (req, res, next) => __awaiter(void 0, void
         const creatorAuthPayload = req.body;
         const { user } = req;
         const { email, firstName, lastName, password } = creatorAuthPayload;
-        const verificationID = jwt.sign({ uuid: randomUUID() }, v1Config.serverOptions.jwtSecret, { expiresIn: '24h' });
+        const verificationID = jwt.sign({ uuid: randomUUID() }, v1Config.authOptions.jwtSecret, { expiresIn: '24h' });
         const pendingCreator = new CreatorModel(email, password, firstName, lastName, undefined, undefined, verificationID);
         const userID = yield pendingCreator.save();
         const messageEmail = new Template({ type: "verificationLink", data: { verificationLink: `${v1Config.serverOptions.clientURL}/auth?verification_id=${verificationID}&user_id=${userID}` } }).generate;

@@ -55,7 +55,7 @@ v1CreatorsRouter.post("/auth/signup", async (req, res, next) => {
       req.body as UserAuthPayloadType;
     const { user } = req;
     const { email, firstName, lastName, password } = creatorAuthPayload;
-    const verificationID = jwt.sign({uuid: randomUUID()}, v1Config.serverOptions.jwtSecret, {expiresIn: '24h'});
+    const verificationID = jwt.sign({uuid: randomUUID()}, v1Config.authOptions.jwtSecret, {expiresIn: '24h'});
     const pendingCreator = new CreatorModel(
       email,
       password,

@@ -35,7 +35,7 @@ v1StudentsRouter.post("/auth/signup", async (req, res, next) => {
     const creatorAuthPayload: UserAuthPayloadType =
       req.body as UserAuthPayloadType;
     const { email, firstName, lastName, password } = creatorAuthPayload;
-    const verificationID = jwt.sign({uuid: randomUUID()}, v1Config.serverOptions.jwtSecret, {expiresIn: '24h'});
+    const verificationID = jwt.sign({uuid: randomUUID()}, v1Config.authOptions.jwtSecret, {expiresIn: '24h'});
     const pendingStudent = new StudentModel(
       email,
       password,

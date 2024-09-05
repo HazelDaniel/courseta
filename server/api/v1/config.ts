@@ -16,11 +16,16 @@ export const v1Config: ConfigOption = {
         ? `${process.env.CST_PROD_IMAGE_SERVER_URL}`
         : `http://localhost:${process.env.IMAGE_SERVER_PORT}`,
     debugMode: !!(process.env.CST_CONTEXT === "test"),
-    jwtSecret: process.env.CST_JWT_SECRET as string,
     clientURL:
       process.env.CST_CONTEXT === "test"
         ? `${process.env.CST_CLIENT_URL_DEV}`
         : `${process.env.CST_CLIENT_URL_PROD}`,
+  },
+  authOptions: {
+    jwtSecret: process.env.CST_JWT_SECRET as string,
+    redisStoreURL: process.env.CST_CONTEXT === "prod"
+    ? `${process.env.CST_PROD_REDIS_SESSION_URL}`
+    : `${process.env.CST_TEST_REDIS_SESSION_URL}`,
   },
   serviceOptions: {
     platformEmail: `${process.env.CST_PLATFORM_EMAIL}`,

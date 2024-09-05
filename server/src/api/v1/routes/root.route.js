@@ -19,11 +19,11 @@ import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import jwt from "jsonwebtoken";
 import expressSession from "express-session";
-import connectPgSimple from "connect-pg-simple";
-import { pgPool } from "../../../db.utils.js";
+import RedisStore from "connect-redis";
+import { createClient } from "redis";
 import { serializeDeserializeUser } from "../middlewares/auth.middleware.js";
 import { CreatorModel } from "../../../models/v1/creator.model.js";
-import { ServerError, checkPasswordAgainstHash } from "../../../utils.js";
+import { ServerError, checkPasswordAgainstHash, log } from "../../../utils.js";
 import { StudentModel } from "../../../models/v1/student.model.js";
 import { UserModel } from "../../../models/v1/user.model.js";
 import v1Config from "../config.js";
@@ -33,22 +33,23 @@ import Template from "../services/template.service.js";
 // TASKS
 import { initJob } from "../jobs/vacuum-users.job.js";
 initJob();
-const pgSession = connectPgSimple(expressSession);
+const redisClient = createClient({ url: v1Config.authOptions.redisStoreURL });
+(() => __awaiter(void 0, void 0, void 0, function* () {
+    yield redisClient.connect();
+}))();
+redisClient.on("connect", () => {
+    log("redis connected sucessfully");
+});
+redisClient.on("error", (err) => {
+    log("redis failed to connect: reason", err);
+});
+const redisStore = new RedisStore({
+    client: redisClient,
+    prefix: "courseta_session:",
+});
 export const v1Router = express.Router();
 v1Router.use(expressSession({
-    store: new pgSession({
-        pool: new pgPool(Object.assign(Object.assign({ host: process.env.CST_CONTEXT === "prod"
-                ? process.env.CST_PROD_DB_HOST
-                : process.env.CST_DB_HOST, user: process.env.CST_DB_USER, database: process.env.CST_CONTEXT === "test"
-                ? process.env.CST_TEST_SESSION
-                : process.env.CST_CONTEXT === "prod"
-                    ? process.env.CST_PROD_DB_NAME
-                    : process.env.CST_SESSION, max: 10, password: process.env.CST_CONTEXT === "prod"
-                ? process.env.CST_PROD_DB_PASSWORD
-                : process.env.CST_DB_PASSWORD }, (process.env.CST_CONTEXT === "prod" ? { ssl: { rejectUnauthorized: false } } : null)), { idleTimeoutMillis: 30000, connectionTimeoutMillis: 50000 })),
-        tableName: process.env.CST_CONTEXT === "prod" ? "sessions" : "users",
-        createTableIfMissing: true,
-    }),
+    store: redisStore,
     secret: process.env.CST_SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
@@ -142,7 +143,7 @@ v1Router.get("/verify", (req, res, next) => __awaiter(void 0, void 0, void 0, fu
         const { verification_id, user_id } = query;
         if (!verification_id || !user_id)
             throw new ServerError("you cannot verify with this credential", 400);
-        jwt.verify(verification_id, v1Config.serverOptions.jwtSecret, (err, decoded) => __awaiter(void 0, void 0, void 0, function* () {
+        jwt.verify(verification_id, v1Config.authOptions.jwtSecret, (err, decoded) => __awaiter(void 0, void 0, void 0, function* () {
             if (err)
                 throw new ServerError("invalid verification parameters", 401);
             const { creatorPass, verificationID, email } = yield UserModel.getVerificationCredentials(user_id);
