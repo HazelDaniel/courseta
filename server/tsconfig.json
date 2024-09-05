@@ -107,5 +107,5 @@
     "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
   },
 	"exclude": ["node_modules"],
-	"include": ["./*.ts", "./models/*/*.ts", "./tests/*.ts", "./serializers/*.ts", "./deserializers/*.ts", "./api/v1/middlewares", "./api/v1/services", "./api/v1/jobs"]
+	"include": ["./*.ts", "./models/*/*.ts", "./tests/*.ts", "./serializers/*.ts", "./deserializers/*.ts", "./api/v2/middlewares", "./api/v2/services", "./api/v2/jobs"]
 }
