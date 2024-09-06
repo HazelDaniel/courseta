@@ -1,0 +1,34 @@
+import { Request, Response } from "express";
+import { ServerPayloadType } from "../../../../types";
+import { LessonContentAdditionPayloadType } from "../../../../client.types";
+import { LessonModel } from "../../../../models/v1/lesson.model.js";
+
+export const createContent = async (
+  req: Request,
+  res: Response<any, Record<string, any>>
+) => {
+  const { lesson_id: lessonID } = req.params;
+  const contentCreationPayload: LessonContentAdditionPayloadType =
+    req.body as LessonContentAdditionPayloadType;
+  const { contentType, duration, href, title } = contentCreationPayload;
+  const pendingLesson = new LessonModel(
+    "",
+    undefined,
+    undefined,
+    undefined,
+    +lessonID
+  );
+  const resID = await pendingLesson.addContent(
+    title || "",
+    href || "",
+    duration || 0,
+    contentType
+  );
+
+  const resPayload: ServerPayloadType<typeof resID> = {
+    payload: resID,
+    message: "content created successfully!",
+    ...(() => (req.user ? ({ user: req.user } as Express.User) : null))(),
+  };
+  res.status(201).json(resPayload);
+};
