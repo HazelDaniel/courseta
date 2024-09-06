@@ -7,24 +7,28 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { CourseModel } from "../../../models/v1/course.model.js";
 import express from "express";
-import { ReviewModel } from "../../../models/v1/review.model.js";
-import { EnrollmentModel } from "../../../models/v1/enrollment.model.js";
-import { ExamModel } from "../../../models/v1/exam.model.js";
-import { QuizModel } from "../../../models/v1/quiz.model.js";
-import { LessonModel } from "../../../models/v1/lesson.model.js";
 import passport from "passport";
 import { serializeDeserializeUser } from "../middlewares/auth.middleware.js";
+// CONTROLLERS
+import { getAllCourses } from "../controllers/courses/get-all-courses.js";
+import { getCourseReviews } from "./../controllers/courses/get-course-reviews.js";
+import { getCourseCreatorSummary } from "../controllers/courses/get-course-creator-summary.js";
+import { getCourseLessons } from "../controllers/courses/get-course-lessons.js";
+import { getCourse } from "../controllers/courses/get-course.js";
+import { getCourseExam } from "../controllers/courses/get-course-exam.js";
+import { getCourseLessonQuiz } from "./../controllers/courses/get-course-lesson-quiz.js";
+import { getCourseLessonContent } from "../controllers/courses/get-course-lesson-content.js";
+import { setCourseReview } from "../controllers/courses/set-course-review.js";
+import { enrollCourse } from "../controllers/courses/enroll-course.js";
+import { unenrollCourse } from "../controllers/courses/unenroll-course.js";
 export const v2CoursesRouter = express.Router();
 v2CoursesRouter.use(passport.initialize());
 v2CoursesRouter.use(serializeDeserializeUser);
+// ROUTE HANDLERS
 v2CoursesRouter.get("/", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const resCourses = yield CourseModel.all();
-        const { user } = req;
-        const resPayload = Object.assign({ payload: resCourses, message: null }, (() => (user ? { user } : null))());
-        return res.status(200).json(resPayload);
+        return yield getAllCourses(req, res);
     }
     catch (err) {
         next(err);
@@ -32,11 +36,7 @@ v2CoursesRouter.get("/", (req, res, next) => __awaiter(void 0, void 0, void 0, f
 }));
 v2CoursesRouter.get("/:course_id/reviews", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { course_id: courseID } = req.params;
-        const { user } = req;
-        const resReviews = yield CourseModel.getReviewsFor(+courseID);
-        const resPayload = Object.assign({ payload: resReviews, message: null }, (() => (user ? { user } : null))());
-        return res.status(200).json(resPayload);
+        return yield getCourseReviews(req, res);
     }
     catch (err) {
         next(err);
@@ -44,11 +44,7 @@ v2CoursesRouter.get("/:course_id/reviews", (req, res, next) => __awaiter(void 0,
 }));
 v2CoursesRouter.get("/:course_id/creator/summary", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { course_id: courseID } = req.params;
-        const { user } = req;
-        const resCreator = yield CourseModel.getCreatorFor(+courseID);
-        const resPayload = Object.assign({ payload: resCreator, message: null }, (() => (user ? { user } : null))());
-        return res.status(200).json(resPayload);
+        return yield getCourseCreatorSummary(req, res);
     }
     catch (err) {
         next(err);
@@ -56,30 +52,15 @@ v2CoursesRouter.get("/:course_id/creator/summary", (req, res, next) => __awaiter
 }));
 v2CoursesRouter.get("/:course_id/lessons", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { course_id: courseID } = req.params;
-        const { user } = req;
-        const resLessons = yield CourseModel.getLessonsFor(+courseID, "read");
-        const resPayload = Object.assign({ payload: resLessons, message: null }, (() => (user ? { user } : null))());
-        return res.status(200).json(resPayload);
+        return yield getCourseLessons(req, res);
     }
     catch (err) {
         next(err);
     }
 }));
 v2CoursesRouter.get("/:course_id", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
     try {
-        const { course_id: courseID } = req.params;
-        const { user } = req;
-        const resCoursePromise = CourseModel.search(+courseID);
-        const studentEnrollmentStatus = EnrollmentModel.confirmEnrollment(((_a = req.user) === null || _a === void 0 ? void 0 : _a.id) || "", courseID);
-        const resPromises = yield Promise.all([
-            resCoursePromise,
-            studentEnrollmentStatus,
-        ]);
-        const status = resPromises[1];
-        const resPayload = Object.assign({ payload: Object.assign(Object.assign({}, resPromises[0].detail), { isEnrolled: status }), message: null }, (() => (user ? { user } : null))());
-        return res.status(200).json(resPayload);
+        return yield getCourse(req, res);
     }
     catch (err) {
         next(err);
@@ -87,11 +68,7 @@ v2CoursesRouter.get("/:course_id", (req, res, next) => __awaiter(void 0, void 0,
 }));
 v2CoursesRouter.get("/:course_id/exams/:exam_id", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { exam_id: assessmentID } = req.params;
-        const { user } = req;
-        const resultAssessment = yield ExamModel.search(assessmentID, "edit");
-        const resPayload = Object.assign({ payload: resultAssessment, message: null }, (() => (user ? { user } : null))());
-        return res.status(200).json(resPayload);
+        return yield getCourseExam(req, res);
     }
     catch (err) {
         next(err);
@@ -99,11 +76,7 @@ v2CoursesRouter.get("/:course_id/exams/:exam_id", (req, res, next) => __awaiter(
 }));
 v2CoursesRouter.get("/:course_id/lessons/:lesson_id/quizzes/:quiz_id", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { quiz_id: assessmentID } = req.params;
-        const { user } = req;
-        const resultAssessment = yield QuizModel.search(assessmentID);
-        const resPayload = Object.assign({ payload: resultAssessment, message: null }, (() => (user ? { user } : null))());
-        return res.status(200).json(resPayload);
+        return yield getCourseLessonQuiz(req, res);
     }
     catch (err) {
         next(err);
@@ -111,11 +84,7 @@ v2CoursesRouter.get("/:course_id/lessons/:lesson_id/quizzes/:quiz_id", (req, res
 }));
 v2CoursesRouter.get("/:course_id/lessons/:lesson_id/contents/:content_id", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { lesson_id: lessonID } = req.params;
-        const { user } = req;
-        const resultContents = yield LessonModel.getContentsFor(+lessonID);
-        const resPayload = Object.assign({ payload: resultContents, message: null }, (() => (user ? { user } : null))());
-        return res.status(200).json(resPayload);
+        return yield getCourseLessonContent(req, res);
     }
     catch (err) {
         next(err);
@@ -123,14 +92,7 @@ v2CoursesRouter.get("/:course_id/lessons/:lesson_id/contents/:content_id", (req,
 }));
 v2CoursesRouter.post("/:course_id/reviews", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { course_id: courseID } = req.params;
-        const { user } = req;
-        const reviewPayload = req.body;
-        const { rating, reviewText, studentID } = reviewPayload;
-        const newReview = new ReviewModel(studentID, courseID, rating, reviewText);
-        yield newReview.save();
-        const resPayload = Object.assign({ payload: null, message: "course reviewed successfully!" }, (() => (user ? { user } : null))());
-        return res.status(201).json(resPayload);
+        return yield setCourseReview(req, res);
     }
     catch (err) {
         next(err);
@@ -138,14 +100,7 @@ v2CoursesRouter.post("/:course_id/reviews", (req, res, next) => __awaiter(void 0
 }));
 v2CoursesRouter.post("/:course_id/enroll", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { course_id: courseID } = req.params;
-        const { user } = req;
-        const reviewPayload = req.body;
-        const { studentID } = reviewPayload;
-        const enrollment = new EnrollmentModel(studentID, courseID);
-        yield enrollment.save();
-        const resPayload = Object.assign({ payload: null, message: "student enrolled successfully!" }, (() => (user ? { user } : null))());
-        return res.status(200).json(resPayload);
+        return yield enrollCourse(req, res);
     }
     catch (err) {
         next(err);
@@ -153,13 +108,7 @@ v2CoursesRouter.post("/:course_id/enroll", (req, res, next) => __awaiter(void 0,
 }));
 v2CoursesRouter.post("/:course_id/unenroll", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { course_id: courseID } = req.params;
-        const { user } = req;
-        const reviewPayload = req.body;
-        const { studentID } = reviewPayload;
-        const enrollment = yield EnrollmentModel.delete(studentID, courseID);
-        const resPayload = Object.assign({ payload: null, message: "student unenrolled successfully!" }, (() => (user ? { user } : null))());
-        return res.status(200).json(resPayload);
+        return yield unenrollCourse(req, res);
     }
     catch (err) {
         next(err);

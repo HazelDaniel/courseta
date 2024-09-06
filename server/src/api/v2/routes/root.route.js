@@ -17,7 +17,6 @@ import { v2QuizzesRouter } from "./quizzes.route.js";
 import express from "express";
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
-import jwt from "jsonwebtoken";
 import expressSession from "express-session";
 import RedisStore from "connect-redis";
 import { createClient } from "redis";
@@ -25,13 +24,11 @@ import { serializeDeserializeUser } from "../middlewares/auth.middleware.js";
 import { CreatorModel } from "../../../models/v1/creator.model.js";
 import { ServerError, checkPasswordAgainstHash, log } from "../../../utils.js";
 import { StudentModel } from "../../../models/v1/student.model.js";
-import { UserModel } from "../../../models/v1/user.model.js";
 import v2Config from "../config.js";
-// SERVICES
-import Mailer from "../services/mail.service.js";
-import Template from "../services/template.service.js";
 // TASKS
 import { initJob } from "../jobs/vacuum-users.job.js";
+import { getCurrentUser } from "../controllers/root/get-current-user.js";
+import { verifyUser } from "../controllers/root/verify-user.js";
 initJob();
 const redisClient = createClient({ url: v2Config.authOptions.redisStoreURL });
 (() => __awaiter(void 0, void 0, void 0, function* () {
@@ -114,24 +111,10 @@ v2Router.use("/students", v2StudentsRouter);
 v2Router.use("/assessments", v2AssessmentsRouter);
 v2Router.use("/exams", v2ExamsRouter);
 v2Router.use("/quizzes", v2QuizzesRouter);
+// ROUTE HANDLERS
 v2Router.get("/users/current", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { user } = req;
-        let deserializedUser = user;
-        const emptyPayload = {
-            payload: null,
-            message: "",
-            user: undefined,
-        };
-        if (!user)
-            return res.status(200).json(emptyPayload);
-        const resInfo = yield UserModel.search(deserializedUser.id, deserializedUser.role);
-        const tmpPayload = {
-            payload: null,
-            message: "",
-            user: Object.assign(Object.assign({}, deserializedUser), resInfo),
-        };
-        return res.status(200).json(tmpPayload);
+        return yield getCurrentUser(req, res);
     }
     catch (err) {
         next(err);
@@ -139,34 +122,7 @@ v2Router.get("/users/current", (req, res, next) => __awaiter(void 0, void 0, voi
 }));
 v2Router.get("/verify", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { query, user } = req;
-        const { verification_id, user_id } = query;
-        if (!verification_id || !user_id)
-            throw new ServerError("you cannot verify with this credential", 400);
-        jwt.verify(verification_id, v2Config.authOptions.jwtSecret, (err, decoded) => __awaiter(void 0, void 0, void 0, function* () {
-            if (err)
-                throw new ServerError("invalid verification parameters", 401);
-            const { creatorPass, verificationID, email } = yield UserModel.getVerificationCredentials(user_id);
-            if (verificationID === verification_id)
-                yield UserModel.validate(user_id);
-            if (!creatorPass) {
-                // student flow
-                const resPayload = Object.assign({ message: "", payload: null }, (() => (user ? { user } : null))());
-                return res.status(200).json(resPayload);
-            }
-            const messageEmail = new Template({
-                type: "creatorPass",
-                data: { creatorPass },
-            }).generate;
-            Mailer.sendEmail(v2Config.serviceOptions.platformEmail, {
-                html: messageEmail,
-                subject: "creator pass from courseta",
-                text: "Hi creator, below is your creator pass. you can now explore the platform :",
-                to: email,
-            });
-            const resPayload = Object.assign({ message: "", payload: null }, (() => (user ? { user } : null))());
-            return res.status(200).json(resPayload);
-        }));
+        return yield verifyUser(req, res);
     }
     catch (err) {
         next(err);
