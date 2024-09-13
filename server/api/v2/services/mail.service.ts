@@ -11,7 +11,7 @@ interface EmailOptions {
 }
 
 const transporter1 = nodemailer.createTransport({
-  host: "localhost",
+  host: "0.0.0.0",
   port: 1025,
   ignoreTLS: true,
 });
@@ -33,7 +33,6 @@ export class Mailer {
     if (process.env.CST_CONTEXT === "test") {
       this.transporter = transporter1;
     }
-
   }
 
   static get instance(): Mailer {

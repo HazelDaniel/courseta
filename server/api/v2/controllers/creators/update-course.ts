@@ -1,8 +1,10 @@
-import { randomUUID } from 'crypto';
+import { randomUUID } from "crypto";
 import { Request, Response } from "express";
 import { ServerPayloadType } from "../../../../types";
 import { CourseEditPayloadType } from "../../../../client.types";
 import { CourseModel } from "../../../../models/v1/course.model.js";
+import { API_VERSION } from "../../config.js";
+import GlobalRouteCache from "express-pubsubcache";
 
 export const updateCourse = async (
   req: Request,
@@ -33,5 +35,19 @@ export const updateCourse = async (
     message: "course update success!",
     ...(() => (req.user ? ({ user: req.user } as Express.User) : null))(),
   };
-  return res.status(200).json(resPayload);
+  res.status(200).json(resPayload);
+
+  const affectedRoutes = [
+    `/api/${API_VERSION}/creators/${creatorID}/courses/top`,
+    `/api/${API_VERSION}/courses`,
+    `/api/${API_VERSION}/creators/${creatorID}/courses`,
+    `/api/${API_VERSION}/creators/${creatorID}/courses/${courseID}/edit`,
+    `/api/${API_VERSION}/students/:student_id/courses/recommended`,
+    `/api/${API_VERSION}/students/:student_id/courses/unfinished`,
+    `/api/${API_VERSION}/students/:student_id/courses`,
+  ];
+  for (const route of affectedRoutes) {
+    GlobalRouteCache.pub(route);
+  }
+  return;
 };

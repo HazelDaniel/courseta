@@ -5,6 +5,7 @@ import {
   creatorsLocalProtected,
 } from "../middlewares/auth.middleware.js";
 
+// CONTROLLERS
 import { signUp } from "../controllers/creators/sign-up.js";
 import { signIn } from "../controllers/creators/sign-in.js";
 import { getCreatorCourses } from "../controllers/creators/get-creator-courses.js";
@@ -30,6 +31,10 @@ import { deleteQuiz } from "../controllers/creators/delete-quiz.js";
 import { deleteContent } from "../controllers/creators/delete-content.js";
 import { deleteCourse } from "../controllers/creators/delete-course.js";
 import { deleteLesson } from "../controllers/creators/delete-lesson.js";
+
+// CACHE
+import GlobalRouteCache from "express-pubsubcache";
+import { API_VERSION } from "../config.js";
 
 export const v2CreatorsRouter = express.Router();
 
@@ -66,8 +71,15 @@ v2CreatorsRouter.use(creatorsLocalProtected);
 v2CreatorsRouter.get(
   "/:creator_id/courses",
   creatorIDProtected,
+  GlobalRouteCache.createCacheSubscriber(),
   async (req, res, next) => {
     try {
+      if (res.locals.cachedResponse) {
+        return res
+          .status(res.locals.cachedResponse.statusCode)
+          .set(res.locals.cachedResponse.headers)
+          .send(res.locals.cachedResponse.body);
+      }
       return await getCreatorCourses(req, res);
     } catch (err) {
       next(err);
@@ -78,8 +90,15 @@ v2CreatorsRouter.get(
 v2CreatorsRouter.get(
   "/:creator_id/courses/top",
   creatorIDProtected,
+  GlobalRouteCache.createCacheSubscriber(),
   async (req, res, next) => {
     try {
+      if (res.locals.cachedResponse) {
+        return res
+          .status(res.locals.cachedResponse.statusCode)
+          .set(res.locals.cachedResponse.headers)
+          .send(res.locals.cachedResponse.body);
+      }
       return await getCreatorTopCourses(req, res);
     } catch (err) {
       next(err);
@@ -90,8 +109,15 @@ v2CreatorsRouter.get(
 v2CreatorsRouter.get(
   "/:creator_id/courses/:course_id/edit",
   creatorIDProtected,
+  GlobalRouteCache.createCacheSubscriber(),
   async (req, res, next) => {
     try {
+      if (res.locals.cachedResponse) {
+        return res
+          .status(res.locals.cachedResponse.statusCode)
+          .set(res.locals.cachedResponse.headers)
+          .send(res.locals.cachedResponse.body);
+      }
       return await getCourseForEdit(req, res);
     } catch (err) {
       next(err);
@@ -102,8 +128,15 @@ v2CreatorsRouter.get(
 v2CreatorsRouter.get(
   "/:creator_id/courses/:course_id/lessons/edit",
   creatorIDProtected,
+  GlobalRouteCache.createCacheSubscriber(),
   async (req, res, next) => {
     try {
+      if (res.locals.cachedResponse) {
+        return res
+          .status(res.locals.cachedResponse.statusCode)
+          .set(res.locals.cachedResponse.headers)
+          .send(res.locals.cachedResponse.body);
+      }
       return await getLessonsForEdit(req, res);
     } catch (err) {
       next(err);
@@ -114,8 +147,15 @@ v2CreatorsRouter.get(
 v2CreatorsRouter.get(
   "/:creator_id/assessments/:assessment_id/edit",
   creatorIDProtected,
+  GlobalRouteCache.createCacheSubscriber(),
   async (req, res, next) => {
     try {
+      if (res.locals.cachedResponse) {
+        return res
+          .status(res.locals.cachedResponse.statusCode)
+          .set(res.locals.cachedResponse.headers)
+          .send(res.locals.cachedResponse.body);
+      }
       return await getAssessmentForEdit(req, res);
     } catch (err) {
       next(err);
@@ -126,8 +166,15 @@ v2CreatorsRouter.get(
 v2CreatorsRouter.get(
   "/:creator_id/courses/:course_id/exam/edit",
   creatorIDProtected,
+  GlobalRouteCache.createCacheSubscriber(),
   async (req, res, next) => {
     try {
+      if (res.locals.cachedResponse) {
+        return res
+          .status(res.locals.cachedResponse.statusCode)
+          .set(res.locals.cachedResponse.headers)
+          .send(res.locals.cachedResponse.body);
+      }
       return await getExamForEdit(req, res);
     } catch (err) {
       next(err);
@@ -138,8 +185,15 @@ v2CreatorsRouter.get(
 v2CreatorsRouter.get(
   "/:creator_id/me",
   creatorIDProtected,
+  GlobalRouteCache.createCacheSubscriber(),
   async (req, res, next) => {
     try {
+      if (res.locals.cachedResponse) {
+        return res
+          .status(res.locals.cachedResponse.statusCode)
+          .set(res.locals.cachedResponse.headers)
+          .send(res.locals.cachedResponse.body);
+      }
       return await getProfile(req, res);
     } catch (err) {
       next(err);
@@ -150,6 +204,7 @@ v2CreatorsRouter.get(
 v2CreatorsRouter.put(
   "/:creator_id/courses/:course_id",
   creatorIDProtected,
+  GlobalRouteCache.createCachePublisher(),
   async (req, res, next) => {
     try {
       return await updateCourse(req, res);
@@ -162,6 +217,7 @@ v2CreatorsRouter.put(
 v2CreatorsRouter.put(
   "/:creator_id/me",
   creatorIDProtected,
+  GlobalRouteCache.createCachePublisher(),
   async (req, res, next) => {
     try {
       return await updateProfile(req, res);
@@ -174,6 +230,7 @@ v2CreatorsRouter.put(
 v2CreatorsRouter.put(
   "/:creator_id/assessments/:assessment_id",
   creatorIDProtected,
+  GlobalRouteCache.createCachePublisher(),
   async (req, res, next) => {
     try {
       return await updateAssessment(req, res);
@@ -186,6 +243,7 @@ v2CreatorsRouter.put(
 v2CreatorsRouter.post(
   "/:creator_id/courses/:course_id/lessons/",
   creatorIDProtected,
+  GlobalRouteCache.createCachePublisher(),
   async (req, res, next) => {
     try {
       return await createLesson(req, res);
@@ -198,6 +256,7 @@ v2CreatorsRouter.post(
 v2CreatorsRouter.post(
   "/:creator_id/courses/:course_id/lessons/:lesson_id/quizzes",
   creatorIDProtected,
+  GlobalRouteCache.createCachePublisher(),
   async (req, res, next) => {
     try {
       return await createQuiz(req, res);
@@ -210,6 +269,7 @@ v2CreatorsRouter.post(
 v2CreatorsRouter.post(
   "/:creator_id/courses/:course_id/exams/",
   creatorIDProtected,
+  GlobalRouteCache.createCachePublisher(),
   async (req, res, next) => {
     try {
       return await createExam(req, res);
@@ -222,6 +282,7 @@ v2CreatorsRouter.post(
 v2CreatorsRouter.post(
   "/:creator_id/courses/:course_id/lessons/:lesson_id/contents",
   creatorIDProtected,
+  GlobalRouteCache.createCachePublisher(),
   async (req, res, next) => {
     try {
       return await createContent(req, res);
@@ -234,6 +295,7 @@ v2CreatorsRouter.post(
 v2CreatorsRouter.post(
   "/:creator_id/courses",
   creatorIDProtected,
+  GlobalRouteCache.createCachePublisher(),
   async (req, res, next) => {
     try {
       return await createCourse(req, res);
@@ -273,6 +335,7 @@ v2CreatorsRouter.post(
 v2CreatorsRouter.post(
   "/:creator_id/courses/:course_id/archive",
   creatorIDProtected,
+  GlobalRouteCache.createCachePublisher(),
   async (req, res, next) => {
     try {
       return await archiveCourse(req, res);
@@ -285,6 +348,7 @@ v2CreatorsRouter.post(
 v2CreatorsRouter.post(
   "/:creator_id/courses/:course_id/unarchive",
   creatorIDProtected,
+  GlobalRouteCache.createCachePublisher(),
   async (req, res, next) => {
     try {
       return await unarchiveCourse(req, res);
@@ -297,6 +361,7 @@ v2CreatorsRouter.post(
 v2CreatorsRouter.delete(
   "/:creator_id/courses/:course_id/exams/:exam_id/",
   creatorIDProtected,
+  GlobalRouteCache.createCachePublisher(),
   async (req, res, next) => {
     try {
       return await deleteExam(req, res);
@@ -309,6 +374,7 @@ v2CreatorsRouter.delete(
 v2CreatorsRouter.delete(
   "/:creator_id/courses/:course_id/lessons/:lesson_id/quizzes/:quiz_id",
   creatorIDProtected,
+  GlobalRouteCache.createCachePublisher(),
   async (req, res, next) => {
     try {
       return await deleteQuiz(req, res);
@@ -321,6 +387,7 @@ v2CreatorsRouter.delete(
 v2CreatorsRouter.delete(
   "/:creator_id/courses/:course_id/lessons/:lesson_id/contents/:content_id",
   creatorIDProtected,
+  GlobalRouteCache.createCachePublisher(),
   async (req, res, next) => {
     try {
       return await deleteContent(req, res);
@@ -333,6 +400,7 @@ v2CreatorsRouter.delete(
 v2CreatorsRouter.delete(
   "/:creator_id/courses/:course_id",
   creatorIDProtected,
+  GlobalRouteCache.createCachePublisher(),
   async (req, res, next) => {
     try {
       return await deleteCourse(req, res);
@@ -345,6 +413,7 @@ v2CreatorsRouter.delete(
 v2CreatorsRouter.delete(
   "/:creator_id/courses/:course_id/lessons/:lesson_id",
   creatorIDProtected,
+  GlobalRouteCache.createCachePublisher(),
   async (req, res, next) => {
     try {
       return await deleteLesson(req, res);

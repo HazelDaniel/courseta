@@ -3,6 +3,8 @@ import { ServerPayloadType } from "../../../../types";
 import { AssessmentEditPayloadType } from "../../../../client.types.js";
 import { QuestionModel } from "../../../../models/v1/question.model.js";
 import { AnswerModel } from "../../../../models/v1/answer.model.js";
+import { API_VERSION } from "../../config.js";
+import GlobalRouteCache from "express-pubsubcache";
 
 export const updateAssessment = async (
   req: Request,
@@ -52,6 +54,16 @@ export const updateAssessment = async (
     message: "success!",
     ...(() => (req.user ? ({ user: req.user } as Express.User) : null))(),
   };
-  return res.status(201).json(resPayload);
+  res.status(201).json(resPayload);
 
-}
+  const affectedRoutes = [
+    `/api/${API_VERSION}/courses/:course_id/lessons`,
+    `/api/${API_VERSION}/courses/:course_id/lessons/edit`,
+    `/api/${API_VERSION}/courses/:course_id/assessments/${assessmentID}/edit`,
+    `/api/${API_VERSION}/courses/:course_id/assessments/${assessmentID}/questions`,
+  ];
+  for (const route of affectedRoutes) {
+    GlobalRouteCache.pub(route);
+  }
+  return;
+};

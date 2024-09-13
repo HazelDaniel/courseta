@@ -7,7 +7,8 @@ import {
 } from "../../../../client.types";
 import { CourseModel } from "../../../../models/v1/course.model.js";
 import { ServerError } from "../../../../utils.js";
-import v2Config from "../../config.js";
+import v2Config, { API_VERSION } from "../../config.js";
+import GlobalRouteCache from "express-pubsubcache";
 
 export const createCourse = async (
   req: Request,
@@ -60,7 +61,18 @@ export const createCourse = async (
       message: "course creation success!",
       ...(() => (req.user ? ({ user: req.user } as Express.User) : null))(),
     };
-    return res.status(201).json(resPayload);
+
+    res.status(201).json(resPayload);
+
+    const { creator_id } = req.params;
+    const affectedRoutes = [
+      `/api/${API_VERSION}/creators/${creator_id}/me`,
+      `/api/${API_VERSION}/courses/:course_id/creator/summary`,
+    ];
+    for (const route of affectedRoutes) {
+      GlobalRouteCache.pub(route);
+    }
+    return;
   } else {
     if (
       imageUploadRequest.status - 400 < 99 &&

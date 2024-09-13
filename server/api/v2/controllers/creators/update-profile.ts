@@ -1,7 +1,12 @@
 import { Request, Response } from "express";
-import { CreatorAttributeUpdateType, ServerPayloadType } from "../../../../types";
-import { UserModel } from '../../../../models/v1/user.model.js';
-import { ServerError } from '../../../../utils.js';
+import {
+  CreatorAttributeUpdateType,
+  ServerPayloadType,
+} from "../../../../types";
+import { UserModel } from "../../../../models/v1/user.model.js";
+import { ServerError } from "../../../../utils.js";
+import GlobalRouteCache from "express-pubsubcache";
+import { API_VERSION } from "../../config.js";
 
 export const updateProfile = async (
   req: Request,
@@ -24,6 +29,13 @@ export const updateProfile = async (
     message: "success!",
     ...(() => (req.user ? ({ user: req.user } as Express.User) : null))(),
   };
-  return res.status(200).json(resPayload);
-};
+  res.status(200).json(resPayload);
 
+  const affectedRoutes = [
+    `/api/${API_VERSION}/courses/:course_id/creator/summary`,
+  ];
+  for (const route of affectedRoutes) {
+    GlobalRouteCache.pub(route);
+  }
+  return;
+};

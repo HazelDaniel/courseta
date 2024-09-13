@@ -10,10 +10,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import express from "express";
 import passport from "passport";
 import { QuizModel } from "../../../models/v1/quiz.model.js";
+import GlobalRouteCache from "express-pubsubcache";
 export const v2QuizzesRouter = express.Router();
 v2QuizzesRouter.use(passport.initialize());
-v2QuizzesRouter.get("/:quiz_id", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+v2QuizzesRouter.get("/:quiz_id", GlobalRouteCache.createCacheSubscriber(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        if (res.locals.cachedResponse) {
+            return res
+                .status(res.locals.cachedResponse.statusCode)
+                .set(res.locals.cachedResponse.headers)
+                .send(res.locals.cachedResponse.body);
+        }
         const { quiz_id: assessmentID } = req.params;
         const { user } = req;
         const resData = yield QuizModel.search(assessmentID);

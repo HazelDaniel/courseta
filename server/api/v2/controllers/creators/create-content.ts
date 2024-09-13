@@ -2,12 +2,18 @@ import { Request, Response } from "express";
 import { ServerPayloadType } from "../../../../types";
 import { LessonContentAdditionPayloadType } from "../../../../client.types";
 import { LessonModel } from "../../../../models/v1/lesson.model.js";
+import { API_VERSION } from "../../config.js";
+import GlobalRouteCache from "express-pubsubcache";
 
 export const createContent = async (
   req: Request,
   res: Response<any, Record<string, any>>
 ) => {
-  const { lesson_id: lessonID } = req.params;
+  const {
+    lesson_id: lessonID,
+    course_id: courseID,
+    creator_id: creatorID,
+  } = req.params;
   const contentCreationPayload: LessonContentAdditionPayloadType =
     req.body as LessonContentAdditionPayloadType;
   const { contentType, duration, href, title } = contentCreationPayload;
@@ -30,5 +36,15 @@ export const createContent = async (
     message: "content created successfully!",
     ...(() => (req.user ? ({ user: req.user } as Express.User) : null))(),
   };
+
   res.status(201).json(resPayload);
+
+  const affectedRoutes = [
+    `/api/${API_VERSION}/courses/${courseID}`,
+    `/api/${API_VERSION}/creators/${creatorID}/courses/${courseID}/lessons/edit`,
+  ];
+  for (const route of affectedRoutes) {
+    GlobalRouteCache.pub(route);
+  }
+  return;
 };

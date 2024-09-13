@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import type { ServerPayloadType } from "../../../../types";
 import type { StudentReviewPayloadType } from "../../../../client.types";
 import { ReviewModel } from "../../../../models/v1/review.model.js";
+import { API_VERSION } from "../../config.js";
+import GlobalRouteCache from "express-pubsubcache";
 
 export const setCourseReview = async (
   req: Request,
@@ -24,5 +26,15 @@ export const setCourseReview = async (
     message: "course reviewed successfully!",
     ...(() => (user ? ({ user } as Express.User) : null))(),
   };
-  return res.status(201).json(resPayload);
+  res.status(201).json(resPayload);
+
+  const affectedRoutes = [
+    `/api/${API_VERSION}/students/${studentID}/courses/recommended`,
+    `/api/${API_VERSION}/creators/:creator_id/me`,
+    `/api/${API_VERSION}/courses/:course_id/creator/summary`,
+  ];
+  for (const route of affectedRoutes) {
+    GlobalRouteCache.pub(route);
+  }
+  return;
 };

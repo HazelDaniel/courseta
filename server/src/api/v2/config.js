@@ -1,5 +1,6 @@
 import { config } from "dotenv";
 config({ path: [".env", ".env.dev", ".env.prod"] });
+export const API_VERSION = 2;
 export const v2Config = {
     hashingOptions: {
         digest: "md5",

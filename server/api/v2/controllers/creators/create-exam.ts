@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import { ServerPayloadType } from "../../../../types";
 import { ExamCreationPayloadType } from "../../../../client.types";
 import { ExamModel } from "../../../../models/v1/exam.model.js";
+import GlobalRouteCache from "express-pubsubcache";
+import { API_VERSION } from "../../config.js";
 
 export const createExam = async (
   req: Request,
@@ -27,5 +29,11 @@ export const createExam = async (
     message: "exam creation success!",
     ...(() => (req.user ? ({ user: req.user } as Express.User) : null))(),
   };
-  return res.status(201).json(resPayload);
+  res.status(201).json(resPayload);
+
+  const affectedRoutes = [`/api/${API_VERSION}/courses/${courseID}`];
+  for (const route of affectedRoutes) {
+    GlobalRouteCache.pub(route);
+  }
+  return;
 };

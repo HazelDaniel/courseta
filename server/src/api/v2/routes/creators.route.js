@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import express from "express";
 import passport from "passport";
 import { creatorIDProtected, creatorsLocalProtected, } from "../middlewares/auth.middleware.js";
+// CONTROLLERS
 import { signUp } from "../controllers/creators/sign-up.js";
 import { signIn } from "../controllers/creators/sign-in.js";
 import { getCreatorCourses } from "../controllers/creators/get-creator-courses.js";
@@ -35,6 +36,8 @@ import { deleteQuiz } from "../controllers/creators/delete-quiz.js";
 import { deleteContent } from "../controllers/creators/delete-content.js";
 import { deleteCourse } from "../controllers/creators/delete-course.js";
 import { deleteLesson } from "../controllers/creators/delete-lesson.js";
+// CACHE
+import GlobalRouteCache from "express-pubsubcache";
 export const v2CreatorsRouter = express.Router();
 // ROUTER MIDDLEWARES
 v2CreatorsRouter.use(passport.initialize());
@@ -58,63 +61,105 @@ v2CreatorsRouter.post("/auth/login", passport.authenticate("creators_local"), (r
 }));
 v2CreatorsRouter.use(creatorsLocalProtected);
 // ROUTE HANDLERS (PROTECTED)
-v2CreatorsRouter.get("/:creator_id/courses", creatorIDProtected, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+v2CreatorsRouter.get("/:creator_id/courses", creatorIDProtected, GlobalRouteCache.createCacheSubscriber(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        if (res.locals.cachedResponse) {
+            return res
+                .status(res.locals.cachedResponse.statusCode)
+                .set(res.locals.cachedResponse.headers)
+                .send(res.locals.cachedResponse.body);
+        }
         return yield getCreatorCourses(req, res);
     }
     catch (err) {
         next(err);
     }
 }));
-v2CreatorsRouter.get("/:creator_id/courses/top", creatorIDProtected, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+v2CreatorsRouter.get("/:creator_id/courses/top", creatorIDProtected, GlobalRouteCache.createCacheSubscriber(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        if (res.locals.cachedResponse) {
+            return res
+                .status(res.locals.cachedResponse.statusCode)
+                .set(res.locals.cachedResponse.headers)
+                .send(res.locals.cachedResponse.body);
+        }
         return yield getCreatorTopCourses(req, res);
     }
     catch (err) {
         next(err);
     }
 }));
-v2CreatorsRouter.get("/:creator_id/courses/:course_id/edit", creatorIDProtected, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+v2CreatorsRouter.get("/:creator_id/courses/:course_id/edit", creatorIDProtected, GlobalRouteCache.createCacheSubscriber(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        if (res.locals.cachedResponse) {
+            return res
+                .status(res.locals.cachedResponse.statusCode)
+                .set(res.locals.cachedResponse.headers)
+                .send(res.locals.cachedResponse.body);
+        }
         return yield getCourseForEdit(req, res);
     }
     catch (err) {
         next(err);
     }
 }));
-v2CreatorsRouter.get("/:creator_id/courses/:course_id/lessons/edit", creatorIDProtected, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+v2CreatorsRouter.get("/:creator_id/courses/:course_id/lessons/edit", creatorIDProtected, GlobalRouteCache.createCacheSubscriber(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        if (res.locals.cachedResponse) {
+            return res
+                .status(res.locals.cachedResponse.statusCode)
+                .set(res.locals.cachedResponse.headers)
+                .send(res.locals.cachedResponse.body);
+        }
         return yield getLessonsForEdit(req, res);
     }
     catch (err) {
         next(err);
     }
 }));
-v2CreatorsRouter.get("/:creator_id/assessments/:assessment_id/edit", creatorIDProtected, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+v2CreatorsRouter.get("/:creator_id/assessments/:assessment_id/edit", creatorIDProtected, GlobalRouteCache.createCacheSubscriber(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        if (res.locals.cachedResponse) {
+            return res
+                .status(res.locals.cachedResponse.statusCode)
+                .set(res.locals.cachedResponse.headers)
+                .send(res.locals.cachedResponse.body);
+        }
         return yield getAssessmentForEdit(req, res);
     }
     catch (err) {
         next(err);
     }
 }));
-v2CreatorsRouter.get("/:creator_id/courses/:course_id/exam/edit", creatorIDProtected, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+v2CreatorsRouter.get("/:creator_id/courses/:course_id/exam/edit", creatorIDProtected, GlobalRouteCache.createCacheSubscriber(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        if (res.locals.cachedResponse) {
+            return res
+                .status(res.locals.cachedResponse.statusCode)
+                .set(res.locals.cachedResponse.headers)
+                .send(res.locals.cachedResponse.body);
+        }
         return yield getExamForEdit(req, res);
     }
     catch (err) {
         next(err);
     }
 }));
-v2CreatorsRouter.get("/:creator_id/me", creatorIDProtected, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+v2CreatorsRouter.get("/:creator_id/me", creatorIDProtected, GlobalRouteCache.createCacheSubscriber(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        if (res.locals.cachedResponse) {
+            return res
+                .status(res.locals.cachedResponse.statusCode)
+                .set(res.locals.cachedResponse.headers)
+                .send(res.locals.cachedResponse.body);
+        }
         return yield getProfile(req, res);
     }
     catch (err) {
         next(err);
     }
 }));
-v2CreatorsRouter.put("/:creator_id/courses/:course_id", creatorIDProtected, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+v2CreatorsRouter.put("/:creator_id/courses/:course_id", creatorIDProtected, GlobalRouteCache.createCachePublisher(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         return yield updateCourse(req, res);
     }
@@ -122,7 +167,7 @@ v2CreatorsRouter.put("/:creator_id/courses/:course_id", creatorIDProtected, (req
         next(err);
     }
 }));
-v2CreatorsRouter.put("/:creator_id/me", creatorIDProtected, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+v2CreatorsRouter.put("/:creator_id/me", creatorIDProtected, GlobalRouteCache.createCachePublisher(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         return yield updateProfile(req, res);
     }
@@ -130,7 +175,7 @@ v2CreatorsRouter.put("/:creator_id/me", creatorIDProtected, (req, res, next) => 
         next(err);
     }
 }));
-v2CreatorsRouter.put("/:creator_id/assessments/:assessment_id", creatorIDProtected, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+v2CreatorsRouter.put("/:creator_id/assessments/:assessment_id", creatorIDProtected, GlobalRouteCache.createCachePublisher(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         return yield updateAssessment(req, res);
     }
@@ -138,7 +183,7 @@ v2CreatorsRouter.put("/:creator_id/assessments/:assessment_id", creatorIDProtect
         next(err);
     }
 }));
-v2CreatorsRouter.post("/:creator_id/courses/:course_id/lessons/", creatorIDProtected, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+v2CreatorsRouter.post("/:creator_id/courses/:course_id/lessons/", creatorIDProtected, GlobalRouteCache.createCachePublisher(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         return yield createLesson(req, res);
     }
@@ -146,7 +191,7 @@ v2CreatorsRouter.post("/:creator_id/courses/:course_id/lessons/", creatorIDProte
         next(err);
     }
 }));
-v2CreatorsRouter.post("/:creator_id/courses/:course_id/lessons/:lesson_id/quizzes", creatorIDProtected, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+v2CreatorsRouter.post("/:creator_id/courses/:course_id/lessons/:lesson_id/quizzes", creatorIDProtected, GlobalRouteCache.createCachePublisher(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         return yield createQuiz(req, res);
     }
@@ -154,7 +199,7 @@ v2CreatorsRouter.post("/:creator_id/courses/:course_id/lessons/:lesson_id/quizze
         next(err);
     }
 }));
-v2CreatorsRouter.post("/:creator_id/courses/:course_id/exams/", creatorIDProtected, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+v2CreatorsRouter.post("/:creator_id/courses/:course_id/exams/", creatorIDProtected, GlobalRouteCache.createCachePublisher(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         return yield createExam(req, res);
     }
@@ -162,7 +207,7 @@ v2CreatorsRouter.post("/:creator_id/courses/:course_id/exams/", creatorIDProtect
         next(err);
     }
 }));
-v2CreatorsRouter.post("/:creator_id/courses/:course_id/lessons/:lesson_id/contents", creatorIDProtected, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+v2CreatorsRouter.post("/:creator_id/courses/:course_id/lessons/:lesson_id/contents", creatorIDProtected, GlobalRouteCache.createCachePublisher(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         return yield createContent(req, res);
     }
@@ -170,7 +215,7 @@ v2CreatorsRouter.post("/:creator_id/courses/:course_id/lessons/:lesson_id/conten
         next(err);
     }
 }));
-v2CreatorsRouter.post("/:creator_id/courses", creatorIDProtected, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+v2CreatorsRouter.post("/:creator_id/courses", creatorIDProtected, GlobalRouteCache.createCachePublisher(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         return yield createCourse(req, res);
     }
@@ -198,7 +243,7 @@ v2CreatorsRouter.post("/pass/:creator_id/new", creatorIDProtected, (req, res, ne
         next(err);
     }
 }));
-v2CreatorsRouter.post("/:creator_id/courses/:course_id/archive", creatorIDProtected, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+v2CreatorsRouter.post("/:creator_id/courses/:course_id/archive", creatorIDProtected, GlobalRouteCache.createCachePublisher(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         return yield archiveCourse(req, res);
     }
@@ -206,7 +251,7 @@ v2CreatorsRouter.post("/:creator_id/courses/:course_id/archive", creatorIDProtec
         next(err);
     }
 }));
-v2CreatorsRouter.post("/:creator_id/courses/:course_id/unarchive", creatorIDProtected, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+v2CreatorsRouter.post("/:creator_id/courses/:course_id/unarchive", creatorIDProtected, GlobalRouteCache.createCachePublisher(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         return yield unarchiveCourse(req, res);
     }
@@ -214,7 +259,7 @@ v2CreatorsRouter.post("/:creator_id/courses/:course_id/unarchive", creatorIDProt
         next(err);
     }
 }));
-v2CreatorsRouter.delete("/:creator_id/courses/:course_id/exams/:exam_id/", creatorIDProtected, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+v2CreatorsRouter.delete("/:creator_id/courses/:course_id/exams/:exam_id/", creatorIDProtected, GlobalRouteCache.createCachePublisher(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         return yield deleteExam(req, res);
     }
@@ -222,7 +267,7 @@ v2CreatorsRouter.delete("/:creator_id/courses/:course_id/exams/:exam_id/", creat
         next(err);
     }
 }));
-v2CreatorsRouter.delete("/:creator_id/courses/:course_id/lessons/:lesson_id/quizzes/:quiz_id", creatorIDProtected, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+v2CreatorsRouter.delete("/:creator_id/courses/:course_id/lessons/:lesson_id/quizzes/:quiz_id", creatorIDProtected, GlobalRouteCache.createCachePublisher(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         return yield deleteQuiz(req, res);
     }
@@ -230,7 +275,7 @@ v2CreatorsRouter.delete("/:creator_id/courses/:course_id/lessons/:lesson_id/quiz
         next(err);
     }
 }));
-v2CreatorsRouter.delete("/:creator_id/courses/:course_id/lessons/:lesson_id/contents/:content_id", creatorIDProtected, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+v2CreatorsRouter.delete("/:creator_id/courses/:course_id/lessons/:lesson_id/contents/:content_id", creatorIDProtected, GlobalRouteCache.createCachePublisher(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         return yield deleteContent(req, res);
     }
@@ -238,7 +283,7 @@ v2CreatorsRouter.delete("/:creator_id/courses/:course_id/lessons/:lesson_id/cont
         next(err);
     }
 }));
-v2CreatorsRouter.delete("/:creator_id/courses/:course_id", creatorIDProtected, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+v2CreatorsRouter.delete("/:creator_id/courses/:course_id", creatorIDProtected, GlobalRouteCache.createCachePublisher(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         return yield deleteCourse(req, res);
     }
@@ -246,7 +291,7 @@ v2CreatorsRouter.delete("/:creator_id/courses/:course_id", creatorIDProtected, (
         next(err);
     }
 }));
-v2CreatorsRouter.delete("/:creator_id/courses/:course_id/lessons/:lesson_id", creatorIDProtected, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+v2CreatorsRouter.delete("/:creator_id/courses/:course_id/lessons/:lesson_id", creatorIDProtected, GlobalRouteCache.createCachePublisher(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         return yield deleteLesson(req, res);
     }

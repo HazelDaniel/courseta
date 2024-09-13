@@ -20,9 +20,10 @@ import {
   serializeDeserializeUser,
   studentsLocalProtected,
 } from "../middlewares/auth.middleware.js";
-import v2Config from "../config.js";
+import v2Config, { API_VERSION } from "../config.js";
 import Mailer from "../services/mail.service.js";
 import Template from "../services/template.service.js";
+import GlobalRouteCache from "express-pubsubcache";
 
 export const v2StudentsRouter = express.Router();
 
@@ -92,9 +93,16 @@ v2StudentsRouter.use(studentsLocalProtected);
 v2StudentsRouter.get(
   "/:student_id/courses",
   studentIDProtected,
+  GlobalRouteCache.createCacheSubscriber(),
   async (req, res, next) => {
     const { student_id: studentID } = req.params;
     try {
+      if (res.locals.cachedResponse) {
+        return res
+          .status(res.locals.cachedResponse.statusCode)
+          .set(res.locals.cachedResponse.headers)
+          .send(res.locals.cachedResponse.body);
+      }
       const resCourses = await CourseModel.all({
         variant: "student",
         studentID,
@@ -114,8 +122,15 @@ v2StudentsRouter.get(
 v2StudentsRouter.get(
   "/:student_id/courses/recommended",
   studentIDProtected,
+  GlobalRouteCache.createCacheSubscriber(),
   async (req, res, next) => {
     try {
+      if (res.locals.cachedResponse) {
+        return res
+          .status(res.locals.cachedResponse.statusCode)
+          .set(res.locals.cachedResponse.headers)
+          .send(res.locals.cachedResponse.body);
+      }
       const { student_id: studentID } = req.params;
       const recommendedCourses = await CourseModel.allRecommended(studentID);
       const resPayload: ServerPayloadType<typeof recommendedCourses> = {
@@ -134,8 +149,15 @@ v2StudentsRouter.get(
 v2StudentsRouter.get(
   "/:student_id/courses/unfinished",
   studentIDProtected,
+  GlobalRouteCache.createCacheSubscriber(),
   async (req, res, next) => {
     try {
+      if (res.locals.cachedResponse) {
+        return res
+          .status(res.locals.cachedResponse.statusCode)
+          .set(res.locals.cachedResponse.headers)
+          .send(res.locals.cachedResponse.body);
+      }
       const { student_id: studentID } = req.params;
       const unfinishedCourses = await CourseModel.allRecentUnfinished(
         studentID
@@ -155,8 +177,15 @@ v2StudentsRouter.get(
 v2StudentsRouter.get(
   "/:student_id/reports",
   studentIDProtected,
+  GlobalRouteCache.createCacheSubscriber(),
   async (req, res, next) => {
     try {
+      if (res.locals.cachedResponse) {
+        return res
+          .status(res.locals.cachedResponse.statusCode)
+          .set(res.locals.cachedResponse.headers)
+          .send(res.locals.cachedResponse.body);
+      }
       const { student_id: studentID } = req.params;
       const reports = await AssessmentModel.getAssessmentsReportFor(studentID);
       const resPayload: ServerPayloadType<typeof reports> = {
@@ -174,8 +203,15 @@ v2StudentsRouter.get(
 v2StudentsRouter.get(
   "/:student_id/me",
   studentIDProtected,
+  GlobalRouteCache.createCacheSubscriber(),
   async (req, res, next) => {
     try {
+      if (res.locals.cachedResponse) {
+        return res
+          .status(res.locals.cachedResponse.statusCode)
+          .set(res.locals.cachedResponse.headers)
+          .send(res.locals.cachedResponse.body);
+      }
       const studentEmail = (req.user as StudentSessionUserType).email;
       const resStudent = await StudentModel.getProfile(studentEmail);
       const resPayload: ServerPayloadType<typeof resStudent> = {
@@ -193,6 +229,7 @@ v2StudentsRouter.get(
 v2StudentsRouter.put(
   "/:student_id/me",
   studentIDProtected,
+  GlobalRouteCache.createCachePublisher(),
   async (req, res, next) => {
     try {
       const { student_id: studentID } = req.params;
@@ -213,7 +250,14 @@ v2StudentsRouter.put(
         message: "success!",
         ...(() => (req.user ? ({ user: req.user } as Express.User) : null))(),
       };
-      return res.status(200).json(resPayload);
+
+      res.status(200).json(resPayload);
+
+      const affectedRoutes = [`/api/${API_VERSION}/courses/:course_id/reviews`];
+      for (const route of affectedRoutes) {
+        GlobalRouteCache.pub(route);
+      }
+      return;
     } catch (err) {
       next(err);
     }

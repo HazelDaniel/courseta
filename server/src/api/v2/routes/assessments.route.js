@@ -12,10 +12,17 @@ import passport from "passport";
 import { QuestionModel } from "../../../models/v1/question.model.js";
 import { ServerError } from "../../../utils.js";
 import { AssessmentModel } from "../../../models/v1/assessment.model.js";
+import GlobalRouteCache from "express-pubsubcache";
 export const v2AssessmentsRouter = express.Router();
 v2AssessmentsRouter.use(passport.initialize());
-v2AssessmentsRouter.get("/:assessment_id/questions", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+v2AssessmentsRouter.get("/:assessment_id/questions", GlobalRouteCache.createCacheSubscriber(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        if (res.locals.cachedResponse) {
+            return res
+                .status(res.locals.cachedResponse.statusCode)
+                .set(res.locals.cachedResponse.headers)
+                .send(res.locals.cachedResponse.body);
+        }
         const { assessment_id: assessmentID } = req.params;
         const { user } = req;
         const resData = yield QuestionModel.getQuestionsFor(assessmentID);
@@ -26,7 +33,7 @@ v2AssessmentsRouter.get("/:assessment_id/questions", (req, res, next) => __await
         next(err);
     }
 }));
-v2AssessmentsRouter.post("/:assessment_id/submit", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+v2AssessmentsRouter.post("/:assessment_id/submit", GlobalRouteCache.createCachePublisher(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { assessment_id: assessmentID } = req.params;
         const { user } = req;

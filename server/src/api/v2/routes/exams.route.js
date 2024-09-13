@@ -10,10 +10,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import express from "express";
 import passport from "passport";
 import { ExamModel } from "../../../models/v1/exam.model.js";
+import GlobalRouteCache from "express-pubsubcache";
 export const v2ExamsRouter = express.Router();
 v2ExamsRouter.use(passport.initialize());
-v2ExamsRouter.get("/:exam_id", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+v2ExamsRouter.get("/:exam_id", GlobalRouteCache.createCacheSubscriber(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        if (res.locals.cachedResponse) {
+            return res
+                .status(res.locals.cachedResponse.statusCode)
+                .set(res.locals.cachedResponse.headers)
+                .send(res.locals.cachedResponse.body);
+        }
         const { exam_id: assessmentID } = req.params;
         const { user } = req;
         const resData = yield ExamModel.search(assessmentID);

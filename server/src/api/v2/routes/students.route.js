@@ -17,9 +17,10 @@ import { CourseModel } from "../../../models/v1/course.model.js";
 import { UserModel } from "../../../models/v1/user.model.js";
 import { AssessmentModel } from "../../../models/v1/assessment.model.js";
 import { studentIDProtected, studentsLocalProtected, } from "../middlewares/auth.middleware.js";
-import v2Config from "../config.js";
+import v2Config, { API_VERSION } from "../config.js";
 import Mailer from "../services/mail.service.js";
 import Template from "../services/template.service.js";
+import GlobalRouteCache from "express-pubsubcache";
 export const v2StudentsRouter = express.Router();
 v2StudentsRouter.use(passport.initialize());
 // v2StudentsRouter.use(serializeDeserializeUser);
@@ -59,9 +60,15 @@ v2StudentsRouter.post("/auth/login", passport.authenticate("students_local"), (r
     }
 }));
 v2StudentsRouter.use(studentsLocalProtected);
-v2StudentsRouter.get("/:student_id/courses", studentIDProtected, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+v2StudentsRouter.get("/:student_id/courses", studentIDProtected, GlobalRouteCache.createCacheSubscriber(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { student_id: studentID } = req.params;
     try {
+        if (res.locals.cachedResponse) {
+            return res
+                .status(res.locals.cachedResponse.statusCode)
+                .set(res.locals.cachedResponse.headers)
+                .send(res.locals.cachedResponse.body);
+        }
         const resCourses = yield CourseModel.all({
             variant: "student",
             studentID,
@@ -73,8 +80,14 @@ v2StudentsRouter.get("/:student_id/courses", studentIDProtected, (req, res, next
         next(err);
     }
 }));
-v2StudentsRouter.get("/:student_id/courses/recommended", studentIDProtected, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+v2StudentsRouter.get("/:student_id/courses/recommended", studentIDProtected, GlobalRouteCache.createCacheSubscriber(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        if (res.locals.cachedResponse) {
+            return res
+                .status(res.locals.cachedResponse.statusCode)
+                .set(res.locals.cachedResponse.headers)
+                .send(res.locals.cachedResponse.body);
+        }
         const { student_id: studentID } = req.params;
         const recommendedCourses = yield CourseModel.allRecommended(studentID);
         const resPayload = Object.assign({ message: null, payload: recommendedCourses }, (() => (req.user ? { user: req.user } : null))());
@@ -84,8 +97,14 @@ v2StudentsRouter.get("/:student_id/courses/recommended", studentIDProtected, (re
         next(err);
     }
 }));
-v2StudentsRouter.get("/:student_id/courses/unfinished", studentIDProtected, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+v2StudentsRouter.get("/:student_id/courses/unfinished", studentIDProtected, GlobalRouteCache.createCacheSubscriber(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        if (res.locals.cachedResponse) {
+            return res
+                .status(res.locals.cachedResponse.statusCode)
+                .set(res.locals.cachedResponse.headers)
+                .send(res.locals.cachedResponse.body);
+        }
         const { student_id: studentID } = req.params;
         const unfinishedCourses = yield CourseModel.allRecentUnfinished(studentID);
         const resPayload = Object.assign({ message: null, payload: unfinishedCourses }, (() => (req.user ? { user: req.user } : null))());
@@ -95,8 +114,14 @@ v2StudentsRouter.get("/:student_id/courses/unfinished", studentIDProtected, (req
         next(err);
     }
 }));
-v2StudentsRouter.get("/:student_id/reports", studentIDProtected, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+v2StudentsRouter.get("/:student_id/reports", studentIDProtected, GlobalRouteCache.createCacheSubscriber(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        if (res.locals.cachedResponse) {
+            return res
+                .status(res.locals.cachedResponse.statusCode)
+                .set(res.locals.cachedResponse.headers)
+                .send(res.locals.cachedResponse.body);
+        }
         const { student_id: studentID } = req.params;
         const reports = yield AssessmentModel.getAssessmentsReportFor(studentID);
         const resPayload = Object.assign({ message: null, payload: reports }, (() => (req.user ? { user: req.user } : null))());
@@ -106,8 +131,14 @@ v2StudentsRouter.get("/:student_id/reports", studentIDProtected, (req, res, next
         next(err);
     }
 }));
-v2StudentsRouter.get("/:student_id/me", studentIDProtected, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+v2StudentsRouter.get("/:student_id/me", studentIDProtected, GlobalRouteCache.createCacheSubscriber(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        if (res.locals.cachedResponse) {
+            return res
+                .status(res.locals.cachedResponse.statusCode)
+                .set(res.locals.cachedResponse.headers)
+                .send(res.locals.cachedResponse.body);
+        }
         const studentEmail = req.user.email;
         const resStudent = yield StudentModel.getProfile(studentEmail);
         const resPayload = Object.assign({ payload: resStudent, message: null }, (() => (req.user ? { user: req.user } : null))());
@@ -117,7 +148,7 @@ v2StudentsRouter.get("/:student_id/me", studentIDProtected, (req, res, next) => 
         next(err);
     }
 }));
-v2StudentsRouter.put("/:student_id/me", studentIDProtected, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+v2StudentsRouter.put("/:student_id/me", studentIDProtected, GlobalRouteCache.createCachePublisher(), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { student_id: studentID } = req.params;
         const updatePayload = Object.assign(Object.assign({}, req.body), { userID: studentID });
@@ -129,7 +160,12 @@ v2StudentsRouter.put("/:student_id/me", studentIDProtected, (req, res, next) => 
             throw new ServerError("could not update fields, check inputs and try again!", 400);
         }
         const resPayload = Object.assign({ message: "success!" }, (() => (req.user ? { user: req.user } : null))());
-        return res.status(200).json(resPayload);
+        res.status(200).json(resPayload);
+        const affectedRoutes = [`/api/${API_VERSION}/courses/:course_id/reviews`];
+        for (const route of affectedRoutes) {
+            GlobalRouteCache.pub(route);
+        }
+        return;
     }
     catch (err) {
         next(err);

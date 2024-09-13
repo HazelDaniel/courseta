@@ -15,64 +15,135 @@ import { setCourseReview } from "../controllers/courses/set-course-review.js";
 import { enrollCourse } from "../controllers/courses/enroll-course.js";
 import { unenrollCourse } from "../controllers/courses/unenroll-course.js";
 
+import GlobalRouteCache from "express-pubsubcache";
+import { API_VERSION } from "../config.js";
+import { StudentEnrollPayloadType } from "../../../client.types.js";
+
 export const v2CoursesRouter = express.Router();
 
 v2CoursesRouter.use(passport.initialize());
 v2CoursesRouter.use(serializeDeserializeUser);
 
 // ROUTE HANDLERS
-v2CoursesRouter.get("/", async (req, res, next) => {
-  try {
-    return await getAllCourses(req, res);
-  } catch (err) {
-    next(err);
+v2CoursesRouter.get(
+  "/",
+  GlobalRouteCache.createCacheSubscriber(),
+  async (req, res, next) => {
+    try {
+      if (res.locals.cachedResponse) {
+        return res
+          .status(res.locals.cachedResponse.statusCode)
+          .set(res.locals.cachedResponse.headers)
+          .send(res.locals.cachedResponse.body);
+      }
+      return await getAllCourses(req, res);
+    } catch (err) {
+      next(err);
+    }
   }
-});
+);
 
-v2CoursesRouter.get("/:course_id/reviews", async (req, res, next) => {
-  try {
-    return await getCourseReviews(req, res);
-  } catch (err) {
-    next(err);
+v2CoursesRouter.get(
+  "/:course_id/reviews",
+  GlobalRouteCache.createCacheSubscriber(),
+  async (req, res, next) => {
+    try {
+      if (res.locals.cachedResponse) {
+        return res
+          .status(res.locals.cachedResponse.statusCode)
+          .set(res.locals.cachedResponse.headers)
+          .send(res.locals.cachedResponse.body);
+      }
+      return await getCourseReviews(req, res);
+    } catch (err) {
+      next(err);
+    }
   }
-});
+);
 
-v2CoursesRouter.get("/:course_id/creator/summary", async (req, res, next) => {
-  try {
-    return await getCourseCreatorSummary(req, res);
-  } catch (err) {
-    next(err);
+v2CoursesRouter.get(
+  "/:course_id/creator/summary",
+  GlobalRouteCache.createCacheSubscriber(),
+  async (req, res, next) => {
+    try {
+      if (res.locals.cachedResponse) {
+        return res
+          .status(res.locals.cachedResponse.statusCode)
+          .set(res.locals.cachedResponse.headers)
+          .send(res.locals.cachedResponse.body);
+      }
+      return await getCourseCreatorSummary(req, res);
+    } catch (err) {
+      next(err);
+    }
   }
-});
+);
 
-v2CoursesRouter.get("/:course_id/lessons", async (req, res, next) => {
-  try {
-    return await getCourseLessons(req, res);
-  } catch (err) {
-    next(err);
+v2CoursesRouter.get(
+  "/:course_id/lessons",
+  GlobalRouteCache.createCacheSubscriber(),
+  async (req, res, next) => {
+    try {
+      if (res.locals.cachedResponse) {
+        return res
+          .status(res.locals.cachedResponse.statusCode)
+          .set(res.locals.cachedResponse.headers)
+          .send(res.locals.cachedResponse.body);
+      }
+      return await getCourseLessons(req, res);
+    } catch (err) {
+      next(err);
+    }
   }
-});
+);
 
-v2CoursesRouter.get("/:course_id", async (req, res, next) => {
-  try {
-    return await getCourse(req, res);
-  } catch (err) {
-    next(err);
+v2CoursesRouter.get(
+  "/:course_id",
+  GlobalRouteCache.createCacheSubscriber(),
+  async (req, res, next) => {
+    try {
+      if (res.locals.cachedResponse) {
+        return res
+          .status(res.locals.cachedResponse.statusCode)
+          .set(res.locals.cachedResponse.headers)
+          .send(res.locals.cachedResponse.body);
+      }
+      return await getCourse(req, res);
+    } catch (err) {
+      next(err);
+    }
   }
-});
+);
 
-v2CoursesRouter.get("/:course_id/exams/:exam_id", async (req, res, next) => {
-  try {
-    return await getCourseExam(req, res);
-  } catch (err) {
-    next(err);
+v2CoursesRouter.get(
+  "/:course_id/exams/:exam_id",
+  GlobalRouteCache.createCacheSubscriber(),
+  async (req, res, next) => {
+    try {
+      if (res.locals.cachedResponse) {
+        return res
+          .status(res.locals.cachedResponse.statusCode)
+          .set(res.locals.cachedResponse.headers)
+          .send(res.locals.cachedResponse.body);
+      }
+      return await getCourseExam(req, res);
+    } catch (err) {
+      next(err);
+    }
   }
-});
+);
 
 v2CoursesRouter.get(
   "/:course_id/lessons/:lesson_id/quizzes/:quiz_id",
+  GlobalRouteCache.createCacheSubscriber(),
   async (req, res, next) => {
     try {
+      if (res.locals.cachedResponse) {
+        return res
+          .status(res.locals.cachedResponse.statusCode)
+          .set(res.locals.cachedResponse.headers)
+          .send(res.locals.cachedResponse.body);
+      }
       return await getCourseLessonQuiz(req, res);
     } catch (err) {
       next(err);
@@ -82,8 +153,15 @@ v2CoursesRouter.get(
 
 v2CoursesRouter.get(
   "/:course_id/lessons/:lesson_id/contents/:content_id",
+  GlobalRouteCache.createCacheSubscriber(),
   async (req, res, next) => {
     try {
+      if (res.locals.cachedResponse) {
+        return res
+          .status(res.locals.cachedResponse.statusCode)
+          .set(res.locals.cachedResponse.headers)
+          .send(res.locals.cachedResponse.body);
+      }
       return await getCourseLessonContent(req, res);
     } catch (err) {
       next(err);
@@ -91,26 +169,38 @@ v2CoursesRouter.get(
   }
 );
 
-v2CoursesRouter.post("/:course_id/reviews", async (req, res, next) => {
-  try {
-    return await setCourseReview(req, res);
-  } catch (err) {
-    next(err);
+v2CoursesRouter.post(
+  "/:course_id/reviews",
+  GlobalRouteCache.createCachePublisher(),
+  async (req, res, next) => {
+    try {
+      return await setCourseReview(req, res);
+    } catch (err) {
+      next(err);
+    }
   }
-});
+);
 
-v2CoursesRouter.post("/:course_id/enroll", async (req, res, next) => {
-  try {
-    return await enrollCourse(req, res);
-  } catch (err) {
-    next(err);
+v2CoursesRouter.post(
+  "/:course_id/enroll",
+  GlobalRouteCache.createCachePublisher(),
+  async (req, res, next) => {
+    try {
+      return await enrollCourse(req, res);
+    } catch (err) {
+      next(err);
+    }
   }
-});
+);
 
-v2CoursesRouter.post("/:course_id/unenroll", async (req, res, next) => {
-  try {
-    return await unenrollCourse(req, res);
-  } catch (err) {
-    next(err);
+v2CoursesRouter.post(
+  "/:course_id/unenroll",
+  GlobalRouteCache.createCachePublisher(),
+  async (req, res, next) => {
+    try {
+      return await unenrollCourse(req, res);
+    } catch (err) {
+      next(err);
+    }
   }
-});
+);

@@ -42,8 +42,10 @@
     "postgres-date": "^2.1.0",
     "postgres-interval": "^3.0.0",
     "postgres-range": "^1.1.4",
+    "pubsubcache": "file:../../../../../my_packages/pubsubcache",
     "redis": "^4.7.0",
     "split2": "^4.2.0",
+    "sqlite3": "^5.1.7",
     "typescript": "^5.5.4",
     "undici-types": "^5.26.5",
     "xtend": "^4.0.2"

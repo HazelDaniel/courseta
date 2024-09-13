@@ -11,6 +11,9 @@ import { Strategy as LocalStrategy } from "passport-local";
 
 import expressSession from "express-session";
 import RedisStore from "connect-redis";
+import { SqliteCache } from './../dao/route-cache.dao.js';
+import GlobalRouteCache from "express-pubsubcache";
+
 import { createClient } from "redis";
 import { serializeDeserializeUser } from "../middlewares/auth.middleware.js";
 import { UserAuthPayloadType } from "../../../client.types.js";
@@ -43,6 +46,8 @@ const redisStore = new RedisStore({
   client: redisClient,
   prefix: "courseta_session:",
 });
+
+GlobalRouteCache.configureGlobalCache(() => new SqliteCache());
 
 export const v2Router = express.Router();
 
