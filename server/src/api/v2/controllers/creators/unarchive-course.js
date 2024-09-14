@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import { CourseModel } from "../../../../models/v1/course.model.js";
 import { API_VERSION } from "../../config.js";
-import GlobalRouteCache from "pubsubcache";
+import GlobalRouteCache from "express-pubsubcache";
 export const unarchiveCourse = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { creator_id: creatorID, course_id: courseID } = req.params;
     yield CourseModel.unarchive(+courseID, creatorID);

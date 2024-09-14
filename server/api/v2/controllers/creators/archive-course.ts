@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { ServerPayloadType } from "../../../../types";
 import { CourseModel } from "../../../../models/v1/course.model.js";
 import { API_VERSION } from "../../config.js";
-import GlobalRouteCache from "pubsubcache";
+import GlobalRouteCache from "express-pubsubcache";
 
 export const archiveCourse = async (
   req: Request,

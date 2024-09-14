@@ -9,9 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import { LessonModel } from "../../../../models/v1/lesson.model.js";
 import { API_VERSION } from "../../config.js";
-import GlobalRouteCache from "pubsubcache";
+import GlobalRouteCache from "express-pubsubcache";
 export const createQuiz = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { lesson_id: lessonID, creator_id: creatorID, course_id: courseID } = req.params;
+    const { lesson_id: lessonID, creator_id: creatorID, course_id: courseID, } = req.params;
     const quizCreationPayload = req.body;
     const { quizTitle, description, passScore } = quizCreationPayload;
     const pendingLesson = new LessonModel("", undefined, undefined, undefined, +lessonID);
