@@ -17,8 +17,8 @@ export const deleteExam = async (
   res.status(204).json(resPayload);
 
   const affectedRoutes = [
-    `/api/${API_VERSION}/courses/${courseID}/assessments/:assessment_id/questions`,
-    `/api/${API_VERSION}/students/:student_id/reports`,
+    `/api/v${API_VERSION}/courses/${courseID}/assessments/:assessment_id/questions`,
+    `/api/v${API_VERSION}/students/:student_id/reports`,
   ];
   for (const route of affectedRoutes) {
     GlobalRouteCache.pub(route);

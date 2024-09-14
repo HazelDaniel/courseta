@@ -61,8 +61,8 @@ export const createLesson = async (
   res.status(201).json(resPayload);
 
   const affectedRoutes = [
-    `/api/${API_VERSION}/courses/${courseID}`,
-    `/api/${API_VERSION}/creators/${creatorID}/courses/${courseID}/lessons/edit`,
+    `/api/v${API_VERSION}/courses/${courseID}`,
+    `/api/v${API_VERSION}/creators/${creatorID}/courses/${courseID}/lessons/edit`,
   ];
   for (const route of affectedRoutes) {
     GlobalRouteCache.pub(route);

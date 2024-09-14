@@ -66,8 +66,8 @@ export const createCourse = async (
 
     const { creator_id } = req.params;
     const affectedRoutes = [
-      `/api/${API_VERSION}/creators/${creator_id}/me`,
-      `/api/${API_VERSION}/courses/:course_id/creator/summary`,
+      `/api/v${API_VERSION}/creators/${creator_id}/me`,
+      `/api/v${API_VERSION}/courses/:course_id/creator/summary`,
     ];
     for (const route of affectedRoutes) {
       GlobalRouteCache.pub(route);

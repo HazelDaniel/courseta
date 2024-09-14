@@ -9,7 +9,7 @@ export const createExam = async (
   req: Request,
   res: Response<any, Record<string, any>>
 ) => {
-  const { course_id: courseID } = req.params;
+  const { course_id: courseID, creator_id: creatorID } = req.params;
   const examCreationPayload: ExamCreationPayloadType =
     req.body as ExamCreationPayloadType;
   const { description, duration, startDate, endDate, passScore } =
@@ -31,7 +31,10 @@ export const createExam = async (
   };
   res.status(201).json(resPayload);
 
-  const affectedRoutes = [`/api/${API_VERSION}/courses/${courseID}`];
+  const affectedRoutes = [
+    `/api/v${API_VERSION}/courses/${courseID}`,
+    `/api/v${API_VERSION}/creators/${creatorID}/courses/${courseID}/exam/edit`,
+  ];
   for (const route of affectedRoutes) {
     GlobalRouteCache.pub(route);
   }

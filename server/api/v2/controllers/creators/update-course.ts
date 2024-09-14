@@ -38,13 +38,13 @@ export const updateCourse = async (
   res.status(200).json(resPayload);
 
   const affectedRoutes = [
-    `/api/${API_VERSION}/creators/${creatorID}/courses/top`,
-    `/api/${API_VERSION}/courses`,
-    `/api/${API_VERSION}/creators/${creatorID}/courses`,
-    `/api/${API_VERSION}/creators/${creatorID}/courses/${courseID}/edit`,
-    `/api/${API_VERSION}/students/:student_id/courses/recommended`,
-    `/api/${API_VERSION}/students/:student_id/courses/unfinished`,
-    `/api/${API_VERSION}/students/:student_id/courses`,
+    `/api/v${API_VERSION}/creators/${creatorID}/courses/top`,
+    `/api/v${API_VERSION}/courses`,
+    `/api/v${API_VERSION}/creators/${creatorID}/courses`,
+    `/api/v${API_VERSION}/creators/${creatorID}/courses/${courseID}/edit`,
+    `/api/v${API_VERSION}/students/:student_id/courses/recommended`,
+    `/api/v${API_VERSION}/students/:student_id/courses/unfinished`,
+    `/api/v${API_VERSION}/students/:student_id/courses`,
   ];
   for (const route of affectedRoutes) {
     GlobalRouteCache.pub(route);

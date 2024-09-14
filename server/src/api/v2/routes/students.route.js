@@ -161,7 +161,9 @@ v2StudentsRouter.put("/:student_id/me", studentIDProtected, GlobalRouteCache.cre
         }
         const resPayload = Object.assign({ message: "success!" }, (() => (req.user ? { user: req.user } : null))());
         res.status(200).json(resPayload);
-        const affectedRoutes = [`/api/${API_VERSION}/courses/:course_id/reviews`];
+        const affectedRoutes = [
+            `/api/v${API_VERSION}/courses/:course_id/reviews`,
+        ];
         for (const route of affectedRoutes) {
             GlobalRouteCache.pub(route);
         }

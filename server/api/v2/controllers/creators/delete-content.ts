@@ -22,8 +22,8 @@ export const deleteContent = async (
   res.status(204).json(resPayload);
 
   const affectedRoutes = [
-    `/api/${API_VERSION}/courses/${courseID}/lessons`,
-    `/api/${API_VERSION}/creators/${creatorID}/courses/${courseID}/lessons/edit`,
+    `/api/v${API_VERSION}/courses/${courseID}/lessons`,
+    `/api/v${API_VERSION}/creators/${creatorID}/courses/${courseID}/lessons/edit`,
   ];
   for (const route of affectedRoutes) {
     GlobalRouteCache.pub(route);

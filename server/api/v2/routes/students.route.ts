@@ -253,7 +253,9 @@ v2StudentsRouter.put(
 
       res.status(200).json(resPayload);
 
-      const affectedRoutes = [`/api/${API_VERSION}/courses/:course_id/reviews`];
+      const affectedRoutes = [
+        `/api/v${API_VERSION}/courses/:course_id/reviews`,
+      ];
       for (const route of affectedRoutes) {
         GlobalRouteCache.pub(route);
       }

@@ -32,7 +32,7 @@ export const updateProfile = async (
   res.status(200).json(resPayload);
 
   const affectedRoutes = [
-    `/api/${API_VERSION}/courses/:course_id/creator/summary`,
+    `/api/v${API_VERSION}/courses/:course_id/creator/summary`,
   ];
   for (const route of affectedRoutes) {
     GlobalRouteCache.pub(route);

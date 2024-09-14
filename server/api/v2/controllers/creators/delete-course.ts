@@ -17,20 +17,20 @@ export const deleteCourse = async (
   res.status(204).json(resPayload);
 
   const affectedRoutes = [
-    `/api/${API_VERSION}/students/:student_id/courses/recommended`,
-    `/api/${API_VERSION}/students/:student_id/courses/unfinished`,
-    `/api/${API_VERSION}/students/:student_id/courses`,
-    `/api/${API_VERSION}/creators/${creatorID}/me`,
-    `/api/${API_VERSION}/creators/${creatorID}/courses/top`,
-    `/api/${API_VERSION}/creators/${creatorID}/courses`,
-    `/api/${API_VERSION}/creators/${creatorID}/courses/${courseID}/edit`,
-    `/api/${API_VERSION}/courses`,
-    `/api/${API_VERSION}/courses/${courseID}/reviews`,
-    `/api/${API_VERSION}/courses/${courseID}/creator/summary`,
-    `/api/${API_VERSION}/courses/${courseID}/creator/summary`,
-    `/api/${API_VERSION}/courses/${courseID}/lessons`,
-    `/api/${API_VERSION}/courses/${courseID}/exams/:exam_id`,
-    `/api/${API_VERSION}/students/:student_id/reports`,
+    `/api/v${API_VERSION}/students/:student_id/courses/recommended`,
+    `/api/v${API_VERSION}/students/:student_id/courses/unfinished`,
+    `/api/v${API_VERSION}/students/:student_id/courses`,
+    `/api/v${API_VERSION}/creators/${creatorID}/me`,
+    `/api/v${API_VERSION}/creators/${creatorID}/courses/top`,
+    `/api/v${API_VERSION}/creators/${creatorID}/courses`,
+    `/api/v${API_VERSION}/creators/${creatorID}/courses/${courseID}/edit`,
+    `/api/v${API_VERSION}/courses`,
+    `/api/v${API_VERSION}/courses/${courseID}/reviews`,
+    `/api/v${API_VERSION}/courses/${courseID}/creator/summary`,
+    `/api/v${API_VERSION}/courses/${courseID}/creator/summary`,
+    `/api/v${API_VERSION}/courses/${courseID}/lessons`,
+    `/api/v${API_VERSION}/courses/${courseID}/exams/:exam_id`,
+    `/api/v${API_VERSION}/students/:student_id/reports`,
   ];
   for (const route of affectedRoutes) {
     GlobalRouteCache.pub(route);

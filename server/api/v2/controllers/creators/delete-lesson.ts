@@ -17,10 +17,10 @@ export const deleteLesson = async (
   res.status(204).json(resPayload);
 
   const affectedRoutes = [
-    `/api/${API_VERSION}/students/:student_id/courses`,
-    `/api/${API_VERSION}/creators/${creatorID}/courses/:course_id`,
-    `/api/${API_VERSION}/creators/${creatorID}/courses`,
-    `/api/${API_VERSION}/courses`,
+    `/api/v${API_VERSION}/students/:student_id/courses`,
+    `/api/v${API_VERSION}/creators/${creatorID}/courses/:course_id`,
+    `/api/v${API_VERSION}/creators/${creatorID}/courses`,
+    `/api/v${API_VERSION}/courses`,
   ];
   for (const route of affectedRoutes) {
     GlobalRouteCache.pub(route);

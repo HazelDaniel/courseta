@@ -29,9 +29,10 @@ export const setCourseReview = async (
   res.status(201).json(resPayload);
 
   const affectedRoutes = [
-    `/api/${API_VERSION}/students/${studentID}/courses/recommended`,
-    `/api/${API_VERSION}/creators/:creator_id/me`,
-    `/api/${API_VERSION}/courses/:course_id/creator/summary`,
+    `/api/v${API_VERSION}/students/${studentID}/courses/recommended`,
+    `/api/v${API_VERSION}/creators/:creator_id/me`,
+    `/api/v${API_VERSION}/courses/:course_id/creator/summary`,
+    `/api/v${API_VERSION}/courses/${courseID}`,
   ];
   for (const route of affectedRoutes) {
     GlobalRouteCache.pub(route);
