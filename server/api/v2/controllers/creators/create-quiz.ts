@@ -39,6 +39,7 @@ export const createQuiz = async (
   const affectedRoutes = [
     `/api/v${API_VERSION}/courses/${courseID}`,
     `/api/v${API_VERSION}/creators/${creatorID}/courses/${courseID}/lessons/edit`,
+    `/api/v${API_VERSION}/creators/${creatorID}/assessments/:assessment_id/edit`,
   ];
   for (const route of affectedRoutes) {
     GlobalRouteCache.pub(route);
