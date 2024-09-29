@@ -10,7 +10,7 @@ export const updateAssessment = async (
   req: Request,
   res: Response<any, Record<string, any>>
 ) => {
-  const { assessment_id: assessmentID } = req.params;
+  const { assessment_id: assessmentID, creator_id: creatorID } = req.params;
   const assessmentUpdatePayload: AssessmentEditPayloadType =
     req.body as AssessmentEditPayloadType;
   const {
@@ -61,6 +61,7 @@ export const updateAssessment = async (
     `/api/v${API_VERSION}/courses/:course_id/lessons/edit`,
     `/api/v${API_VERSION}/courses/:course_id/assessments/${assessmentID}/edit`,
     `/api/v${API_VERSION}/courses/:course_id/assessments/${assessmentID}/questions`,
+    `/api/v${API_VERSION}/creators/${creatorID}/assessments/${assessmentID}/edit`,
   ];
   for (const route of affectedRoutes) {
     GlobalRouteCache.pub(route);

@@ -12,7 +12,7 @@ import { AnswerModel } from "../../../../models/v1/answer.model.js";
 import { API_VERSION } from "../../config.js";
 import GlobalRouteCache from "express-pubsubcache";
 export const updateAssessment = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { assessment_id: assessmentID } = req.params;
+    const { assessment_id: assessmentID, creator_id: creatorID } = req.params;
     const assessmentUpdatePayload = req.body;
     const { answerDataList, questionDataList, trashQuestionIDList, parentEntityID, } = assessmentUpdatePayload;
     for (let i = 0; i < questionDataList.length; i++) {
@@ -40,6 +40,7 @@ export const updateAssessment = (req, res) => __awaiter(void 0, void 0, void 0, 
         `/api/v${API_VERSION}/courses/:course_id/lessons/edit`,
         `/api/v${API_VERSION}/courses/:course_id/assessments/${assessmentID}/edit`,
         `/api/v${API_VERSION}/courses/:course_id/assessments/${assessmentID}/questions`,
+        `/api/v${API_VERSION}/creators/${creatorID}/assessments/${assessmentID}/edit`,
     ];
     for (const route of affectedRoutes) {
         GlobalRouteCache.pub(route);
