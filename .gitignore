@@ -12,3 +12,9 @@ progress
 server-gen
 tmp
 TODO.txt
+db/hosting
+db/hosting/*
+db/private
+hosting
+hosting/*
+scripts
