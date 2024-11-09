@@ -7,7 +7,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { ServerError, log } from "./../../../utils.js";
+import { ServerError } from "./../../../utils.js";
+import { log } from "../utils/utils.js";
 import sqlite from "sqlite3";
 import { fileURLToPath } from "url";
 import { dirname, default as path } from "path";

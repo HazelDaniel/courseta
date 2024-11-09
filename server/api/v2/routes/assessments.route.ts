@@ -2,7 +2,8 @@ import express from "express";
 import passport from "passport";
 import { QuestionModel } from "../../../models/v1/question.model.js";
 import { ServerPayloadType } from "../../../types.js";
-import { ServerError, log } from "../../../utils.js";
+import { ServerError } from "../../../utils.js";
+import { log } from "../utils/utils.js";
 import {
   AssessmentSubmissionPayloadType,
   SessionUserType,

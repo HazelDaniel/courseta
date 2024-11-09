@@ -24,7 +24,8 @@ import GlobalRouteCache from "express-pubsubcache";
 import { createClient } from "redis";
 import { serializeDeserializeUser } from "../middlewares/auth.middleware.js";
 import { CreatorModel } from "../../../models/v1/creator.model.js";
-import { ServerError, checkPasswordAgainstHash, log } from "../../../utils.js";
+import { ServerError, checkPasswordAgainstHash } from "../../../utils.js";
+import { log } from "../utils/utils.js";
 import { StudentModel } from "../../../models/v1/student.model.js";
 import v2Config from "../config.js";
 // TASKS

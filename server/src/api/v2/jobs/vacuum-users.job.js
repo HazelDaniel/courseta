@@ -8,9 +8,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import { pool } from "../../../db.js";
-import { log } from "../../../utils.js";
 import cron from "node-cron";
 import chalk from "chalk";
+import { log } from "../utils/utils.js";
 const vacuumUsers = () => __awaiter(void 0, void 0, void 0, function* () {
     const client = yield pool.connect();
     try {

@@ -9,7 +9,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import { pool } from "../../db.js";
 import chalk from "chalk";
-import { ServerError, hashPassword, log, } from "../../utils.js";
+import { ServerError, hashPassword, } from "../../utils.js";
+import { log } from "../../api/v2/utils/utils.js";
 import { UserModel } from "./user.model.js";
 import { randomUUID } from "crypto";
 import { deserializeImage } from "../../deserializers/db.deserializer.js";

@@ -1,7 +1,7 @@
 import nodemailer, { Transporter } from "nodemailer";
 import mailgun from "nodemailer-mailgun-transport";
 import { SentMessageInfo } from "nodemailer";
-import { log } from "../../../utils.js";
+import { log } from "../utils/utils.js";
 
 interface EmailOptions {
   to: string;

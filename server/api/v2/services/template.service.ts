@@ -1,5 +1,4 @@
-import { log } from "../../../utils.js";
-
+import { log } from "../utils/utils.js";
 interface TemplateOptType {
   type: string;
   data: {
@@ -238,7 +237,6 @@ const verificationLinkTemplate: TemplateFunctionType = (verificationLink) => {
 };
 
 export class Template {
-
   private templateCreationHash: {
     [prop: string]: TemplateFunctionType;
   } = {
@@ -246,7 +244,7 @@ export class Template {
     verificationLinkTemplate,
   };
 
-  constructor(public opts: TemplateOptType) { }
+  constructor(public opts: TemplateOptType) {}
 
   get select(): string {
     if (!(this.opts.type in this.opts.data)) {

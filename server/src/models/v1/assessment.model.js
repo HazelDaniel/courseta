@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import { pool } from "../../db.js";
 import chalk from "chalk";
 import { BaseModel } from "./base-model.js";
-import { log } from "../../utils.js";
+import { log } from "../../api/v2/utils/utils.js";
 export class AssessmentModel extends BaseModel {
     constructor(passScore, description, type, duration, startDate, endDate, parentEntityID) {
         super();

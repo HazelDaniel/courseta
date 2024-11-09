@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 import mailgun from "nodemailer-mailgun-transport";
-import { log } from "../../../utils.js";
+import { log } from "../utils/utils.js";
 const transporter1 = nodemailer.createTransport({
     host: "0.0.0.0",
     port: 1025,

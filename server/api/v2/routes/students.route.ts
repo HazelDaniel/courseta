@@ -3,7 +3,8 @@ import express, { Request } from "express";
 import passport from "passport";
 import { UserAuthPayloadType } from "../../../client.types";
 import { StudentModel } from "../../../models/v1/student.model.js";
-import { ServerError, log } from "../../../utils.js";
+import { ServerError } from "../../../utils.js";
+import { log } from "../../v2/utils/utils.js";
 import jwt from "jsonwebtoken";
 import type {
   CourseViewType,

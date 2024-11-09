@@ -10,8 +10,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import { imagePool } from "../../db.js";
 import { BaseModel } from "./base-model.js";
 import { serializeImage } from "../../serializers/db.serializer.js";
-import { ServerError, parseStringifiedUUID } from "../../utils.js";
+import { ServerError } from "../../utils.js";
 import { deserializeImage } from "../../deserializers/db.deserializer.js";
+import { parseStringifiedUUID } from "../../api/v2/utils/utils.js";
 export class ImageModel extends BaseModel {
     constructor(imageUrl, imageID) {
         super();

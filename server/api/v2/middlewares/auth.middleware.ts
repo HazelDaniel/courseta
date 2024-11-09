@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
-import { ServerError, log } from "../../../utils.js";
+import { ServerError } from "../../../utils.js";
+import { log } from "../utils/utils.js";
 import {
   CreatorAuthResponseType,
   CreatorSessionUserType,

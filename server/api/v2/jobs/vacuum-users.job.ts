@@ -1,8 +1,8 @@
 import { pool } from "../../../db.js";
 import type { QueryConfig } from "pg";
-import { log } from "../../../utils.js";
 import cron from "node-cron";
 import chalk from "chalk";
+import { log } from "../utils/utils.js";
 
 const vacuumUsers = async () => {
   const client = await pool.connect();
